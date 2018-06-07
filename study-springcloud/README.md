@@ -1,7 +1,7 @@
-## SpringCloud
+# SpringCloud
 
 spring cloud 为开发人员提供了快速构建分布式系统的一些工具，包括配置管理、服务发现、断路器、路由、微代理、事件总线、全局锁、决策竞选、分布式会话等等。
 
-## 章节
+## 章节目录
 
 [一、服务的注册与发现](eureka-server/README.md)
