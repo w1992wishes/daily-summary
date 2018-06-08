@@ -6,6 +6,7 @@
 
 * study-springboot
     * swagger2
+    * redis
 * study-springcloud 
     * eureka-client
     * eureka-server
