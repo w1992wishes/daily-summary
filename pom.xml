@@ -18,6 +18,7 @@
     <modules>
         <module>study-springcloud</module>
         <module>study-springboot</module>
+        <module>study-kafka</module>
     </modules>
 
 
