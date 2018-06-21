@@ -14,6 +14,11 @@ public class FaceKafkaProducer implements IntellifKafkaProducer{
 
     @Scheduled(fixedRate = 3000)
     public void send(){
-        kafkaTemplate.send(KafkaConstant.ENGINE_TOPIC, "currentTime", String.valueOf(System.currentTimeMillis()));
+        try {
+            kafkaTemplate.send(KafkaConstant.ENGINE_TOPIC, "currentTime", String.valueOf(System.currentTimeMillis()));
+            System.out.println("推送数据成功！");
+        } catch (Exception e){
+            System.out.println("推送数据失败！");
+        }
     }
 }

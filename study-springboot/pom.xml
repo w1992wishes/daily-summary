@@ -12,8 +12,8 @@
     <artifactId>study-springboot</artifactId>
     <packaging>pom</packaging>
     <modules>
-        <module>swagger2</module>
-        <module>redis</module>
+        <module>springboot-swagger2</module>
+        <module>springboot-redis</module>
     </modules>
 
 </project>
