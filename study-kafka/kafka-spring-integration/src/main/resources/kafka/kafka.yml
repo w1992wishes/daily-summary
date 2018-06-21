@@ -1,0 +1,17 @@
+spring:
+  kafka:
+    bootstrap-servers: 192.168.11.179:9092
+    consumer:
+      group-id: CountryCounter
+      enable-auto-commit: true
+      auto-commit-interval: 100
+      session-timeout: 15000
+      auto-offset-reset: latest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+    producer:
+      retries: 0
+      batch-size: 16384 # 每次批量发送消息的数量
+      buffer-memory: 33554432
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
