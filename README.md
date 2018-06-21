@@ -5,8 +5,9 @@
 ## module
 
 * study-springboot
-    * swagger2 -> swagger2实例
-    * redis -> redis实例
+    * springboot-swagger2 -> swagger2实例
+    * springboot-redis -> redis实例
+    * [springboot-jpa](study-springboot/springboot-jpa/READMD.md) -> jpa操作实例
 * [study-springcloud](study-springcloud/README.md)
     * eureka-client -> 服务提供者
     * eureka-server -> eureka注册中心
