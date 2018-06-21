@@ -5,13 +5,17 @@
 ## module
 
 * study-springboot
-    * swagger2
-    * redis
+    * swagger2 -> swagger2实例
+    * redis -> redis实例
 * [study-springcloud](study-springcloud/README.md)
-    * eureka-client
-    * eureka-server
+    * eureka-client -> 服务提供者
+    * eureka-server -> eureka注册中心
+    * eureka-server-cluster -> 搭建高可用eureka注册中心集群
 * study-utils 
-    * common-utils
-    * httpclient-util
+    * common-utils -> 通用工具类
+    * httpclient-util -> httpClient工具类
 * study-kafka
+    * kafka-consumer -> 消费者简单例子
+    * kafka-producer -> 生产者简单例子
+    * kafka-spring-integration -> kafka同spring整合例子
 
