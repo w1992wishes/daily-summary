@@ -7,7 +7,7 @@
 * study-springboot
     * [springboot-flyway](study-springboot/springboot-flyway/README.md) -> flyway数据库版本管理
     * [springboot-jpa](study-springboot/springboot-jpa/READMD.md) -> jpa操作实例
-    * [springboot-jap-multiple](study-springboot/springboot-jap-multiple/README.md) -> jpa 多数据源
+    * [springboot-jap-multiple](study-springboot/springboot-jpa-multiple/README.md) -> jpa 多数据源
     * springboot-redis -> redis实例
     * springboot-swagger2 -> swagger2实例
 * [study-springcloud](study-springcloud/README.md)
