@@ -5,13 +5,14 @@
 ## module
 
 * study-springboot
-    * springboot-swagger2 -> swagger2实例
-    * springboot-redis -> redis实例
+    * springboot-flyway -> flyway数据库版本管理
     * [springboot-jpa](study-springboot/springboot-jpa/READMD.md) -> jpa操作实例
+    * springboot-redis -> redis实例
+    * springboot-swagger2 -> swagger2实例
 * [study-springcloud](study-springcloud/README.md)
     * eureka-client -> 服务提供者
-    * eureka-server -> eureka注册中心
-    * eureka-server-cluster -> 搭建高可用eureka注册中心集群
+    * [eureka-server](study-springcloud/eureka-server/README.md) -> eureka注册中心
+    * [eureka-server-cluster](study-springcloud/eureka-server-cluster/README.md) -> 搭建高可用eureka注册中心集群
 * study-utils 
     * common-utils -> 通用工具类
     * httpclient-util -> httpClient工具类

@@ -15,6 +15,7 @@
         <module>springboot-swagger2</module>
         <module>springboot-redis</module>
         <module>springboot-jpa</module>
+        <module>springboot-flyway</module>
     </modules>
 
 </project>
