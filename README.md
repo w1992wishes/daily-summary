@@ -5,7 +5,7 @@
 ## module
 
 * study-springboot
-    * springboot-flyway -> flyway数据库版本管理
+    * [springboot-flyway](study-springboot/springboot-flyway/README.md) -> flyway数据库版本管理
     * [springboot-jpa](study-springboot/springboot-jpa/READMD.md) -> jpa操作实例
     * springboot-redis -> redis实例
     * springboot-swagger2 -> swagger2实例
