@@ -10,10 +10,10 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * @Version 1.0
  */
 @SpringBootApplication
-public class SpringbootFlywayApplication {
+public class FlywayApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(SpringbootFlywayApplication.class, args);
+        SpringApplication.run(FlywayApplication.class, args);
     }
 
 }

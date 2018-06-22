@@ -222,7 +222,37 @@ public interface WeiboRepository extends JpaRepository<Weibo, Long> {
 
 Sort提供字段排序的功能，而Pageable则提供分页的功能。
 
+## 测试
 
+```java
+@RunWith(SpringJUnit4ClassRunner.class)
+@TestPropertySource(locations = {"classpath:application.yml"})
+@SpringBootTest
+public abstract class AbstractServiceTest {
+
+    @Autowired
+    protected UserService userService;
+
+    protected User generateUser(String username, String userpwd){
+        User user = new User();
+        user.setUserId(1);
+        user.setUsername(username);
+        user.setUserpwd(userpwd);
+        return user;
+    }
+}
+
+public class UserServiceImplTest extends AbstractServiceTest {
+
+    @Test
+    public void saveUser(){
+        User user = generateUser("alibaba", "alibaba");
+        User newUser = userService.save(user);
+        Assert.assertEquals(user.getUsername(), newUser.getUsername());
+    }
+
+}
+```
 
 
 

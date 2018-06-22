@@ -16,6 +16,7 @@
         <module>springboot-redis</module>
         <module>springboot-jpa</module>
         <module>springboot-flyway</module>
+        <module>springboot-jpa-multiple</module>
     </modules>
 
 </project>
