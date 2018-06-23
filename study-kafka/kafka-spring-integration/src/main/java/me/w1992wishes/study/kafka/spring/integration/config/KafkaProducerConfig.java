@@ -15,7 +15,7 @@ import java.util.Map;
 
 @Configuration
 @EnableKafka
-@PropertySource(value = "classpath:kafka/kafka.yml", ignoreResourceNotFound=true)
+@PropertySource(value = "classpath:kafka/kafka.yml", ignoreResourceNotFound=true, factory = YamlPropertyLoaderFactory.class)
 public class KafkaProducerConfig {
 
     /**

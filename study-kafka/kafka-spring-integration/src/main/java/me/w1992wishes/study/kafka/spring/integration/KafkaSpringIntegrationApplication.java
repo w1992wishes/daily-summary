@@ -17,7 +17,7 @@ public class KafkaSpringIntegrationApplication {
         SpringApplication.run(KafkaSpringIntegrationApplication.class, args);
     }
 
-    // 加载YML格式自定义配置文件
+   /* // 加载YML格式自定义配置文件
     @Bean
     public static PropertySourcesPlaceholderConfigurer properties() {
         PropertySourcesPlaceholderConfigurer configurer = new PropertySourcesPlaceholderConfigurer();
@@ -26,5 +26,5 @@ public class KafkaSpringIntegrationApplication {
         yaml.setResources(new ClassPathResource("kafka/kafka.yml"));//class引入
         configurer.setProperties(yaml.getObject());
         return configurer;
-    }
+    }*/
 }
