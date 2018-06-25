@@ -1,0 +1,13 @@
+spring:
+  application:
+    name: service-provider #指定服务名称（全部小写）
+
+server:
+  port: 8762
+
+eureka:
+  client:
+    healthcheck:
+      enabled: true
+    serviceUrl:
+      defaultZone: http://peer1:1111/eureka/,http://peer2:1112/eureka/

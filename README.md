@@ -11,7 +11,7 @@
     * springboot-redis -> redis实例
     * springboot-swagger2 -> swagger2实例
 * [study-springcloud](study-springcloud/README.md)
-    * eureka-client -> 服务提供者
+    * [service-provider](study-springcloud/service-provider/README.md) -> 服务提供者
     * [eureka-server](study-springcloud/eureka-server/README.md) -> eureka注册中心
     * [eureka-server-cluster](study-springcloud/eureka-server-cluster/README.md) -> 搭建高可用eureka注册中心集群
 * study-utils 

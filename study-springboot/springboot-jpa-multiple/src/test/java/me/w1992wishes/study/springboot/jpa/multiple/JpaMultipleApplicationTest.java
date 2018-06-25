@@ -44,4 +44,11 @@ public class JpaMultipleApplicationTest {
 
         Assert.assertEquals(3, messageRepository.findAll().size());
     }
+
+    @Test
+    public void delete(){
+
+        Assert.assertEquals(1, userRepository.deleteByName("ccc"));
+
+    }
 }
