@@ -11,3 +11,5 @@ eureka:
       enabled: true
     serviceUrl:
       defaultZone: http://peer1:1111/eureka/,http://peer2:1112/eureka/
+  instance:
+    prefer-ip-address: true

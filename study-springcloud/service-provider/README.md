@@ -119,7 +119,7 @@ spring:
 
 ### 第三步： 创建Application
 
-通过注解@EnableEurekaClient 表明自己是一个eurekaclient：
+**通过注解@EnableEurekaClient 表明自己是一个 服务提供者**：
 
 ```
 @EnableEurekaClient
@@ -133,10 +133,12 @@ public class EurekaClientApplication {
 
 	@Value("${server.port}")
 	String port;
-	@RequestMapping("/eureka_client")
+
+	@RequestMapping("/service-provider")
 	public String home(@RequestParam String name) {
 		return "hi "+name+",i am from port:" +port;
 	}
+
 }
 ```
 
@@ -146,6 +148,6 @@ public class EurekaClientApplication {
 
 会发现一个服务已经注册在服务中了，服务名为EUREKA-CLIENT，端口为8762。
 
-这时打开 http://localhost:8762/eureka_client?name=w1992wishes ，你会在浏览器上看到 :
+这时打开 http://localhost:8762/service-provider?name=w1992wishes ，你会在浏览器上看到 :
 
     hi w1992wishes,i am from port:8762
