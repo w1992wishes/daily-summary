@@ -1,9 +1,9 @@
 spring:
   application:
-    name: service-provider #指定服务名称（全部小写）
+    name: service-consumer-feign #指定服务名称（全部小写）
 
 server:
-  port: 8763
+  port: 8765
 
 eureka:
   client:

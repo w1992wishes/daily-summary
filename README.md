@@ -11,9 +11,10 @@
     * springboot-redis -> redis实例
     * springboot-swagger2 -> swagger2实例
 * [study-springcloud](study-springcloud/README.md)
-    * [service-provider](study-springcloud/service-provider/README.md) -> 服务提供者
     * [eureka-server](study-springcloud/eureka-server/README.md) -> eureka注册中心
     * [eureka-server-cluster](study-springcloud/eureka-server-cluster/README.md) -> 搭建高可用eureka注册中心集群
+    * [service-consumer-ribbon](study-springcloud/service-consumer-ribbon/README.md) -> ribbon + restTemplate 服务消费
+    * [service-provider](study-springcloud/service-provider/README.md) -> 服务提供者
 * study-utils 
     * common-utils -> 通用工具类
     * httpclient-util -> httpClient工具类

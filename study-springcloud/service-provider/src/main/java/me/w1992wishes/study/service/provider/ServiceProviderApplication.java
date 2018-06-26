@@ -13,16 +13,16 @@ import org.springframework.web.bind.annotation.RestController;
 @SpringBootApplication
 public class ServiceProviderApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(ServiceProviderApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(ServiceProviderApplication.class, args);
+    }
 
-	@Value("${server.port}")
-	String port;
+    @Value("${server.port}")
+    String port;
 
-	@RequestMapping("/hi")
-	public String home(@RequestParam String name) {
-		return "hi "+name+",i am from port:" +port;
-	}
+    @RequestMapping("/hi")
+    public String home(@RequestParam String name) {
+        return "hi " + name + ",i am from port:" + port;
+    }
 
 }

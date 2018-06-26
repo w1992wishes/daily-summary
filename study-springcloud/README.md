@@ -7,3 +7,4 @@ spring cloud 为开发人员提供了快速构建分布式系统的一些工具�
 * [eureka注册中心](eureka-server/README.md) 
 * [高可用注册中心](eureka-server-cluster/README.md)
 * [服务提供](service-provider/README.md)
+* [服务消费](service-consumer-ribbon/README.md)
