@@ -134,7 +134,7 @@ public class ServiceProviderApplication {
 	@Value("${server.port}")
 	String port;
 
-	@RequestMapping("/service-provider")
+	@RequestMapping("/hi")
 	public String home(@RequestParam String name) {
 		return "hi "+name+",i am from port:" +port;
 	}
@@ -148,6 +148,6 @@ public class ServiceProviderApplication {
 
 会发现一个服务已经注册在服务中了，服务名为EUREKA-CLIENT，端口为8762。
 
-这时打开 http://localhost:8762/service-provider?name=w1992wishes ，你会在浏览器上看到 :
+这时打开 http://localhost:8762/hi?name=w1992wishes ，你会在浏览器上看到 :
 
     hi w1992wishes,i am from port:8762
