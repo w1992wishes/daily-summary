@@ -1,4 +1,4 @@
-package me.w1992wishes.study.eureka.client;
+package me.w1992wishes.study.service.provider;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

@@ -125,10 +125,10 @@ spring:
 @EnableEurekaClient
 @RestController
 @SpringBootApplication
-public class EurekaClientApplication {
+public class ServiceProviderApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(EurekaClientApplication.class, args);
+		SpringApplication.run(ServiceProviderApplication.class, args);
 	}
 
 	@Value("${server.port}")

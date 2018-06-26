@@ -13,6 +13,7 @@
         <module>service-provider</module>
         <module>eureka-server</module>
         <module>eureka-server-cluster</module>
+        <module>service-consumer-ribbon</module>
     </modules>
 
     <artifactId>study-springcloud</artifactId>
