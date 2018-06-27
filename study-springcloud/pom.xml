@@ -10,12 +10,13 @@
     <modelVersion>4.0.0</modelVersion>
     <packaging>pom</packaging>
     <modules>
-        <module>service-provider</module>
         <module>eureka-server</module>
         <module>eureka-server-cluster</module>
+        <module>service-provider</module>
         <module>service-consumer-ribbon</module>
         <module>service-consumer-feign</module>
         <module>service-ribbon-hystrix</module>
+        <module>service-feign-hystrix</module>
     </modules>
 
     <artifactId>study-springcloud</artifactId>

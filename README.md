@@ -13,8 +13,11 @@
 * [study-springcloud](study-springcloud/README.md)
     * [eureka-server](study-springcloud/eureka-server/README.md) -> eureka注册中心
     * [eureka-server-cluster](study-springcloud/eureka-server-cluster/README.md) -> 搭建高可用eureka注册中心集群
-    * [service-consumer-ribbon](study-springcloud/service-consumer-ribbon/README.md) -> ribbon + restTemplate 服务消费
     * [service-provider](study-springcloud/service-provider/README.md) -> 服务提供者
+    * [service-consumer-ribbon](study-springcloud/service-consumer-ribbon/README.md) -> ribbon + restTemplate 服务消费
+    * [service-consumer-feign](study-springcloud/service-consumer-feign/README.md) -> feign 服务消费
+    * [service-ribbon-hystrix](study-springcloud/service-ribbon-hystrix/README.md) -> 在 service-consumer-ribbon 服务中增加服务熔断
+    * [service-feign-hystrix](study-springcloud/service-feign-hystrix/README.md) -> 在 service-consumer-feign 服务中增加服务熔断
 * study-utils 
     * common-utils -> 通用工具类
     * httpclient-util -> httpClient工具类
