@@ -15,6 +15,7 @@
         <module>eureka-server-cluster</module>
         <module>service-consumer-ribbon</module>
         <module>service-consumer-feign</module>
+        <module>service-ribbon-hystrix</module>
     </modules>
 
     <artifactId>study-springcloud</artifactId>
