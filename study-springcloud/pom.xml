@@ -17,6 +17,7 @@
         <module>service-consumer-feign</module>
         <module>service-ribbon-hystrix</module>
         <module>service-feign-hystrix</module>
+        <module>service-zuul</module>
     </modules>
 
     <artifactId>study-springcloud</artifactId>

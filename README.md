@@ -18,6 +18,7 @@
     * [service-consumer-feign](study-springcloud/service-consumer-feign/README.md) -> feign 服务消费
     * [service-ribbon-hystrix](study-springcloud/service-ribbon-hystrix/README.md) -> 在 service-consumer-ribbon 服务中增加服务熔断
     * [service-feign-hystrix](study-springcloud/service-feign-hystrix/README.md) -> 在 service-consumer-feign 服务中增加服务熔断
+    * [路由网关(zuul)](study-springcloud/service-zuul/README.md) -> 路由网关
 * study-utils 
     * common-utils -> 通用工具类
     * httpclient-util -> httpClient工具类

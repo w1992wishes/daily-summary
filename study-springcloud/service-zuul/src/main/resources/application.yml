@@ -1,0 +1,22 @@
+spring:
+  application:
+    name: service-zuul #指定服务名称（全部小写）
+
+server:
+  port: 8768
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://peer1:1111/eureka/,http://peer2:1112/eureka/
+  instance:
+    prefer-ip-address: true
+
+zuul:
+  routes:
+    api-a:
+      path: /api-a/**
+      serviceId: service-ribbon-hystrix
+    api-b:
+      path: /api-b/**
+      serviceId: service-feign-hystrix
