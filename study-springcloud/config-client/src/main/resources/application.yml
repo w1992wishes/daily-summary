@@ -1,0 +1,7 @@
+server:
+  port: 8770
+
+spring:
+  application:
+    name: config-client
+

@@ -20,6 +20,7 @@
     * [服务熔断 feign](study-springcloud/service-feign-hystrix/README.md) 
     * [路由网关(zuul)](study-springcloud/service-zuul/README.md) 
     * [配置中心服务](study-springcloud/config-server/README.md)
+    * [从配置中心获取配置](study-springcloud/config-client/README.md)
 * [日常工具整理](study-utils)
     * [通用工具类](study-utils/common-utils)
     * [httpClient工具类](study-utils/httpclient-util)
