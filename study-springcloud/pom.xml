@@ -18,6 +18,8 @@
         <module>service-ribbon-hystrix</module>
         <module>service-feign-hystrix</module>
         <module>service-zuul</module>
+        <module>service-config</module>
+        <module>service-config-repository</module>
     </modules>
 
     <artifactId>study-springcloud</artifactId>
