@@ -2,28 +2,29 @@
 
 学习新技术过程的demo，也有常用工具总结...
 
-## module
+## 目录
 
-* study-springboot
-    * [springboot-flyway](study-springboot/springboot-flyway/README.md) -> flyway数据库版本管理
-    * [springboot-jpa](study-springboot/springboot-jpa/READMD.md) -> jpa操作实例
-    * [springboot-jap-multiple](study-springboot/springboot-jpa-multiple/README.md) -> jpa 多数据源
-    * springboot-redis -> redis实例
-    * springboot-swagger2 -> swagger2实例
-* [study-springcloud](study-springcloud/README.md)
-    * [eureka-server](study-springcloud/eureka-server/README.md) -> eureka注册中心
-    * [eureka-server-cluster](study-springcloud/eureka-server-cluster/README.md) -> 搭建高可用eureka注册中心集群
-    * [service-provider](study-springcloud/service-provider/README.md) -> 服务提供者
-    * [service-consumer-ribbon](study-springcloud/service-consumer-ribbon/README.md) -> ribbon + restTemplate 服务消费
-    * [service-consumer-feign](study-springcloud/service-consumer-feign/README.md) -> feign 服务消费
-    * [service-ribbon-hystrix](study-springcloud/service-ribbon-hystrix/README.md) -> 在 service-consumer-ribbon 服务中增加服务熔断
-    * [service-feign-hystrix](study-springcloud/service-feign-hystrix/README.md) -> 在 service-consumer-feign 服务中增加服务熔断
-    * [路由网关(zuul)](study-springcloud/service-zuul/README.md) -> 路由网关
-* study-utils 
-    * common-utils -> 通用工具类
-    * httpclient-util -> httpClient工具类
-* study-kafka
-    * kafka-consumer -> 消费者简单例子
-    * kafka-producer -> 生产者简单例子
-    * kafka-spring-integration -> kafka同spring整合例子
+* [springboot 学习例子](study-springboot)
+    * [flyway数据库版本管理](study-springboot/springboot-flyway/README.md)
+    * [jpa操作实例](study-springboot/springboot-jpa/READMD.md)
+    * [jpa 多数据源](study-springboot/springboot-jpa-multiple/README.md) 
+    * [redis实例](study-springboot/springboot-redis)
+    * [swagger2实例](study-springboot/springboot-swagger2)
+* [springcloud 学习例子](study-springcloud/README.md)
+    * [eureka注册中心](study-springcloud/eureka-server/README.md)
+    * [高可用eureka注册中心集群](study-springcloud/eureka-server-cluster/README.md)
+    * [服务提供](study-springcloud/service-provider/README.md) 
+    * [ribbon + restTemplate 服务消费](study-springcloud/service-consumer-ribbon/README.md)
+    * [feign 服务消费](study-springcloud/service-consumer-feign/README.md)
+    * [服务熔断 ribbon](study-springcloud/service-ribbon-hystrix/README.md) 
+    * [服务熔断 feign](study-springcloud/service-feign-hystrix/README.md) 
+    * [路由网关(zuul)](study-springcloud/service-zuul/README.md) 
+    * [配置中心服务](study-springcloud/config-server/README.md)
+* [日常工具整理](study-utils)
+    * [通用工具类](study-utils/common-utils)
+    * [httpClient工具类](study-utils/httpclient-util)
+* [kafka](study-kafka)
+    * [消费者简单例子](study-kafka/kafka-consumer)
+    * [生产者简单例子](study-kafka/kafka-producer)
+    * [kafka同spring整合例子](study-kafka/kafka-spring-integration)
 

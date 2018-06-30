@@ -12,3 +12,4 @@ spring cloud 为开发人员提供了快速构建分布式系统的一些工具�
 * [服务熔断 ribbon](service-ribbon-hystrix/README.md)
 * [服务熔断 feign](service-feign-hystrix/README.md)
 * [路由网关(zuul)](service-zuul/README.md)
+* [配置中心服务](config-server/README.md)

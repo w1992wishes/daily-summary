@@ -64,3 +64,56 @@ spring:
 
 ### 第四步：搭建服务
 
+在程序的入口Application类加上@EnableConfigServer注解开启配置服务器的功能：
+
+```java
+@EnableConfigServer
+@SpringBootApplication
+public class ServiceConfigApplication {
+
+    public static void main(String[] args) {
+        SpringApplication.run(ServiceConfigApplication.class, args);
+    }
+}
+```
+
+启动服务，访问：
+
+    http://localhost:8769/neo-config/test
+    
+浏览器中有如下json：
+
+```json
+{
+    "name":"neo-config",
+    "profiles":[
+        "test"
+    ],
+    "label":null,
+    "version":"fe3907acdabac97bfcbf716d5eab62fa4566f709",
+    "state":null,
+    "propertySources":[
+        {
+            "name":"https://github.com/w1992wishes/study-records//config-repository/neo-config-test.properties",
+            "source":{
+                "neo.hello":"hello im test"
+            }
+        }
+    ]
+}
+```
+
+访问：
+    
+    http://localhost:8769/neo-config/test
+
+则显示，"hello im dev"，如果修改配置，也能获取最新的内容。
+
+仓库中的配置文件会被转换成web接口，访问可以参照以下的规则：
+
+/{application}/{profile}[/{label}]
+/{application}-{profile}.yml
+/{label}/{application}-{profile}.yml
+/{application}-{profile}.properties
+/{label}/{application}-{profile}.properties
+以neo-config-dev.properties为例子，它的application是neo-config，profile是dev。client会根据填写的参数来选择读取对应的配置。
