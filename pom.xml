@@ -26,6 +26,7 @@
         <module>study-springcloud</module>
         <module>study-springboot</module>
         <module>study-kafka</module>
+        <module>config-repository</module>
     </modules>
 
     <repositories>
