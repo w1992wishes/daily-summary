@@ -4,6 +4,15 @@
 
 ## 目录
 
+* [注册中心仓库](config-repository) 
+* [数据挖掘相关](study-data-mining/README.md)
+    * [聚类算法](study-data-mining/cluster-algorithm/README.md)
+* [kafka 学习例子](study-kafka)
+    * [消费者简单例子](study-kafka/kafka-consumer)
+    * [生产者简单例子](study-kafka/kafka-producer)
+    * [kafka同spring整合例子](study-kafka/kafka-spring-integration)
+* [Spark 学习例子](study-spark/README.md)
+    * [spark 入门两个例子](study-spark/spark-demo)
 * [springboot 学习例子](study-springboot)
     * [flyway数据库版本管理](study-springboot/springboot-flyway/README.md)
     * [jpa操作实例](study-springboot/springboot-jpa/READMD.md)
@@ -24,8 +33,4 @@
 * [日常工具整理](study-utils)
     * [通用工具类](study-utils/common-utils)
     * [httpClient工具类](study-utils/httpclient-util)
-* [kafka](study-kafka)
-    * [消费者简单例子](study-kafka/kafka-consumer)
-    * [生产者简单例子](study-kafka/kafka-producer)
-    * [kafka同spring整合例子](study-kafka/kafka-spring-integration)
 

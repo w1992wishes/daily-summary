@@ -23,10 +23,12 @@
     <packaging>pom</packaging>
     <version>1.0-SNAPSHOT</version>
     <modules>
+        <module>config-repository</module>
         <module>study-springcloud</module>
         <module>study-springboot</module>
         <module>study-kafka</module>
-        <module>config-repository</module>
+        <module>study-data-mining</module>
+        <module>study-spark</module>
     </modules>
 
     <repositories>
