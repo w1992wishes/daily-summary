@@ -13,6 +13,7 @@
     <packaging>pom</packaging>
     <modules>
         <module>spark-demo</module>
+        <module>spark-etl</module>
     </modules>
 
     <dependencies>
