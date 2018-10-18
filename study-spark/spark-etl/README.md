@@ -2,6 +2,8 @@
 
 * GpExample : SparkSQL 连接 Greenplum
 * FeatureLoader : Spark 从 Greenplum 并行加载数据
+* job1 : spark 根据时间并行加载数据
+* job2 : spark 根据时间并行加载数据进行清洗过滤后再并行保存数据
 
 ## 打包
 
