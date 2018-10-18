@@ -3,7 +3,11 @@
 * GpExample : SparkSQL 连接 Greenplum
 * FeatureLoader : Spark 从 Greenplum 并行加载数据
 
-## 运行示例
+## 打包
+
+maven 运行 mvn clean package 即可
+
+## 提交spark 集群
 
 bin/spark-submit \
 --master spark://192.168.11.72:7077 \

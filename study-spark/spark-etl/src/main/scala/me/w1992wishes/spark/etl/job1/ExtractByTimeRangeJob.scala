@@ -1,0 +1,180 @@
+package me.w1992wishes.spark.etl.job1
+
+import java.io.BufferedInputStream
+import java.time.{Duration, LocalDateTime, ZoneId}
+import java.util.Properties
+
+import com.typesafe.scalalogging.Logger
+import me.w1992wishes.spark.etl.util.DateUtils
+import org.apache.spark.sql.SparkSession
+
+import scala.collection.mutable.ArrayBuffer
+
+/**
+  * 按照时间段提取抓拍库时序数据，默认为提取每日增量抓拍数据
+  *
+  * @author w1992wishes 2018/9/27 15:45
+  */
+object ExtractByTimeRangeJob {
+
+  private[this] val LOG = Logger(this.getClass)
+
+  // 文件要放到resources文件夹下
+  // properties.getProperty("ddd")//读取键为ddd的数据的值
+  // properties.getProperty("ddd","没有值")//如果ddd不存在,则返回第二个参数
+  // properties.setProperty("ddd","123")//添加或修改属性值
+  private[this] val properties = new Properties()
+  private[this] val path = getClass.getResourceAsStream("/config.properties")
+  properties.load(new BufferedInputStream(path))
+  // spark 配置属性
+  private[this] val sparkMaster = properties.getProperty("spark.master")
+  private[this] val sparkAppName = properties.getProperty("spark.appName")
+  private[this] val sparkPartitions = Integer.parseInt(properties.getProperty("spark.partitions", "112"))
+  // greenplum 配置属性
+  private[this] val dbUrl = properties.getProperty("db.url")
+  private[this] val dbDriver = properties.getProperty("db.driver")
+  private[this] val dbUser = properties.getProperty("db.user")
+  private[this] val dbPasswd = properties.getProperty("db.passwd")
+  private[this] val dbSourceTable = properties.getProperty("db.source.table")
+  private[this] val dbSinkTable = properties.getProperty("db.sink.table")
+  private[this] val dbFetchsize = properties.getProperty("db.fetchsize")
+  private[this] val dbBatchsize = properties.getProperty("db.batchsize")
+
+  /**
+    * 拆分时间段，用于 spark 并行查询
+    *
+    * @param start
+    * @param end
+    * @return
+    */
+  private[this] def predicates(start: LocalDateTime, end: LocalDateTime) = {
+
+    // 查询的开始时间和结束时间的间隔分钟数
+    val durationMinutes = Duration.between(start, end).toMinutes
+    val timePart = ArrayBuffer[(String, String)]()
+    if (sparkPartitions.longValue() < durationMinutes) {
+      val step = durationMinutes / (sparkPartitions - 1)
+      for (x <- 1 until sparkPartitions) {
+        timePart += DateUtils.dateTimeToStr(start.plusMinutes((x - 1) * step)) -> DateUtils.dateTimeToStr(start.plusMinutes(x * step))
+      }
+      timePart += DateUtils.dateTimeToStr(start.plusMinutes((sparkPartitions - 1) * step)) -> DateUtils.dateTimeToStr(end)
+    } else {
+      for (x <- 1 to durationMinutes.intValue()) {
+        timePart += DateUtils.dateTimeToStr(start.plusMinutes((x - 1))) -> DateUtils.dateTimeToStr(start.plusMinutes(x))
+      }
+    }
+
+    timePart.map {
+      case (start, end) =>
+        s"time >= '$start' " + s"AND time < '$end'"
+    }.toArray
+  }
+
+  /**
+    * db 属性设置
+    *
+    * @return
+    */
+  def dbProperties() = {
+    // 设置连接用户&密码
+    val prop = new java.util.Properties
+    prop.setProperty("user", dbUser)
+    prop.setProperty("password", dbPasswd)
+    prop.setProperty("driver", dbDriver)
+    prop.setProperty("fetchsize", dbFetchsize)
+    prop
+  }
+
+  /**
+    * 并行加载数据的起始时间
+    *
+    * @param spark
+    * @return
+    */
+  def calculateStartTime(spark: SparkSession) = {
+    val prop = dbProperties()
+
+    // 获取已经处理的最大抓拍时间
+    var dataDF = spark.read
+      .jdbc(dbUrl, dbSinkTable, prop)
+    dataDF.createOrReplaceTempView("t_timing_x")
+    var startDF = spark.sql("select max(time) from t_timing_x")
+
+    // 为空则说明系统还没有加载数据
+    if (startDF.rdd.first().get(0) == null) {
+      dataDF = spark.read
+        .jdbc(dbUrl, dbSourceTable, prop)
+      dataDF.createOrReplaceTempView("timing_x")
+      startDF = spark.sql("select min(time) from timing_x")
+    }
+
+    startDF
+      .rdd
+      .map(row => {
+        LocalDateTime.ofInstant(row.getTimestamp(0).toInstant, ZoneId.systemDefault()).withSecond(0).withNano(0)
+      })
+      .first()
+  }
+
+  /**
+    * 并行加载数据的结束时间
+    *
+    * @param spark
+    * @return
+    */
+  def calculateEndTime(spark: SparkSession) = {
+    val prop = dbProperties()
+
+    val dataDF = spark
+      .read
+      .jdbc(dbUrl, dbSourceTable, prop)
+    dataDF.createOrReplaceTempView("timing_x")
+
+    spark.sql("select max(time) from timing_x")
+      .rdd
+      .map(row => {
+        LocalDateTime.ofInstant(row.getTimestamp(0).toInstant, ZoneId.systemDefault()).withSecond(0).withNano(0)
+      })
+      .first()
+  }
+
+  def main(args: Array[String]): Unit = {
+
+    // spark
+    val spark = SparkSession
+      .builder()
+      //.master(sparkMaster)
+      .appName(sparkAppName)
+      .getOrCreate()
+
+    // db 配置
+    val prop = dbProperties()
+    // 并行加载数据的 起始时间
+    val start = calculateStartTime(spark)
+    // 并行加载数据的 结束时间
+    val end = calculateEndTime(spark)
+
+    val beginTime = System.currentTimeMillis()
+    // 根据时间从 timingX 数据源加载数据
+    val timingXDF = spark.read
+      .jdbc(dbUrl, dbSourceTable, predicates(start, end), prop)
+    LOG.info("======> timingXDF.rdd.partitions.size = {} \n", timingXDF.rdd.partitions.size)
+
+    // 将加载的数据保存到 t_timing_x 中
+    timingXDF.write
+      .mode("append")
+      .format("jdbc")
+      .options(
+        Map("driver" -> dbDriver,
+          "url" -> dbUrl,
+          "dbtable" -> dbSinkTable,
+          "user" -> dbUser,
+          "password" -> dbPasswd,
+          "batchsize" -> dbBatchsize)
+      )
+      .save()
+    LOG.info("======> ExtractByTimeRangeJob speed time {}s", (System.currentTimeMillis() - beginTime) / 1000)
+    spark.stop()
+  }
+
+}
