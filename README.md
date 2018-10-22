@@ -13,7 +13,7 @@
     * [kafka同spring整合例子](study-kafka/kafka-spring-integration)
 * [Spark 学习例子](study-spark/README.md)
     * [spark 入门两个例子](study-spark/spark-demo)
-    * [spark sql 并行 etl 例子](study-spark/spark-etl/README.md)
+    * [spark sql 并行数据转换实例](study-spark/spark-etl/README.md)
 * [springboot 学习例子](study-springboot)
     * [flyway数据库版本管理](study-springboot/springboot-flyway/README.md)
     * [jpa操作实例](study-springboot/springboot-jpa/READMD.md)
