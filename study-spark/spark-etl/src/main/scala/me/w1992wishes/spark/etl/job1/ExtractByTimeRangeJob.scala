@@ -1,11 +1,12 @@
 package me.w1992wishes.spark.etl.job1
 
 import java.io.BufferedInputStream
+import java.sql.{Connection, PreparedStatement, ResultSet, Timestamp}
 import java.time.{Duration, LocalDateTime, ZoneId}
 import java.util.Properties
 
 import com.typesafe.scalalogging.Logger
-import me.w1992wishes.spark.etl.util.DateUtils
+import me.w1992wishes.spark.etl.util.{ConnectionUtils, DateUtils}
 import org.apache.spark.sql.SparkSession
 
 import scala.collection.mutable.ArrayBuffer
@@ -75,7 +76,7 @@ object ExtractByTimeRangeJob {
     *
     * @return
     */
-  def dbProperties() = {
+  private def dbProperties() = {
     // 设置连接用户&密码
     val prop = new java.util.Properties
     prop.setProperty("user", dbUser)
@@ -88,93 +89,114 @@ object ExtractByTimeRangeJob {
   /**
     * 并行加载数据的起始时间
     *
-    * @param spark
     * @return
     */
-  def calculateStartTime(spark: SparkSession) = {
-    val prop = dbProperties()
-
-    // 获取已经处理的最大抓拍时间
-    var dataDF = spark.read
-      .jdbc(dbUrl, dbSinkTable, prop)
-    dataDF.createOrReplaceTempView("t_timing_x")
-    var startDF = spark.sql("select max(time) from t_timing_x")
-
-    // 为空则说明系统还没有加载数据
-    if (startDF.rdd.first().get(0) == null) {
-      dataDF = spark.read
-        .jdbc(dbUrl, dbSourceTable, prop)
-      dataDF.createOrReplaceTempView("timing_x")
-      startDF = spark.sql("select min(time) from timing_x")
+  private def calculateStartTime(): LocalDateTime = {
+    var conn: Connection = null
+    var pstmt: PreparedStatement = null
+    var rs: ResultSet = null
+    try {
+      conn = ConnectionUtils.getConnection(dbUrl, dbUser, dbPasswd)
+      var sql = "select max(time) from " + dbSinkTable
+      var startDateTime: LocalDateTime =
+        LocalDateTime.ofInstant(new Timestamp(System.currentTimeMillis()).toInstant, ZoneId.systemDefault())
+          .withSecond(0)
+          .withNano(0)
+      pstmt = conn.prepareStatement(sql)
+      rs = pstmt.executeQuery()
+      if (rs.next() && rs.getTimestamp(1) != null) {
+        // max(time) 去除秒后再加一分钟
+        startDateTime =
+          LocalDateTime.ofInstant(rs.getTimestamp(1).toInstant, ZoneId.systemDefault())
+            .withSecond(0)
+            .withNano(0)
+            .plusMinutes(1)
+      } else {
+        sql = "select min(time) from " + dbSourceTable
+        pstmt = conn.prepareStatement(sql)
+        rs = pstmt.executeQuery()
+        if (rs.next() && rs.getTimestamp(1) != null) {
+          startDateTime =
+            LocalDateTime.ofInstant(rs.getTimestamp(1).toInstant, ZoneId.systemDefault())
+              .withSecond(0)
+              .withNano(0)
+        }
+      }
+      startDateTime
+    } finally {
+      ConnectionUtils.closeResource(conn, pstmt, rs)
     }
-
-    startDF
-      .rdd
-      .map(row => {
-        LocalDateTime.ofInstant(row.getTimestamp(0).toInstant, ZoneId.systemDefault()).withSecond(0).withNano(0)
-      })
-      .first()
   }
 
   /**
     * 并行加载数据的结束时间
     *
-    * @param spark
     * @return
     */
-  def calculateEndTime(spark: SparkSession) = {
-    val prop = dbProperties()
-
-    val dataDF = spark
-      .read
-      .jdbc(dbUrl, dbSourceTable, prop)
-    dataDF.createOrReplaceTempView("timing_x")
-
-    spark.sql("select max(time) from timing_x")
-      .rdd
-      .map(row => {
-        LocalDateTime.ofInstant(row.getTimestamp(0).toInstant, ZoneId.systemDefault()).withSecond(0).withNano(0)
-      })
-      .first()
+  private def calculateEndTime() = {
+    var conn: Connection = null
+    var pstmt: PreparedStatement = null
+    var rs: ResultSet = null
+    try {
+      conn = ConnectionUtils.getConnection(dbUrl, dbUser, dbPasswd)
+      var sql = "select max(time) from " + dbSourceTable
+      var end: Timestamp = new Timestamp(System.currentTimeMillis())
+      pstmt = conn.prepareStatement(sql)
+      rs = pstmt.executeQuery()
+      if (rs.next() && rs.getTimestamp(1) != null) {
+        end = rs.getTimestamp(1)
+      }
+      LocalDateTime.ofInstant(end.toInstant, ZoneId.systemDefault())
+        .withSecond(0)
+        .withNano(0)
+    } finally {
+      ConnectionUtils.closeResource(conn, pstmt, rs)
+    }
   }
 
   def main(args: Array[String]): Unit = {
 
-    // spark
-    val spark = SparkSession
-      .builder()
-      //.master(sparkMaster)
-      .appName(sparkAppName)
-      .getOrCreate()
-
     // db 配置
     val prop = dbProperties()
     // 并行加载数据的 起始时间
-    val start = calculateStartTime(spark)
+    val start = calculateStartTime()
     // 并行加载数据的 结束时间
-    val end = calculateEndTime(spark)
+    val end = calculateEndTime()
+    // 并行时间数组
+    val timeArray = predicates(start, end)
 
     val beginTime = System.currentTimeMillis()
     // 根据时间从 timingX 数据源加载数据
-    val timingXDF = spark.read
-      .jdbc(dbUrl, dbSourceTable, predicates(start, end), prop)
-    LOG.info("======> timingXDF.rdd.partitions.size = {} \n", timingXDF.rdd.partitions.size)
+    if (timeArray.length > 0) {
+      // spark
+      val spark = SparkSession
+        .builder()
+        //.master(sparkMaster)
+        .appName(sparkAppName)
+        .getOrCreate()
 
-    // 将加载的数据保存到 t_timing_x 中
-    timingXDF.write
-      .mode("append")
-      .format("jdbc")
-      .options(
-        Map("driver" -> dbDriver,
-          "url" -> dbUrl,
-          "dbtable" -> dbSinkTable,
-          "user" -> dbUser,
-          "password" -> dbPasswd,
-          "batchsize" -> dbBatchsize)
-      )
-      .save()
+      val timingXDF = spark.read
+        .jdbc(dbUrl, dbSourceTable, timeArray, prop)
+      LOG.info("======> timingXDF.rdd.partitions.size = {}", timingXDF.rdd.partitions.length)
+
+      // 将加载的数据保存到 t_timing_x 中
+      timingXDF.write
+        .mode("append")
+        .format("jdbc")
+        .options(
+          Map("driver" -> dbDriver,
+            "url" -> dbUrl,
+            "dbtable" -> dbSinkTable,
+            "user" -> dbUser,
+            "password" -> dbPasswd,
+            "batchsize" -> dbBatchsize)
+        )
+        .save()
+
+      spark.stop()
+    }
     LOG.info("======> ExtractByTimeRangeJob speed time {}s", (System.currentTimeMillis() - beginTime) / 1000)
-    spark.stop()
+
   }
 
 }
