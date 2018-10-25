@@ -31,9 +31,10 @@ object ConnectionUtils {
     * @param conn
     * @param st
     */
-  def closeResource(conn: Connection, st: Statement): Unit = {
+  def closeResource(conn: Connection, st: Statement, rs: ResultSet): Unit = {
     closeStatement(st)
     closeConnection(conn)
+    closeResultSet(rs)
   }
 
   /**
@@ -59,6 +60,19 @@ object ConnectionUtils {
       st.close()
     catch {
       case e: SQLException => LOG.error("======> close db statement failure ", e)
+    }
+  }
+
+  /**
+    * 释放 ResultSet
+    *
+    * @param rs
+    */
+  def closeResultSet(rs: ResultSet): Unit = {
+    if (rs != null) try
+      rs.close()
+    catch {
+      case e: SQLException => LOG.error("======> close db ResultSet failure ", e)
     }
   }
 }

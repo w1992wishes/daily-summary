@@ -200,7 +200,7 @@ object PreprocessJob {
         }
       }
     } finally {
-      ConnectionUtils.closeResource(conn, pstmt)
+      ConnectionUtils.closeResource(conn, pstmt, null)
     }
   }
 
