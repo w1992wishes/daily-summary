@@ -21,9 +21,6 @@ object ExtractByTimeRangeJob {
   private[this] val LOG = Logger(this.getClass)
 
   // 文件要放到resources文件夹下
-  // properties.getProperty("ddd")//读取键为ddd的数据的值
-  // properties.getProperty("ddd","没有值")//如果ddd不存在,则返回第二个参数
-  // properties.setProperty("ddd","123")//添加或修改属性值
   private[this] val properties = new Properties()
   private[this] val path = getClass.getResourceAsStream("/config.properties")
   properties.load(new BufferedInputStream(path))
@@ -48,7 +45,7 @@ object ExtractByTimeRangeJob {
     * @param end
     * @return
     */
-  private[this] def predicates(start: LocalDateTime, end: LocalDateTime) = {
+  private[this] def predicates(start: LocalDateTime, end: LocalDateTime): Array[String] = {
 
     // 查询的开始时间和结束时间的间隔分钟数
     val durationMinutes = Duration.between(start, end).toMinutes
@@ -76,7 +73,7 @@ object ExtractByTimeRangeJob {
     *
     * @return
     */
-  private def dbProperties() = {
+  private def dbProperties(): Properties = {
     // 设置连接用户&密码
     val prop = new java.util.Properties
     prop.setProperty("user", dbUser)

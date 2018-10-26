@@ -1,7 +1,7 @@
 package me.w1992wishes.spark.etl.job2
 
 import java.io.BufferedInputStream
-import java.sql.{Connection, PreparedStatement, Timestamp}
+import java.sql.{Connection, PreparedStatement, ResultSet, Timestamp}
 import java.time.{Duration, LocalDateTime, ZoneId}
 import java.util.Properties
 
@@ -45,7 +45,7 @@ object PreprocessJob {
     * @param end
     * @return
     */
-  private[this] def predicates(start: LocalDateTime, end: LocalDateTime) = {
+  private[this] def predicates(start: LocalDateTime, end: LocalDateTime): Array[String] = {
 
     // 查询的开始时间和结束时间的间隔分钟数
     val durationMinutes = Duration.between(start, end).toMinutes
@@ -73,9 +73,9 @@ object PreprocessJob {
     *
     * @return
     */
-  def dbProperties() = {
+  private def dbProperties(): Properties = {
     // 设置连接用户&密码
-    val prop = new java.util.Properties
+    val prop = new Properties
     prop.setProperty("user", dbUser)
     prop.setProperty("password", dbPasswd)
     prop.setProperty("driver", dbDriver)
@@ -86,54 +86,69 @@ object PreprocessJob {
   /**
     * 并行加载数据的起始时间
     *
-    * @param spark
     * @return
     */
-  def calculateStartTime(spark: SparkSession) = {
-    val prop = dbProperties()
-
-    // 获取已经处理的最大抓拍时间
-    var dataFrame = spark.read
-      .jdbc(dbUrl, dbSinkTable, prop)
-    dataFrame.createOrReplaceTempView("t_timing_x_preprocess")
-    var startDF = spark.sql("select max(time) from t_timing_x_preprocess")
-
-    // 为空则说明系统还没有加载数据
-    if (startDF.rdd.first().get(0) == null) {
-      dataFrame = spark.read
-        .jdbc(dbUrl, dbSourceTable, prop)
-      dataFrame.createOrReplaceTempView("t_timing_x")
-      startDF = spark.sql("select min(time) from t_timing_x")
+  private def calculateStartTime(): LocalDateTime = {
+    var conn: Connection = null
+    var pstmt: PreparedStatement = null
+    var rs: ResultSet = null
+    try {
+      conn = ConnectionUtils.getConnection(dbUrl, dbUser, dbPasswd)
+      var sql = "select max(time) from " + dbSinkTable
+      var startDateTime: LocalDateTime =
+        LocalDateTime.ofInstant(new Timestamp(System.currentTimeMillis()).toInstant, ZoneId.systemDefault())
+          .withSecond(0)
+          .withNano(0)
+      pstmt = conn.prepareStatement(sql)
+      rs = pstmt.executeQuery()
+      if (rs.next() && rs.getTimestamp(1) != null) {
+        // max(time) 去除秒后再加一分钟
+        startDateTime =
+          LocalDateTime.ofInstant(rs.getTimestamp(1).toInstant, ZoneId.systemDefault())
+            .withSecond(0)
+            .withNano(0)
+            .plusMinutes(1)
+      } else {
+        sql = "select min(time) from " + dbSourceTable
+        pstmt = conn.prepareStatement(sql)
+        rs = pstmt.executeQuery()
+        if (rs.next() && rs.getTimestamp(1) != null) {
+          startDateTime =
+            LocalDateTime.ofInstant(rs.getTimestamp(1).toInstant, ZoneId.systemDefault())
+              .withSecond(0)
+              .withNano(0)
+        }
+      }
+      startDateTime
+    } finally {
+      ConnectionUtils.closeResource(conn, pstmt, rs)
     }
-
-    startDF
-      .rdd
-      .map(row => {
-        LocalDateTime.ofInstant(row.getTimestamp(0).toInstant, ZoneId.systemDefault()).withSecond(0).withNano(0)
-      })
-      .first()
   }
 
   /**
     * 并行加载数据的结束时间
     *
-    * @param spark
     * @return
     */
-  def calculateEndTime(spark: SparkSession) = {
-    val prop = dbProperties()
-
-    val dataFrame = spark
-      .read
-      .jdbc(dbUrl, dbSourceTable, prop)
-    dataFrame.createOrReplaceTempView("t_timing_x")
-
-    spark.sql("select max(time) from t_timing_x")
-      .rdd
-      .map(row => {
-        LocalDateTime.ofInstant(row.getTimestamp(0).toInstant, ZoneId.systemDefault()).withSecond(0).withNano(0)
-      })
-      .first()
+  private def calculateEndTime(): LocalDateTime = {
+    var conn: Connection = null
+    var pstmt: PreparedStatement = null
+    var rs: ResultSet = null
+    try {
+      conn = ConnectionUtils.getConnection(dbUrl, dbUser, dbPasswd)
+      var sql = "select max(time) from " + dbSourceTable
+      var end: Timestamp = new Timestamp(System.currentTimeMillis())
+      pstmt = conn.prepareStatement(sql)
+      rs = pstmt.executeQuery()
+      if (rs.next() && rs.getTimestamp(1) != null) {
+        end = rs.getTimestamp(1)
+      }
+      LocalDateTime.ofInstant(end.toInstant, ZoneId.systemDefault())
+        .withSecond(0)
+        .withNano(0)
+    } finally {
+      ConnectionUtils.closeResource(conn, pstmt, rs)
+    }
   }
 
   /**
@@ -141,12 +156,13 @@ object PreprocessJob {
     *
     * @param iterator
     */
-  def insertDataFunc(iterator: Iterator[Row]) = {
+  private def insertDataFunc(iterator: Iterator[Row]) = {
     var conn: Connection = null
     var pstmt: PreparedStatement = null
-    val sql = "insert into " + dbSinkTable + "(fid, cid, gid, person_id, created, updated, face_id, face_url," +
-      "feature, from_image_id, gender, accessories, age, quality, race, source_id, locus, source_type, time, version," +
-      "pose, filtertag) values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+    val sql = "insert into " + dbSinkTable + "(face_id, image_data, face_feature, from_image_id, gender, " +
+      "accessories, age, json, quality, race, source_id, source_type, locus, time, version, pose, " +
+      "filter_tag, create_time, update_time, delete_flag) " +
+      "values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
     var i = 0
     try {
       conn = ConnectionUtils.getConnection(dbUrl, dbUser, dbPasswd)
@@ -159,32 +175,32 @@ object PreprocessJob {
           pstmt.executeBatch();
           pstmt.clearBatch();
         }
-        pstmt.setLong(1, row.getAs[Long]("fid"))
-        pstmt.setLong(2, row.getAs[Long]("cid"))
-        pstmt.setLong(3, row.getAs[Long]("gid"))
-        pstmt.setLong(4, row.getAs[Long]("person_id"))
-        pstmt.setTimestamp(5, row.getAs[Timestamp]("created"))
-        pstmt.setTimestamp(6, row.getAs[Timestamp]("updated"))
-        pstmt.setString(7, row.getAs[String]("face_id"))
-        pstmt.setString(8, row.getAs[String]("face_url"))
-        pstmt.setBytes(9, row.getAs[Array[Byte]]("feature"))
-        pstmt.setString(10, row.getAs[String]("from_image_id"))
-        pstmt.setShort(11, row.getAs[Int]("gender").toShort)
-        pstmt.setShort(12, row.getAs[Int]("accessories").toShort)
-        pstmt.setShort(13, row.getAs[Int]("age").toShort)
-        pstmt.setInt(14, row.getAs[Int]("quality"))
-        pstmt.setShort(15, row.getAs[Int]("race").toShort)
-        pstmt.setLong(16, row.getAs[Long]("source_id"))
-        pstmt.setString(17, row.getAs[String]("locus"))
-        pstmt.setInt(18, row.getAs[Int]("source_type"))
-        pstmt.setTimestamp(19, row.getAs[Timestamp]("time"))
-        pstmt.setInt(20, row.getAs[Int]("version"))
-        pstmt.setString(21, row.getAs[String]("pose"))
-        pstmt.setShort(22, try {
-          PreprocessUtils.getFilterFlag(JSON.parseArray(row.getAs[String]("pose"), classOf[XPose]).get(0), row getAs[Int] "quality")
+        pstmt.setLong(1, row.getAs[Long]("face_id"))
+        pstmt.setString(2, row.getAs[String]("image_data"))
+        pstmt.setBytes(3, row.getAs[Array[Byte]]("face_feature"))
+        pstmt.setLong(4, row.getAs[Long]("from_image_id"))
+        pstmt.setInt(5, row.getAs[Int]("gender"))
+        pstmt.setInt(6, row.getAs[Int]("accessories"))
+        pstmt.setInt(7, row.getAs[Int]("age"))
+        pstmt.setString(8, row.getAs[String]("json"))
+        pstmt.setInt(9, row.getAs[Int]("quality"))
+        pstmt.setInt(10, row.getAs[Int]("race"))
+        pstmt.setLong(11, row.getAs[Long]("source_id"))
+        pstmt.setInt(12, row.getAs[Int]("source_type"))
+        pstmt.setString(13, row.getAs[String]("locus"))
+        pstmt.setTimestamp(14, row.getAs[Timestamp]("time"))
+        pstmt.setInt(15, row.getAs[Int]("version"))
+        pstmt.setString(16, row.getAs[String]("pose"))
+        pstmt.setInt(17, try {
+          PreprocessUtils.getFilterFlag(
+            JSON.parseArray(row.getAs[String]("pose"), classOf[XPose]).get(0),
+            row getAs[Int] "quality")
         } catch {
           case _ => 0
         })
+        pstmt.setTimestamp(18, row.getAs[Timestamp]("create_time"))
+        pstmt.setTimestamp(19, row.getAs[Timestamp]("update_time"))
+        pstmt.setInt(20, row.getAs[Int]("delete_flag"))
         pstmt.addBatch();
       }
       }
@@ -205,30 +221,35 @@ object PreprocessJob {
   }
 
   def main(args: Array[String]): Unit = {
-    // spark
-    val spark = SparkSession
-      .builder()
-      //.master(sparkMaster)
-      .appName(sparkAppName)
-      .getOrCreate()
 
     // db 配置
     val prop = dbProperties()
     // 并行加载数据的 起始时间
-    val start = calculateStartTime(spark)
+    val start = calculateStartTime()
     // 并行加载数据的 结束时间
-    val end = calculateEndTime(spark)
+    val end = calculateEndTime()
+    // 并行时间数组
+    val timeArray = predicates(start, end)
 
     val beginTime = System.currentTimeMillis()
-    // 根据时间从 t_timing_x 加载数据
-    val jdbcDF = spark.read
-      .jdbc(dbUrl, dbSourceTable, predicates(start, end), prop)
-    LOG.info("======> jdbcDF.rdd.partitions.size = {} \n", jdbcDF.rdd.partitions.length)
+    if (timeArray.length > 0) {
+      // spark
+      val spark = SparkSession
+        .builder()
+        //.master(sparkMaster)
+        .appName(sparkAppName)
+        .getOrCreate()
 
-    // 将加载的数据保存到 预处理后的数据表 中
-    jdbcDF.foreachPartition(partitionIter => insertDataFunc(partitionIter))
+      // 根据时间从 t_timing_x 加载数据
+      val jdbcDF = spark.read
+        .jdbc(dbUrl, dbSourceTable, timeArray, prop)
+      LOG.info("======> jdbcDF.rdd.partitions.size = {}", jdbcDF.rdd.partitions.length)
 
+      // 将加载的数据保存到 预处理后的数据表 中
+      jdbcDF.foreachPartition(partitionIter => insertDataFunc(partitionIter))
+
+      spark.stop()
+    }
     LOG.info("======> PreprocessJob speed time {}s", (System.currentTimeMillis() - beginTime) / 1000)
-    spark.stop()
   }
 }
