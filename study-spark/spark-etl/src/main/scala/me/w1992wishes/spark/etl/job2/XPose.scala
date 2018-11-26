@@ -9,37 +9,37 @@ import com.alibaba.fastjson.annotation.JSONField
   */
 class XPose {
   /**
-    * PitchAngle，上下偏离角度
+    * Pitch，上下俯仰角度
     */
-  private var PitchAngle = .0f
+  private var Pitch = .0f
 
   /**
-    * 不详
+    * 人脸平面旋转
     */
-  private var RollAngle = .0f
+  private var Roll = .0f
 
   /**
-    * YawAngle，左右偏离角度
+    * Yaw，左右偏离角度
     */
-  private var YawAngle = .0f
+  private var Yaw = .0f
 
-  @JSONField(name = "PitchAngle") def getPitchAngle: Float = PitchAngle
+  @JSONField(name = "Pitch") def getPitch: Float = Pitch
 
-  def setPitchAngle(pitchAngle: Float): Unit = {
-    PitchAngle = pitchAngle
+  def setPitch(pitchAngle: Float): Unit = {
+    Pitch = pitchAngle
   }
 
-  @JSONField(name = "RollAngle") def getRollAngle: Float = RollAngle
+  @JSONField(name = "Roll") def getRoll: Float = Roll
 
-  def setRollAngle(rollAngle: Float): Unit = {
-    RollAngle = rollAngle
+  def setRoll(rollAngle: Float): Unit = {
+    Roll = rollAngle
   }
 
-  @JSONField(name = "YawAngle") def getYawAngle: Float = YawAngle
+  @JSONField(name = "Yaw") def getYaw: Float = Yaw
 
-  def setYawAngle(yawAngle: Float): Unit = {
-    YawAngle = yawAngle
+  def setYaw(yawAngle: Float): Unit = {
+    Yaw = yawAngle
   }
 
-  override def toString: String = "FacePose(PitchAngle:" + PitchAngle + ", RollAngle:" + RollAngle + ", YawAngle:" + YawAngle + ")"
+  override def toString: String = "FacePose(Pitch:" + Pitch + ", Roll:" + Roll + ", Yaw:" + Yaw + ")"
 }

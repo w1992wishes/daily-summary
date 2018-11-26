@@ -2,6 +2,7 @@ package me.w1992wishes.spark.etl.util
 
 import me.w1992wishes.spark.etl.job2.XPose
 
+
 /**
   * pose utils
   *
@@ -34,9 +35,9 @@ object XPoseUtils {
     * @return
     */
   def isFineAngle(facePose: XPose, pitchAngle: Float, rollAngle: Float, yawAngle: Float): Boolean =
-    Math.abs(facePose.getPitchAngle) < pitchAngle &&
-      Math.abs(facePose.getRollAngle) < rollAngle &&
-      Math.abs(facePose.getYawAngle) < yawAngle &&
+    Math.abs(facePose.getPitch) < pitchAngle &&
+      Math.abs(facePose.getRoll) < rollAngle &&
+      Math.abs(facePose.getYaw) < yawAngle &&
       !isAllZeroAngle(facePose)
 
   /**
@@ -67,8 +68,13 @@ object XPoseUtils {
     * @return
     */
   def isAllZeroAngle(facePose: XPose): Boolean =
-    (facePose.getYawAngle.toInt == 0) &&
-      (facePose.getPitchAngle.toInt == 0) &&
-      (facePose.getRollAngle.toInt == 0)
+    (facePose.getYaw.toInt == 0) &&
+      (facePose.getPitch.toInt == 0) &&
+      (facePose.getRoll.toInt == 0)
 
+  def calculatePoseWeight(facePose: XPose): Float = {
+    (Math.abs(facePose.getPitch) / DEFAULT_PITCH_ANGLE
+      + Math.abs(facePose.getRoll) / DEFAULT_ROLL_ANGLE
+      + Math.abs(facePose.getYaw) / DEFAULT_YAW_ANGLE) / 3
+  }
 }
