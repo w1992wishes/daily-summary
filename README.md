@@ -14,6 +14,7 @@
 * [Spark 学习例子](study-spark/README.md)
     * [spark 入门实例](study-spark/spark-demo)
     * [spark sql 并行数据转换实例](study-spark/spark-etl/README.md)
+    * [参考 spark kmeans 实现的分区聚类](study-spark/spark-partitioning/README.md)
 * [springboot 学习例子](study-springboot)
     * [flyway数据库版本管理](study-springboot/springboot-flyway/README.md)
     * [jpa操作实例](study-springboot/springboot-jpa/READMD.md)
