@@ -1,7 +1,5 @@
 package me.w1992wishes.spark.etl.job2
 
-import me.w1992wishes.spark.etl.util.{BooleanParam, IntParam}
-
 import scala.annotation.tailrec
 
 /**
@@ -11,38 +9,32 @@ import scala.annotation.tailrec
   */
 private[core] class AppArgs (args: Array[String]) extends Serializable {
 
-  // 是否过滤夜间照片
-  var filterNightEnable: Boolean = false
+  // 设置并行的分区度
+  var partitions: Int = 54
 
-  var startTime: AppTime = _
+  // 预处理的起始时间
+  var preprocessStartTime: String = _
 
-  var endTime: AppTime = _
+  // 预处理的结束时间
+  var preprocessEndTime: String = _
 
+  // 用于过滤夜间抓拍照片的 case 类
   case class AppTime(hour: Int, min: Int, sec: Int)
 
   parse(args.toList)
 
-  private def parseTime(timeStr: String) = {
-    val timeArray = timeStr.split(":").toList
-    timeArray match {
-      case IntParam(value1) :: IntParam(value2) :: IntParam(value3) :: a =>
-        AppTime(value1, value2, value3)
-    }
-  }
-
   @tailrec
   private def parse(args: List[String]): Unit = args match {
-
-    case ("--filter-night-enable") :: BooleanParam(value) :: tail =>
-      filterNightEnable = value
+    case ("--preprocessStartTime") :: value :: tail =>
+      preprocessStartTime = value
       parse(tail)
 
-    case ("--start-time") :: value :: tail =>
-      startTime = parseTime(value)
+    case ("--preprocessEndTime") :: value :: tail =>
+      preprocessEndTime = value
       parse(tail)
 
-    case ("--end-time") :: value :: tail =>
-      endTime = parseTime(value)
+    case ("--partitions") :: value :: tail =>
+      partitions = value.toInt
       parse(tail)
 
     case Nil => // No-op
@@ -60,9 +52,9 @@ private[core] class AppArgs (args: Array[String]) extends Serializable {
       "Usage: [options]\n" +
         "\n" +
         "Options:\n" +
-        "  --filter-night-enable true|false   when true open the filter, otherwise, close \n" +
-        "  --start-time HH:mm:SS   filter start time\n" +
-        "  --end-time HH:mm:SS   filter end time\n"
+        "  --partitions num    the spark partitions\n" +
+        "  --preprocessStartTime yyyy-MM-dd    the preprocess start time\n" +
+        "  --preprocessEndTime yyyy-MM-dd    the preprocess end time"
     )
     // scalastyle:on println
     System.exit(exitCode)
