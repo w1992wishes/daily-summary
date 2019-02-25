@@ -1,14 +1,13 @@
 package me.w1992wishes.spark.etl.job2
 
-import java.io.FileInputStream
 import java.sql.{Connection, PreparedStatement, ResultSet, Timestamp}
-import java.time.{Duration, LocalDateTime, ZoneId}
-import java.util.Properties
+import java.time.LocalDateTime
 
 import com.alibaba.fastjson.JSON
 import com.typesafe.scalalogging.Logger
-import me.w1992wishes.spark.etl.util.{ConnectionUtils, DateUtils, PreprocessUtils}
+import me.w1992wishes.spark.etl.util._
 import org.apache.commons.lang3.StringUtils
+import org.apache.spark.TaskContext
 import org.apache.spark.sql.{Row, SparkSession}
 
 import scala.collection.mutable.ArrayBuffer
@@ -20,264 +19,393 @@ import scala.collection.mutable.ArrayBuffer
   */
 object PreprocessJob {
 
-  private[this] val LOG = Logger(this.getClass)
+  private val LOG = Logger(this.getClass)
 
-  val filePath = "config.properties"
-  val properties = new Properties()
-  properties.load(new FileInputStream(filePath))
-
-  // spark 配置属性
-  private[this] val sparkAppName = properties.getProperty("spark.appName")
-  private[this] val sparkPartitions = Integer.parseInt(properties.getProperty("spark.partitions", "112"))
-
-  // greenplum 配置属性
-  private[this] val dbUrl = properties.getProperty("db.url")
-  private[this] val dbDriver = properties.getProperty("db.driver")
-  private[this] val dbUser = properties.getProperty("db.user")
-  private[this] val dbPasswd = properties.getProperty("db.passwd")
-  private[this] val dbSourceTable = properties.getProperty("db.source.table")
-  private[this] val dbSinkTable = properties.getProperty("db.sink.table")
-  private[this] val dbSourceFetchsize = properties.getProperty("db.source.fetchsize")
-  private[this] val dbSinkBatchsize = properties.getProperty("db.sink.batchsize")
-
-  // 程序配置
-  private[this] val appMinPart = properties.getProperty("app.min.part").toInt
-  // 质量属性好坏阈值
-  private[this] val appStandardQuality = properties.getProperty("app.standard.quality").toFloat
-
-  /**
-    * 加载数据的起始时间
-    *
-    * @return
-    */
-  private def calculateStartTime(): LocalDateTime = {
-    var conn: Connection = null
-    var pstmt: PreparedStatement = null
-    var rs: ResultSet = null
-    try {
-      // 先从时间记录表查询
-      conn = ConnectionUtils.getConnection(dbUrl, dbUser, dbPasswd)
-      var sql = s"select max(time) from $dbSinkTable"
-      var start: Timestamp = new Timestamp(System.currentTimeMillis())
-      pstmt = conn.prepareStatement(sql)
-      rs = pstmt.executeQuery()
-      if (rs.next() && rs.getTimestamp(1) != null) {
-        start = rs.getTimestamp(1)
-        LocalDateTime.ofInstant(start.toInstant, ZoneId.systemDefault())
-      } else {
-        sql = s"select min(time) from $dbSourceTable"
-        pstmt = conn.prepareStatement(sql)
-        rs = pstmt.executeQuery()
-        if (rs.next() && rs.getTimestamp(1) != null) {
-          start = rs.getTimestamp(1)
-        }
-        // 第一次查询，减去一秒，这样就不会遗留该图片
-        LocalDateTime.ofInstant(start.toInstant, ZoneId.systemDefault()).minusSeconds(1)
-      }
-    } finally {
-      ConnectionUtils.closeResource(conn, pstmt, rs)
-    }
-  }
-
-  /**
-    * 并行加载数据的结束时间
-    *
-    * @return
-    */
-  private def calculateEndTime(): LocalDateTime = {
-    var conn: Connection = null
-    var pstmt: PreparedStatement = null
-    var rs: ResultSet = null
-    try {
-      conn = ConnectionUtils.getConnection(dbUrl, dbUser, dbPasswd)
-      var endTime: Timestamp = new Timestamp(System.currentTimeMillis())
-      val sql = s"select max(time) from $dbSourceTable"
-      pstmt = conn.prepareStatement(sql)
-      rs = pstmt.executeQuery()
-      if (rs.next() && rs.getTimestamp(1) != null) {
-        endTime = rs.getTimestamp(1)
-      }
-      LocalDateTime.ofInstant(endTime.toInstant, ZoneId.systemDefault())
-    } finally {
-      ConnectionUtils.closeResource(conn, pstmt, rs)
-    }
-  }
-
-  /**
-    * 拆分时间段，用于 spark 并行查询
-    *
-    * @param start
-    * @param end
-    * @return
-    */
-  private[this] def predicates(start: LocalDateTime, end: LocalDateTime): Array[String] = {
-
-    val timePart = ArrayBuffer[(String, String)]()
-    // 查询的开始时间和结束时间的间隔秒数
-    val durationSeconds: Long = Duration.between(start, end).toMillis / 1000
-    // 如果分区数小于 指定的分钟（默认10分钟）划分，就按照指定的分钟划分设置分区，防止间隔内数据量很小却开很多的 task 去加载数据
-    val minParts: Long = durationSeconds / (appMinPart * 60)
-    if (sparkPartitions.longValue() < minParts) {
-      val step = durationSeconds / (sparkPartitions - 1)
-      for (x <- 1 until sparkPartitions) {
-        timePart += DateUtils.dateTimeToStr(start.plusSeconds((x - 1) * step)) -> DateUtils.dateTimeToStr(start.plusSeconds(x * step))
-      }
-      timePart += DateUtils.dateTimeToStr(start.plusSeconds((sparkPartitions - 1) * step)) -> DateUtils.dateTimeToStr(end)
-    } else if (durationSeconds.!=(0L)) {
-      for (x <- 1 until minParts.toInt) {
-        timePart += DateUtils.dateTimeToStr(start.plusMinutes((x - 1))) -> DateUtils.dateTimeToStr(start.plusMinutes(x))
-      }
-      timePart += DateUtils.dateTimeToStr(start.plusMinutes(minParts - 1)) -> DateUtils.dateTimeToStr(end)
-    }
-
-    timePart.map {
-      case (start, end) =>
-        s"time > '$start' AND time <= '$end'"
-    }.toArray
-  }
-
-  /**
-    * 分区执行批量插入
-    *
-    * @param iterator
-    */
-  private def insertDataFunc(iterator: Iterator[Row]) = {
-    var conn: Connection = null
-    var pstmt: PreparedStatement = null
-    val sql = s"insert into $dbSinkTable(face_id, image_data, face_feature, from_image_id, " +
-      s"gender, accessories, age, json, quality, race, source_id, source_type, locus, time, version, " +
-      s"pose, feature_quality, create_time, update_time, delete_flag) " +
-      s"values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
-    var i = 0
-    try {
-      conn = ConnectionUtils.getConnection(dbUrl, dbUser, dbPasswd)
-      conn.setAutoCommit(false);
-      pstmt = conn.prepareStatement(sql)
-      iterator.foreach(row => {
-        i += 1
-        if (i > dbSinkBatchsize.toInt) {
-          i = 0
-          pstmt.executeBatch()
-          pstmt.clearBatch()
-        }
-        pstmt.setLong(1, row.getAs[Long]("face_id"))
-        pstmt.setString(2, row.getAs[String]("image_data"))
-        pstmt.setBytes(3, row.getAs[Array[Byte]]("face_feature"))
-        pstmt.setLong(4, row.getAs[Long]("from_image_id"))
-        pstmt.setInt(5, row.getAs[Int]("gender"))
-        pstmt.setInt(6, row.getAs[Int]("accessories"))
-        pstmt.setInt(7, row.getAs[Int]("age"))
-        pstmt.setString(8, row.getAs[String]("json"))
-        val quality: Float = {
-          row.getAs[Double]("quality").toFloat
-        }
-        pstmt.setFloat(9, quality)
-        pstmt.setInt(10, row.getAs[Int]("race"))
-        pstmt.setLong(11, row.getAs[Long]("source_id"))
-        pstmt.setInt(12, row.getAs[Int]("source_type"))
-        pstmt.setString(13, row.getAs[String]("locus"))
-        pstmt.setTimestamp(14, row.getAs[Timestamp]("time"))
-        pstmt.setInt(15, row.getAs[Int]("version"))
-        val pose = row.getAs[String]("pose")
-        pstmt.setString(16, pose)
-        var featureQuality = 0.0f
-        var xPose: XPose = null
-        if (!StringUtils.isEmpty(pose)) {
-          try {
-            xPose = JSON.parseObject(pose, classOf[XPose])
-            featureQuality = PreprocessUtils.getFilterFlag(xPose, quality, appStandardQuality)
-          } catch {
-            case _ => {
-              featureQuality = -1
-              LOG.error("======> json parse to XPose failure, json is {}", pose)
-            }
-          }
-        } else {
-          featureQuality = PreprocessUtils.getFilterFlag(quality, appStandardQuality)
-        }
-        pstmt.setFloat(17, featureQuality)
-        pstmt.setTimestamp(18, row.getAs[Timestamp]("create_time"))
-        pstmt.setTimestamp(19, row.getAs[Timestamp]("update_time"))
-        pstmt.setInt(20, row.getAs[Int]("delete_flag"))
-        pstmt.addBatch()
-      })
-      pstmt.executeBatch()
-      conn.commit()
-    } catch {
-      case e: Exception => {
-        LOG.error("======> insert data failure", e)
-        try {
-          conn.rollback()
-        } catch {
-          case e: Exception => LOG.error("======> rollback failure", e)
-        }
-      }
-    } finally {
-      ConnectionUtils.closeResource(conn, pstmt, null)
-    }
-  }
+  private val configArgs = new ConfigArgs
 
   def main(args: Array[String]): Unit = {
 
     // parse args
     val appArgs: AppArgs = new AppArgs(args)
 
-    // 并行加载数据的 起始时间
-    val start = calculateStartTime()
-    // 并行加载数据的 结束时间
-    val end = calculateEndTime()
-    // 并行时间数组
-    val timeArray = predicates(start, end)
-
     val beginTime = System.currentTimeMillis()
-    if (timeArray.length > 0) {
+    // 计算开始结束 time
+    val timeSequence: (String, String) = {
+      // 当前日期的前一天的 0时0分0秒
+      val startTime = LocalDateTime.now().minusDays(1).withHour(0).withMinute(0).withSecond(0)
+      val startTimeStr = if (StringUtils.isEmpty(appArgs.preprocessStartTime)) DateUtils.dateTimeToStr(startTime) else appArgs.preprocessStartTime
+      // 当前日期的 0时0分0秒
+      val endTime = LocalDateTime.now().withHour(0).withMinute(0).withSecond(0)
+      val endTimeStr = if (StringUtils.isEmpty(appArgs.preprocessEndTime)) DateUtils.dateTimeToStr(endTime) else appArgs.preprocessEndTime
+      (startTimeStr, endTimeStr)
+    }
+    // 计算开始结束 sequence
+    val sequence = calculateSequenceRange(timeSequence._1, timeSequence._2)
+
+    if (sequence._2 > sequence._1) {
+      // 先清除数据，防止重复插入
+      clearDatas(sequence)
+
       // spark
       val spark = SparkSession
         .builder()
         //.master("local")
-        .appName(sparkAppName)
+        .appName(configArgs.sparkAppName)
         .getOrCreate()
 
-      // db 配置
-      val prop = {
-        // 设置连接用户&密码
-        val prop = new Properties
-        prop.setProperty("user", dbUser)
-        prop.setProperty("password", dbPasswd)
-        prop.setProperty("driver", dbDriver)
-        prop.setProperty("fetchsize", dbSourceFetchsize)
-        prop
-      }
-      LOG.info("======> sourceDF.rdd.partitions.size = {}", timeArray.length)
-      // 根据时间从 t_timing_x 加载数据
-      var sourceDF = spark.read
-        .jdbc(dbUrl, dbSourceTable, timeArray, prop)
+      // 为了不丢失数据，向上取整，将数据分成 numPartitions 份
+      val stride = (sequence._2 - sequence._1) / appArgs.partitions + 1
+      println("======> total partitions: " + appArgs.partitions + ", stride is: " + stride)
 
-      // 将加载的数据保存到 预处理后的数据表 中
-      if (appArgs.filterNightEnable) {
-        val startTime = appArgs.startTime
-        val endTime = appArgs.endTime
-        val fun: Row => Boolean = {
-          row => {
-            val time = row.getAs[Timestamp]("time").toLocalDateTime
-            val boo = (time.getHour >= startTime.hour && time.getMinute >= startTime.min && time.getSecond >= startTime.sec) ||
-              (time.getHour <= endTime.hour && time.getMinute <= endTime.min && time.getSecond <= endTime.sec)
-            !boo
-          }
-        }
-        sourceDF.rdd
-          .filter(fun)
-          .foreachPartition(partitionIter => insertDataFunc(partitionIter))
-      } else {
-        sourceDF
-          .foreachPartition(partitionIter => insertDataFunc(partitionIter))
-      }
+      Range(0, appArgs.partitions)
+        .map(index => {
+          spark
+            .read
+            .format("jdbc")
+            .option("driver", configArgs.gpDriver)
+            .option("url", configArgs.gpUrl)
+            .option("dbtable", s"(SELECT * FROM ${configArgs.sourceTable} WHERE id >= ${stride * index + sequence._1} AND id < ${Math.min(stride * (index + 1) + sequence._1, sequence._2)}) AS t_tmp_$index")
+            .option("user", configArgs.gpUser)
+            .option("password", configArgs.gpPasswd)
+            .option("fetchsize", configArgs.gpFetchsize)
+            .load()
+        })
+        .reduce((rdd1, rdd2) => rdd1.union(rdd2))
+        .foreachPartition(partitionIter => partitionFunc(partitionIter))
 
       LOG.info("======> PreprocessJob speed time {}s", (System.currentTimeMillis() - beginTime) / 1000)
 
       spark.stop()
     } else {
-      LOG.info("======>PreprocessJob time array is empty")
+      LOG.info("======> the sequence range is (0, 0), not need to continue.")
+    }
+  }
+
+  /**
+    * 计算加载数据的自增 id 区间，默认加载前一天的最小 id 到最大 id
+    *
+    * @return
+    */
+  private def calculateSequenceRange(startTimeStr: String, endTimeStr: String): (Long, Long) = {
+    var conn: Connection = null
+    var pstmt: PreparedStatement = null
+    var rs: ResultSet = null
+    try {
+      conn = ConnectionUtils.getConnection(configArgs.gpUrl, configArgs.gpUser, configArgs.gpPasswd)
+
+      val sql = s"select min(id) startSequence, max(id) endSequence from ${configArgs.sourceTable} where create_time >= '$startTimeStr' and create_time < '$endTimeStr'"
+
+      println("======> query sequence range sql -- " + sql)
+
+      pstmt = conn.prepareStatement(sql)
+      rs = pstmt.executeQuery()
+
+      var startSequence: Long = 0L
+      var endSequence: Long = 0L
+      if (rs.next()) {
+        startSequence = rs.getLong("startSequence")
+        endSequence = rs.getLong("endSequence")
+      }
+      println("======> start  sequence : " + startSequence + ", end sequence : " + endSequence)
+      (startSequence, endSequence)
+    } finally {
+      ConnectionUtils.closeResource(conn, pstmt, rs)
+    }
+  }
+
+  /**
+    * 预处理后的实体
+    *
+    * @param id             唯一标识 id
+    * @param faceId         小图唯一标识
+    * @param imageData      小图 url
+    * @param faceFeature    特征值
+    * @param fromImageId    大图唯一标识
+    * @param gender         性别
+    * @param accessories    穿戴
+    * @param age            年龄
+    * @param isRealAge      是否是真实年龄
+    * @param json           josn
+    * @param quality        质量
+    * @param race           族别
+    * @param sourceId       采集源id
+    * @param sourceType     采集源类型
+    * @param locus          地点
+    * @param time           抓拍时间
+    * @param version        特征值版本
+    * @param pose           角度
+    * @param featureQuality 特征值质量
+    * @param tableSequence  源主键 id
+    */
+  case class PreprocessData(id: Long, faceId: Long, imageData: String, faceFeature: Array[Byte], fromImageId: Long, gender: Int,
+                            accessories: Int, isRealAge: Boolean, age: Int, json: String, quality: Float, race: Int, sourceId: Long, sourceType: Int,
+                            locus: String, time: Timestamp, version: Int, pose: String, featureQuality: Float, tableSequence: Long)
+
+  /**
+    * 分区执行批量插入
+    *
+    * @param iterator 分区迭代器
+    */
+  private def partitionFunc(iterator: Iterator[Row]): Unit = {
+
+    val tuple = structurePreprocessList(iterator)
+    LOG.info(s"======> partition ${TaskContext.getPartitionId()} has " +
+      s"${tuple._1.length} cluster data, " +
+      s"${tuple._2.length} class data, " +
+      s"${tuple._3.length} unless data, " +
+      s"${tuple._4.length} child data")
+
+    var conn: Connection = null
+    try {
+      conn = ConnectionUtils.getConnection(configArgs.gpUrl, configArgs.gpUser, configArgs.gpPasswd)
+      conn.setAutoCommit(false)
+      batchInsertFunc(tuple._1, conn, configArgs.clusterTable)
+      batchInsertFunc(tuple._2, conn, configArgs.classTable)
+      batchInsertFunc(tuple._3, conn, configArgs.unlessTable)
+      batchInsertFunc(tuple._4, conn, configArgs.childTable)
+      conn.commit()
+    } catch {
+      case e: Exception =>
+        LOG.error("======> insert data failure", e)
+        if (conn != null) {
+          try {
+            conn.rollback()
+          } catch {
+            case e: Exception => LOG.error("======> rollback failure", e)
+          }
+        }
+        throw e
+    } finally {
+      ConnectionUtils.closeConnection(conn)
+    }
+  }
+
+  /**
+    * 构建归档数据集合，建档数据集合
+    *
+    * @param iterator 迭代器
+    * @return
+    */
+  private def structurePreprocessList(iterator: Iterator[Row]): (ArrayBuffer[PreprocessData], ArrayBuffer[PreprocessData], ArrayBuffer[PreprocessData], ArrayBuffer[PreprocessData]) = {
+    // 用于生产唯一 id
+    val idWorker = new SnowflakeIdWorker(TaskContext.getPartitionId / SnowflakeIdWorker.MAX_FLAG,
+      TaskContext.getPartitionId % SnowflakeIdWorker.MAX_FLAG)
+    // 可建档
+    val clusterPreprocessDatas = new ArrayBuffer[PreprocessData]()
+    // 可归档不可建档
+    val classPreprocessDatas = new ArrayBuffer[PreprocessData]()
+    // 不可归档不可建档
+    val unlessPreprocessDatas = new ArrayBuffer[PreprocessData]()
+    // 小孩
+    val childPreprocessDatas = new ArrayBuffer[PreprocessData]()
+    while (iterator.hasNext) {
+      val row = iterator.next()
+      val id = idWorker.nextId()
+      val faceId = row.getAs[Long]("face_id")
+      val imageData = row.getAs[String]("image_data")
+      val faceFeature = row.getAs[Array[Byte]]("face_feature")
+      val fromImageId = row.getAs[Long]("from_image_id")
+      val gender = row.getAs[Int]("gender")
+      val accessories = row.getAs[Int]("accessories")
+      val (isRealAge, age) = AgeUtils.parseRealAge(row.getAs[Int]("age"))
+      val json = row.getAs[String]("json")
+      val quality: Float = row.getAs[Double]("quality").toFloat
+      val race = row.getAs[Int]("race")
+      val sourceId = row.getAs[Long]("source_id")
+      val sourceType = row.getAs[Int]("source_type")
+      val locus = row.getAs[String]("locus")
+      val time = row.getAs[Timestamp]("time")
+      val version = row.getAs[Int]("version")
+      val pose = row.getAs[String]("pose")
+      val featureQuality = getFeatureQuality(faceFeature, pose, quality, time)
+      val tableSequence = row.getAs[Long]("id")
+      // 构建 PreprocessData 实体
+      val preprocessData = PreprocessData(id, faceId, imageData, faceFeature, fromImageId, gender, accessories, isRealAge, age, json,
+        quality, race, sourceId, sourceType, locus, time, version, pose, featureQuality, tableSequence)
+
+      // 年龄过滤
+      val ageFilter = (preprocessData.isRealAge && preprocessData.age > configArgs.realAgeThreshold) ||
+        (!preprocessData.isRealAge && preprocessData.age > configArgs.ageStageThreshold)
+      // 建档特征值质量过滤
+      val clusterFeatureFilter = preprocessData.featureQuality.compareTo(Predef.float2Float(0.0f)) > 0
+      // 归档特征值质量过滤
+      val classFeatureFilter = preprocessData.featureQuality.compareTo(Predef.float2Float(-1.0f)) >= 0
+      // featureQuality 大于 0 表示可建档
+      if (ageFilter) {
+        if (clusterFeatureFilter) {
+          clusterPreprocessDatas.append(preprocessData)
+        } else if (classFeatureFilter) {
+          classPreprocessDatas.append(preprocessData)
+        } else {
+          unlessPreprocessDatas.append(preprocessData)
+        }
+      } else {
+        childPreprocessDatas.append(preprocessData)
+      }
+    }
+    (clusterPreprocessDatas, classPreprocessDatas, unlessPreprocessDatas, childPreprocessDatas)
+  }
+
+  def batchInsertFunc(preprocessDatas: ArrayBuffer[PreprocessData], conn: Connection, table: String): Unit = {
+    if (preprocessDatas.isEmpty) {
+      return
+    }
+    var pstmt: PreparedStatement = null
+    try {
+      val sql = s"insert into $table(id, face_id, image_data, face_feature, from_image_id, " +
+        s"gender, accessories, age, json, quality, race, source_id, source_type, locus, time, version, " +
+        s"pose, feature_quality, table_sequence) " +
+        s"values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+      var sum = 0
+      var i = 0
+      pstmt = conn.prepareStatement(sql)
+      for (index <- preprocessDatas.indices) {
+        i += 1
+        sum += 1
+        if (i > configArgs.gpBatchsize) {
+          i = 0
+          pstmt.executeBatch()
+          pstmt.clearBatch()
+        }
+        val preprocessData = preprocessDatas(index)
+        pstmt.setLong(1, preprocessData.id)
+        pstmt.setLong(2, preprocessData.faceId)
+        pstmt.setString(3, preprocessData.imageData)
+        pstmt.setBytes(4, preprocessData.faceFeature)
+        pstmt.setLong(5, preprocessData.fromImageId)
+        pstmt.setInt(6, preprocessData.gender)
+        pstmt.setInt(7, preprocessData.accessories)
+        pstmt.setInt(8, preprocessData.age)
+        pstmt.setString(9, preprocessData.json)
+        pstmt.setFloat(10, preprocessData.quality)
+        pstmt.setInt(11, preprocessData.race)
+        pstmt.setLong(12, preprocessData.sourceId)
+        pstmt.setInt(13, preprocessData.sourceType)
+        pstmt.setString(14, preprocessData.locus)
+        pstmt.setTimestamp(15, preprocessData.time)
+        pstmt.setInt(16, preprocessData.version)
+        pstmt.setString(17, preprocessData.pose)
+        pstmt.setFloat(18, preprocessData.featureQuality)
+        pstmt.setLong(19, preprocessData.tableSequence)
+        pstmt.addBatch()
+      }
+      pstmt.executeBatch()
+    } finally {
+      ConnectionUtils.closeStatement(pstmt)
+    }
+  }
+
+  private def getFeatureQuality(faceFeature: Array[Byte], pose: String, quality: Float, time: Timestamp): Float = {
+
+    /**
+      * 计算可建档图片角度权重
+      *
+      * @param facePose 角度
+      * @return
+      */
+    def calculatePoseWeight(facePose: XPose): Float = {
+      1 - (Math.abs(facePose.getPitch) / configArgs.clusterPitchThreshold
+        + Math.abs(facePose.getRoll) / configArgs.clusterRollThreshold
+        + Math.abs(facePose.getYaw) / configArgs.clusterYawThreshold) / 3
+    }
+
+    /**
+      * 计算特征值质量
+      *
+      * @param xPose   角度
+      * @param quality 质量分值
+      * @param time    抓拍时间
+      * @return 特征值质量
+      */
+    def calculateFeatureQuality(xPose: XPose)(quality: Float)(time: Timestamp): Float = {
+      var featureQuality = .0f
+      if (clusterQualityFilter(quality) && clusterPoseFilter(xPose) && timeFilter(time)) {
+        featureQuality = quality * calculatePoseWeight(xPose)
+      } else if (classQualityFilter(quality) && classPoseFilter(xPose)) {
+        featureQuality = -1.0f
+      } else {
+        featureQuality = -2.0f
+      }
+      featureQuality
+    }
+
+    def clusterPoseFilter(xPose: XPose): Boolean = XPoseUtils.inAngle(xPose, configArgs.clusterPitchThreshold, configArgs.clusterRollThreshold, configArgs.clusterYawThreshold)
+
+    def classPoseFilter(xPose: XPose): Boolean = XPoseUtils.inAngle(xPose, configArgs.classPitchThreshold, configArgs.classRollThreshold, configArgs.classYawThreshold)
+
+    def clusterQualityFilter(quality: Float): Boolean = quality >= configArgs.clusterQualityThreshold
+
+    def classQualityFilter(quality: Float): Boolean = quality >= configArgs.classQualityThreshold
+
+    // 夜间照片过滤，不能用作聚档
+    def timeFilter(time: Timestamp): Boolean = {
+      val startTime = configArgs.filterStartTime
+      val endTime = configArgs.filterEndTime
+      if (configArgs.filterNightEnable && startTime != null && endTime != null) {
+        val dateTime = time.toLocalDateTime
+        val boo = (dateTime.getHour >= startTime.hour && dateTime.getMinute >= startTime.min && dateTime.getSecond >= startTime.sec) ||
+          (dateTime.getHour <= endTime.hour && dateTime.getMinute <= endTime.min && dateTime.getSecond <= endTime.sec)
+        !boo
+      } else {
+        true
+      }
+    }
+
+    var xPose: XPose = null
+    var featureQuality = 0.0f
+    if (!StringUtils.isEmpty(pose) && !faceFeature.isEmpty) {
+      try {
+        xPose = JSON.parseObject(pose, classOf[XPose])
+        featureQuality = calculateFeatureQuality(xPose)(quality)(time)
+      } catch {
+        case _: Throwable =>
+          featureQuality = -2.0f
+          LOG.error("======> json parse to XPose failure, json is {}", pose)
+      }
+    } else {
+      featureQuality = -2.0f
+    }
+    featureQuality.formatted("%.2f").toFloat
+  }
+
+  /**
+    * 清除数据
+    *
+    * @param sequence 起始 sequence Tupple
+    */
+  private def clearDatas(sequence: (Long, Long)): Unit = {
+    var conn: Connection = null
+    try {
+      conn = ConnectionUtils.getConnection(configArgs.gpUrl, configArgs.gpUser, configArgs.gpPasswd)
+      clearDataBySequence(sequence, configArgs.clusterTable, conn)
+      clearDataBySequence(sequence, configArgs.classTable, conn)
+      clearDataBySequence(sequence, configArgs.unlessTable, conn)
+      clearDataBySequence(sequence, configArgs.childTable, conn)
+    } finally {
+      ConnectionUtils.closeConnection(conn)
+    }
+  }
+
+
+  /**
+    * 根据 sequence 清除预处理表中的数据
+    *
+    * @param sequence 起始 sequence Tupple
+    * @param table    表名
+    * @param conn     数据库连接
+    * @return
+    */
+  private def clearDataBySequence(sequence: (Long, Long), table: String, conn: Connection): Unit = {
+    var pstmt: PreparedStatement = null
+    try {
+      val sql = s"delete from $table WHERE table_sequence >= ${sequence._1} and table_sequence < ${sequence._2}"
+      println(s"======> clear sql -- $sql")
+
+      pstmt = conn.prepareStatement(sql)
+      val result = pstmt.executeUpdate()
+      println(s"======> clear $result row data from $table")
+    } finally {
+      ConnectionUtils.closeStatement(pstmt)
     }
   }
 }
