@@ -5,6 +5,8 @@ import java.time.LocalDateTime
 
 import com.alibaba.fastjson.JSON
 import com.typesafe.scalalogging.Logger
+import me.w1992wishes.spark.etl.config.ConfigArgs
+import me.w1992wishes.spark.etl.model.XPose
 import me.w1992wishes.spark.etl.util._
 import org.apache.commons.lang3.StringUtils
 import org.apache.spark.TaskContext

@@ -1,6 +1,6 @@
 package me.w1992wishes.spark.etl.util
 
-import me.w1992wishes.spark.etl.job2.XPose
+import me.w1992wishes.spark.etl.model.XPose
 
 
 /**
