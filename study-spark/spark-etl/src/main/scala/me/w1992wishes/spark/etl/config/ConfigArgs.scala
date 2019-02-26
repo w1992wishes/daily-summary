@@ -1,4 +1,4 @@
-package me.w1992wishes.spark.etl.job2
+package me.w1992wishes.spark.etl.config
 
 import java.io.FileInputStream
 import java.util.Properties
@@ -10,7 +10,7 @@ import me.w1992wishes.spark.etl.util.IntParam
   *
   * @author w1992wishes 2019/1/14 10:37
   */
-private[core] class ConfigArgs {
+class ConfigArgs {
 
   val filePath = "system.properties"
   val properties = new Properties()

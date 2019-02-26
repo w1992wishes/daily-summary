@@ -1,4 +1,4 @@
-package me.w1992wishes.spark.etl.job2
+package me.w1992wishes.spark.etl.model
 
 import com.alibaba.fastjson.annotation.JSONField
 
