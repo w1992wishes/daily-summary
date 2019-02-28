@@ -1,9 +1,9 @@
-package me.w1992wishes.spark.etl.core
+package me.w1992wishes.spark.etl.demo
 
 import com.alibaba.fastjson.JSON
 import me.w1992wishes.spark.etl.config.ConfigArgs
-import me.w1992wishes.spark.etl.model.XPose
-import me.w1992wishes.spark.etl.util.XPoseUtils
+import me.w1992wishes.spark.etl.model.PoseInfo
+import me.w1992wishes.spark.etl.util.PoseInfoUtils
 import org.apache.commons.lang3.StringUtils
 import org.apache.spark.sql.{SaveMode, SparkSession}
 
@@ -31,12 +31,12 @@ object AddColumnExample {
     val df = spark
       .read
       .format("jdbc")
-      .option("driver", configArgs.gpDriver)
-      .option("url", configArgs.gpUrl)
-      .option("dbtable", configArgs.sourceTable)
-      .option("user", configArgs.gpUser)
-      .option("password", configArgs.gpPasswd)
-      .option("fetchsize", configArgs.gpFetchsize)
+      .option("driver", configArgs.dbDriver)
+      .option("url", configArgs.dbUrl)
+      .option("dbtable", configArgs.preProcessTable)
+      .option("user", configArgs.dbUser)
+      .option("password", configArgs.dbPasswd)
+      .option("fetchsize", configArgs.dbFetchsize)
       .load()
 
     df.withColumn("feature_quality", addCol(col("pose_info"), col("quality_info")))
@@ -44,11 +44,11 @@ object AddColumnExample {
       .write
       .mode(SaveMode.Append)
       .format("jdbc")
-      .option("driver", configArgs.gpDriver)
-      .option("url", configArgs.gpUrl)
-      .option("dbtable", configArgs.clusterTable)
-      .option("user", configArgs.gpUser)
-      .option("password", configArgs.gpPasswd)
+      .option("driver", configArgs.dbDriver)
+      .option("url", configArgs.dbUrl)
+      .option("dbtable", configArgs.preProcessedTable)
+      .option("user", configArgs.dbUser)
+      .option("password", configArgs.dbPasswd)
       .save()
   }
 
@@ -57,13 +57,13 @@ object AddColumnExample {
     /**
       * 计算可建档图片角度权重
       *
-      * @param facePose 角度
+      * @param poseInfo 角度
       * @return
       */
-    def calculatePoseWeight(facePose: XPose): Float = {
-      1 - (Math.abs(facePose.getPitch) / configArgs.clusterPitchThreshold
-        + Math.abs(facePose.getRoll) / configArgs.clusterRollThreshold
-        + Math.abs(facePose.getYaw) / configArgs.clusterYawThreshold) / 3
+    def calculatePoseWeight(poseInfo: PoseInfo): Float = {
+      1 - (Math.abs(poseInfo.getPitch) / configArgs.clusterPitchThreshold
+        + Math.abs(poseInfo.getRoll) / configArgs.clusterRollThreshold
+        + Math.abs(poseInfo.getYaw) / configArgs.clusterYawThreshold) / 3
     }
 
     /**
@@ -73,7 +73,7 @@ object AddColumnExample {
       * @param quality 质量分值
       * @return 特征值质量
       */
-    def calculateFeatureQuality(xPose: XPose)(quality: Float): Float = {
+    def calculateFeatureQuality(xPose: PoseInfo)(quality: Float): Float = {
       var featureQuality = .0f
       if (clusterQualityFilter(quality) && clusterPoseFilter(xPose)) {
         featureQuality = quality * calculatePoseWeight(xPose)
@@ -85,24 +85,24 @@ object AddColumnExample {
       featureQuality
     }
 
-    def clusterPoseFilter(xPose: XPose): Boolean = XPoseUtils.inAngle(xPose, configArgs.clusterPitchThreshold, configArgs.clusterRollThreshold, configArgs.clusterYawThreshold)
+    def clusterPoseFilter(xPose: PoseInfo): Boolean = PoseInfoUtils.inAngle(xPose, configArgs.clusterPitchThreshold, configArgs.clusterRollThreshold, configArgs.clusterYawThreshold)
 
-    def classPoseFilter(xPose: XPose): Boolean = XPoseUtils.inAngle(xPose, configArgs.classPitchThreshold, configArgs.classRollThreshold, configArgs.classYawThreshold)
+    def classPoseFilter(xPose: PoseInfo): Boolean = PoseInfoUtils.inAngle(xPose, configArgs.classPitchThreshold, configArgs.classRollThreshold, configArgs.classYawThreshold)
 
     def clusterQualityFilter(quality: Float): Boolean = quality >= configArgs.clusterQualityThreshold
 
     def classQualityFilter(quality: Float): Boolean = quality >= configArgs.classQualityThreshold
 
-    var xPose: XPose = null
+    var xPose: PoseInfo = null
     var featureQuality = 0.0f
     if (!StringUtils.isEmpty(pose)) {
       try {
-        xPose = JSON.parseObject(pose, classOf[XPose])
+        xPose = JSON.parseObject(pose, classOf[PoseInfo])
         featureQuality = calculateFeatureQuality(xPose)(quality)
       } catch {
         case _: Throwable =>
           featureQuality = -2.0f
-          println("======> json parse to XPose failure, json is {}", pose)
+          println("======> json parse to PoseInfo failure, json is {}", pose)
       }
     } else {
       featureQuality = -2.0f
