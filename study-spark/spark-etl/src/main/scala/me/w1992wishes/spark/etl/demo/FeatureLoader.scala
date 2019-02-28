@@ -1,8 +1,7 @@
-package me.w1992wishes.spark.etl.core
+package me.w1992wishes.spark.etl.demo
 
 import java.io.File
 
-import me.w1992wishes.spark.etl.util.StringUtils
 import org.apache.spark.sql.SparkSession
 
 /**
@@ -17,8 +16,8 @@ object FeatureLoader {
     // spark sql 中用于指明分区的数量
     var numPartitions = 0
     if (args.length > 0) {
-      person_id = StringUtils.strToInt(args(0))
-      numPartitions = StringUtils.strToInt(args(1))
+      person_id = args(0).toInt
+      numPartitions = args(1).toInt
     }
 
     // warehouseLocation points to the default location for managed databases and tables

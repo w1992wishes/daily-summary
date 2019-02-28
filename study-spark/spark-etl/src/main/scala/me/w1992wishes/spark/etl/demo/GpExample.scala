@@ -1,4 +1,4 @@
-package me.w1992wishes.spark.etl.core
+package me.w1992wishes.spark.etl.demo
 
 import org.apache.spark.sql.SparkSession
 

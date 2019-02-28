@@ -1,4 +1,4 @@
-package me.w1992wishes.spark.etl.job2
+package me.w1992wishes.spark.etl.config
 
 import scala.annotation.tailrec
 
@@ -7,16 +7,19 @@ import scala.annotation.tailrec
   *
   * @author w1992wishes 2018/11/13 17:31
   */
-private[core] class AppArgs (args: Array[String]) extends Serializable {
+class CommandLineArgs(args: Array[String]) extends Serializable {
 
   // 设置并行的分区度
   var partitions: Int = 54
 
   // 预处理的起始时间
-  var preprocessStartTime: String = _
+  var preProcessStartTime: String = _
 
   // 预处理的结束时间
-  var preprocessEndTime: String = _
+  var preProcessEndTime: String = _
+
+  // 每个分区最小应处理的时间跨度，单位分钟
+  var minutesPerPartition: Int = 10
 
   // 用于过滤夜间抓拍照片的 case 类
   case class AppTime(hour: Int, min: Int, sec: Int)
@@ -25,16 +28,20 @@ private[core] class AppArgs (args: Array[String]) extends Serializable {
 
   @tailrec
   private def parse(args: List[String]): Unit = args match {
-    case ("--preprocessStartTime") :: value :: tail =>
-      preprocessStartTime = value
+    case ("--preProcessStartTime") :: value :: tail =>
+      preProcessStartTime = value
       parse(tail)
 
-    case ("--preprocessEndTime") :: value :: tail =>
-      preprocessEndTime = value
+    case ("--preProcessEndTime") :: value :: tail =>
+      preProcessEndTime = value
       parse(tail)
 
     case ("--partitions") :: value :: tail =>
       partitions = value.toInt
+      parse(tail)
+
+    case ("--minutesPerPartition") :: value :: tail =>
+      minutesPerPartition = value.toInt
       parse(tail)
 
     case Nil => // No-op
@@ -53,8 +60,9 @@ private[core] class AppArgs (args: Array[String]) extends Serializable {
         "\n" +
         "Options:\n" +
         "  --partitions num    the spark partitions\n" +
-        "  --preprocessStartTime yyyy-MM-dd    the preprocess start time\n" +
-        "  --preprocessEndTime yyyy-MM-dd    the preprocess end time"
+        "  --preProcessStartTime yyyyMMddHHmmss    the preprocess start time\n" +
+        "  --preProcessEndTime yyyyMMddHHmmss    the preprocess end time\n" +
+        "  --minutesPerPartition num    minimum minutes per partition"
     )
     // scalastyle:on println
     System.exit(exitCode)
