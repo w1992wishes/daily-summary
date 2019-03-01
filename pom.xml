@@ -29,6 +29,7 @@
         <module>study-kafka</module>
         <module>study-data-mining</module>
         <module>study-spark</module>
+        <module>study-datax</module>
     </modules>
 
     <repositories>
