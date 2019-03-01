@@ -1,0 +1,40 @@
+{
+  "job": {
+    "content": [
+      {
+        "reader": {
+          "name": "postgresqlreader",
+          "parameter": {
+            "connection": [
+              {
+                "jdbcUrl": [
+                  "jdbc:postgresql://192.168.11.72:5432/bigdata_ods"
+                ],
+                "querySql": [
+                  "SELECT max(create_time) FROM public.face_event_20_5024"
+                ]
+              }
+            ],
+            "password": "gpadmin",
+            "username": "gpadmin"
+          }
+        },
+        "writer": {
+          "name": "txtfilewriter",
+          "parameter": {
+            "dateFormat": "yyyy-MM-dd HH:mm:ss",
+            "fileName": "face_event_20_5024_max_time_result",
+            "fileFormat": "csv",
+            "path": "./",
+            "writeMode": "truncate"
+          }
+        }
+      }
+    ],
+    "setting":{
+      "speed":{
+        "channel":1
+      }
+    }
+  }
+}
