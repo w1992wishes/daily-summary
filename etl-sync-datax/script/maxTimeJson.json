@@ -1,0 +1,40 @@
+{
+  "job": {
+    "content": [
+      {
+        "reader": {
+          "name": "postgresqlreader",
+          "parameter": {
+            "connection": [
+              {
+                "jdbcUrl": [
+                  "sinkJdbc"
+                ],
+                "querySql": [
+                  "SELECT max(create_time) FROM sinkTable"
+                ]
+              }
+            ],
+            "password": "sinkUser",
+            "username": "sinkPwd"
+          }
+        },
+        "writer": {
+          "name": "txtfilewriter",
+          "parameter": {
+            "dateFormat": "yyyy-MM-dd HH:mm:ss",
+            "fileName": "sinkTable",
+            "fileFormat": "csv",
+            "path": "./",
+            "writeMode": "truncate"
+          }
+        }
+      }
+    ],
+    "setting":{
+      "speed":{
+        "channel":1
+      }
+    }
+  }
+}

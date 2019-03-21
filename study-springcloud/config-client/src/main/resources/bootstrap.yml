@@ -1,7 +1,0 @@
-spring:
-  cloud:
-    config:
-      name: neo-config
-      uri: http://localhost:8769
-      profile: pro
-      label: master

@@ -1,1 +1,0 @@
-INSERT INTO user(username, userpwd) VALUES('alibaba', 'alibaba');

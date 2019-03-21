@@ -19,18 +19,17 @@
     </properties>
 
     <groupId>me.w1992wishes.study</groupId>
-    <artifactId>study-records</artifactId>
+    <artifactId>daily-summary</artifactId>
     <packaging>pom</packaging>
     <version>1.0-SNAPSHOT</version>
+
     <modules>
-        <module>config-repository</module>
-        <module>study-springcloud</module>
-        <module>study-springboot</module>
-        <module>study-kafka</module>
-        <module>study-data-mining</module>
-        <module>study-spark</module>
-        <module>study-datax</module>
+        <module>data-mining</module>
         <module>dw-partition-gp</module>
+        <module>etl-sync-datax</module>
+        <module>kafka</module>
+        <module>spark</module>
+        <module>utils</module>
     </modules>
 
     <repositories>
