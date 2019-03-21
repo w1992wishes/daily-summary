@@ -30,6 +30,7 @@
         <module>study-data-mining</module>
         <module>study-spark</module>
         <module>study-datax</module>
+        <module>dw-partition-gp</module>
     </modules>
 
     <repositories>
