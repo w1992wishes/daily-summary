@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="me.w1992wishes.dwpartition.mapper.odl.OdlMapper">
+
+    <update id="createEventFaceTable">
+        CREATE TABLE ${tableName} (
+        sys_code varchar(128),
+        thumbnail_id varchar(256),
+        thumbnail_url varchar(256),
+        image_id varchar(256),
+        image_url varchar(256),
+        feature_info bytea,
+        algo_version int,
+        gender_info varchar(128),
+        age_info varchar(128),
+        hairstyle_info varchar(128),
+        hat_info varchar(128),
+        glasses_info varchar(128),
+        race_info varchar(128),
+        mask_info varchar(128),
+        skin_info varchar(128),
+        pose_info varchar(128),
+        quality_info REAL,
+        target_rect varchar(128),
+        target_rect_float varchar(128),
+        land_mark_info varchar(1048),
+        source_id bigint,
+        source_type int,
+        site varchar(128),
+        time TIMESTAMP,
+        create_time TIMESTAMP,
+        column1 text,
+        column2 text,
+        column3 text
+        )DISTRIBUTED BY (thumbnail_id)
+        PARTITION BY RANGE (create_time)
+        ( PARTITION ${partitionName} START (date '${partitionTime}') INCLUSIVE
+                  END (date '${endPartitionTime}') EXCLUSIVE );
+    </update>
+
+    <delete id="deleteTable">
+        DROP TABLE IF EXISTS ${tableName};
+    </delete>
+
+    <update id="addPartitionByTimeRange">
+        ALTER TABLE ${tableName}
+        ADD PARTITION ${partitionName}
+        START (date '${partitionTime}') INCLUSIVE
+        END (date '${endPartitionTime}') EXCLUSIVE;
+    </update>
+
+</mapper>
