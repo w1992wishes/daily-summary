@@ -1,7 +1,7 @@
 package me.w1992wishes.dwpartition.service;
 
+import me.w1992wishes.common.util.DateUtils;
 import me.w1992wishes.dwpartition.config.AppConfig;
-import me.w1992wishes.study.common.util.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.time.LocalDateTime;
