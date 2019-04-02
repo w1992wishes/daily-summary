@@ -1,4 +1,4 @@
-package me.w1992wishes.dwpartition.config;
+package me.w1992wishes.partition.config;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.jdbc.DataSourceBuilder;

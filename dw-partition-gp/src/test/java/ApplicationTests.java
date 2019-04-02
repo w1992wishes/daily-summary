@@ -1,6 +1,6 @@
 
-import me.w1992wishes.dwpartition.PartitionGpApp;
-import me.w1992wishes.dwpartition.service.BaseService;
+import me.w1992wishes.partition.PartitionGpApp;
+import me.w1992wishes.partition.service.BaseService;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;

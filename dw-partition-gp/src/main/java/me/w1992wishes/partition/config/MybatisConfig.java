@@ -1,4 +1,4 @@
-package me.w1992wishes.dwpartition.config;
+package me.w1992wishes.partition.config;
 
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionFactoryBean;

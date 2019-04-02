@@ -1,6 +1,6 @@
-package me.w1992wishes.dwpartition.mapper.dwd;
+package me.w1992wishes.partition.mapper.dwd;
 
-import me.w1992wishes.dwpartition.mapper.BaseMapper;
+import me.w1992wishes.partition.mapper.BaseMapper;
 import org.springframework.stereotype.Repository;
 
 /**
