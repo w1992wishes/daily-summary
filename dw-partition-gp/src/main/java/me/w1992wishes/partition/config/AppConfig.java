@@ -1,4 +1,4 @@
-package me.w1992wishes.dwpartition.config;
+package me.w1992wishes.partition.config;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
@@ -17,6 +17,12 @@ public class AppConfig {
 
     @Value("${app.dwd.event-face-table-preprocessed}")
     private String eventFaceTablePreprocessed;
+
+    @Value("${app.enable.create-event-table}")
+    private Boolean enableCreateEventTable;
+
+    @Value("${app.partition.num-one-day}")
+    private int partitionNumOneDay;
 
     public String getEventFaceTable() {
         return eventFaceTable;
@@ -40,5 +46,21 @@ public class AppConfig {
 
     public void setEventFaceTablePreprocessed(String eventFaceTablePreprocessed) {
         this.eventFaceTablePreprocessed = eventFaceTablePreprocessed;
+    }
+
+    public Boolean getEnableCreateEventTable() {
+        return enableCreateEventTable;
+    }
+
+    public void setEnableCreateEventTable(Boolean enableCreateEventTable) {
+        this.enableCreateEventTable = enableCreateEventTable;
+    }
+
+    public int getPartitionNumOneDay() {
+        return partitionNumOneDay;
+    }
+
+    public void setPartitionNumOneDay(int partitionNumOneDay) {
+        this.partitionNumOneDay = partitionNumOneDay;
     }
 }

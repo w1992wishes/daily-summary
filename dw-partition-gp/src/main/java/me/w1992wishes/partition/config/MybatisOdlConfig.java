@@ -1,4 +1,4 @@
-package me.w1992wishes.dwpartition.config;
+package me.w1992wishes.partition.config;
 
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionTemplate;
@@ -14,7 +14,7 @@ import javax.sql.DataSource;
  * @author w1992wishes 2019/3/20 14:43
  */
 @Configuration
-@MapperScan(basePackages = {"me.w1992wishes.dwpartition.mapper.odl"}, sqlSessionFactoryRef = "sqlSessionFactoryOdl")
+@MapperScan(basePackages = {"me.w1992wishes.partition.mapper.odl"}, sqlSessionFactoryRef = "sqlSessionFactoryOdl")
 public class MybatisOdlConfig extends MybatisConfig {
 
     @Autowired

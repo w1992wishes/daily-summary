@@ -1,4 +1,4 @@
-package me.w1992wishes.dwpartition.mapper;
+package me.w1992wishes.partition.mapper;
 
 import org.apache.ibatis.annotations.Param;
 
@@ -29,4 +29,9 @@ public interface BaseMapper {
                                  @Param("partitionName") String partitionName,
                                  @Param("partitionTime") String partitionTime,
                                  @Param("endPartitionTime") String endPartitionTime);
+
+    /**
+     * 判断表是否存在（分区需写全名）
+     */
+    int checkTableExist(@Param("tableFullName") String tableFullName);
 }
