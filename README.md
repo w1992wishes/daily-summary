@@ -16,7 +16,5 @@
     * [spark 入门实例](spark/spark-demo)
     * [spark sql 并行数据转换实例](spark/spark-etl/README.md)
     * [参考 spark kmeans 实现的分区聚类](spark/spark-partitioning/README.md)
-* [日常工具整理](utils)
-    * [通用工具类](utils/common-utils)
-    * [httpClient工具类](utils/httpclient-util)
+* [通用代码](my-common)
 
