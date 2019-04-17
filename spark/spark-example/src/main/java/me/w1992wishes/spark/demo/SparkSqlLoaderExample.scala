@@ -1,15 +1,13 @@
-package me.w1992wishes.spark.offline.preprocess.demo
+package me.w1992wishes.spark.demo
 
 import java.io.File
 
 import org.apache.spark.sql.SparkSession
 
 /**
-  * 特征值加载类，使用 spark Sql  partitionColumn/lowerBound/upperBound
-  *
-  * @author w1992wishes 2018/9/21 16:10
+  * @author w1992wishes 2019/4/17 9:54
   */
-object FeatureLoader1 {
+object SparkSqlLoaderExample {
   def main(args: Array[String]): Unit = {
 
     // person_id
@@ -41,7 +39,7 @@ object FeatureLoader1 {
     val gpRDF = spark.read
       .format("jdbc")
       .option("driver", "com.pivotal.jdbc.GreenplumDriver")
-      .option("url", "jdbc:pivotal:greenplum://192.168.11.72:5432;DatabaseName=testdb")
+      .option("url", "jdbc:pivotal:greenplum://127.0.0.1:5432;DatabaseName=testdb")
       .option("partitionColumn", "person_id")
       .option("lowerBound", lowerBound)
       .option("upperBound", upperBound)

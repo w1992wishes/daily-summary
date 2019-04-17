@@ -1,12 +1,5 @@
 ## etl-offline-preprocess
 
-### 介绍
-
-1.根据时间并行加载数据
-2.计算每条数据的 feature_quality
-3.根据 thumbnail_id 重新分区
-4.写入预处理后的表
-
 ### 运行参数解释
 
 --isLocal 是否使用本地模式，默认 false，为 true 多用于测试
