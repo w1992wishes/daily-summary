@@ -25,11 +25,10 @@
 
     <modules>
         <module>data-mining</module>
-        <module>dw-partition-gp</module>
-        <module>etl-sync-datax</module>
         <module>kafka</module>
+        <module>my-common</module>
+        <module>my-script</module>
         <module>spark</module>
-        <module>utils</module>
     </modules>
 
     <repositories>

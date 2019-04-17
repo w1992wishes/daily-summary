@@ -1,15 +1,14 @@
-package me.w1992wishes.spark.offline.preprocess.demo
+package me.w1992wishes.spark.demo
 
 import java.io.File
 
 import org.apache.spark.sql.SparkSession
 
 /**
-  * 特征值加载类，自定义sql 加载
-  *
-  * @author w1992wishes 2018/9/25 15:12
+  * @author w1992wishes 2019/4/17 9:52
   */
-object FeatureLoader {
+object CustomSqlLoaderExample {
+
   def main(args: Array[String]): Unit = {
     // person_id
     var person_id = 0
@@ -42,8 +41,8 @@ object FeatureLoader {
           .read
           .format("jdbc")
           .option("driver", "com.pivotal.jdbc.GreenplumDriver")
-          .option("url", "jdbc:pivotal:greenplum://192.168.11.72:5432;DatabaseName=testdb")
-          .option("dbtable", s"(SELECT feature FROM public.t_timing_face_person WHERE person_id > ${stride * index} AND person_id <= ${stride * (index + 1)}) AS t_tmp_${index}")
+          .option("url", "jdbc:pivotal:greenplum://127.0.0.1:5432;DatabaseName=testdb")
+          .option("dbtable", s"(SELECT feature FROM public.t_timing_face_person WHERE person_id > ${stride * index} AND person_id <= ${stride * (index + 1)}) AS t_tmp_$index")
           .option("user", "gpadmin")
           .option("password", "gpadmin")
           .load()
@@ -57,4 +56,5 @@ object FeatureLoader {
     printf("======> load data from gp time = %d s\n", (System.currentTimeMillis() - tempTime)/1000)
     printf("======> the data size is = %d s\n", count)
   }
+
 }

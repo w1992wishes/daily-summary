@@ -1,4 +1,4 @@
-package me.w1992wishes.spark.offline.preprocess.demo
+package me.w1992wishes.spark.demo
 
 import org.apache.spark.sql.SparkSession
 
