@@ -12,8 +12,9 @@
     <artifactId>spark</artifactId>
     <packaging>pom</packaging>
     <modules>
-        <module>spark-demo</module>
-        <module>spark-etl</module>
+        <module>etl-offline-preprocess</module>
+        <module>etl-streaming-preprocess</module>
+        <module>spark-example</module>
         <module>spark-partitioning</module>
     </modules>
 

@@ -1,9 +1,9 @@
-package me.w1992wishes.spark.offline.preprocess.core
+package me.w1992wishes.spark.streaming.preprocess.core
 
 import com.alibaba.fastjson.JSON
-import me.w1992wishes.spark.offline.preprocess.config.ConfigArgs
-import me.w1992wishes.spark.offline.preprocess.model.PoseInfo
-import me.w1992wishes.spark.offline.preprocess.util.{Constants, PoseInfoUtils}
+import me.w1992wishes.spark.streaming.preprocess.config.ConfigArgs
+import me.w1992wishes.spark.streaming.preprocess.model.PoseInfo
+import me.w1992wishes.spark.streaming.preprocess.util.{Constants, PoseInfoUtils}
 import org.apache.commons.lang.ArrayUtils
 import org.apache.commons.lang3.StringUtils
 
