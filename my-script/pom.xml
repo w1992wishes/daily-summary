@@ -15,5 +15,6 @@
     <modules>
         <module>dw-partition-gp</module>
         <module>etl-sync-datax</module>
+        <module>etl-sync-standard-db</module>
     </modules>
 </project>
