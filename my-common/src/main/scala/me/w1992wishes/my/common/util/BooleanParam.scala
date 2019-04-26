@@ -1,4 +1,4 @@
-package me.w1992wishes.spark.streaming.preprocess.util
+package me.w1992wishes.my.common.util
 
 /**
  * An extractor object for parsing strings into booleans.

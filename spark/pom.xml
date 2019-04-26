@@ -2,23 +2,25 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <parent>
-        <artifactId>daily-summary</artifactId>
-        <groupId>me.w1992wishes.study</groupId>
-        <version>1.0-SNAPSHOT</version>
-    </parent>
     <modelVersion>4.0.0</modelVersion>
 
+    <groupId>me.w1992wishes.study</groupId>
     <artifactId>spark</artifactId>
+    <version>1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
     <modules>
         <module>etl-offline-preprocess</module>
-        <module>etl-streaming-preprocess</module>
         <module>spark-example</module>
         <module>spark-partitioning</module>
+        <module>spark-streaming</module>
     </modules>
 
     <dependencies>
+        <dependency>
+            <groupId>me.w1992wishes.study</groupId>
+            <artifactId>my-common</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
         <!-- https://mvnrepository.com/artifact/org.apache.spark/spark-mllib -->
         <dependency>
             <groupId>org.apache.spark</groupId>
