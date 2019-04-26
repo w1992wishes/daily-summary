@@ -1,6 +1,6 @@
 package me.w1992wishes.spark.streaming.config
 
-import me.w1992wishes.my.common.util.{BooleanParam, IntParam}
+import me.w1992wishes.my.common.util.IntParam
 
 import scala.annotation.tailrec
 
@@ -11,16 +11,8 @@ import scala.annotation.tailrec
   */
 class CommandLineArgs(args: Array[String]) extends Serializable {
 
-  // 是否本地模式运行
-  var isLocal: Boolean = false
+  var partitions: Int = 12
 
-  // 设置并行的分区度
-  var partitions: Int = 54
-
-  // 预处理后的表
-  var preProcessedTable: String =_
-
-  // 流式批处理时间间隔
   var batchDuration: Int = 10
 
   parse(args.toList)
@@ -28,16 +20,8 @@ class CommandLineArgs(args: Array[String]) extends Serializable {
   @tailrec
   private def parse(args: List[String]): Unit = args match {
 
-    case ("--isLocal") :: BooleanParam(value) :: tail =>
-      isLocal = value
-      parse(tail)
-
     case ("--partitions") :: IntParam(value) :: tail =>
       partitions = value
-      parse(tail)
-
-    case ("--preProcessedTable") :: value :: tail =>
-      preProcessedTable = value
       parse(tail)
 
     case ("--batchDuration") :: IntParam(value) :: tail =>
@@ -59,9 +43,7 @@ class CommandLineArgs(args: Array[String]) extends Serializable {
       "Usage: [options]\n" +
         "\n" +
         "Options:\n" +
-        "  --isLocal true|false    master url 是否是 local，true 多用作调试\n" +
         "  --partitions num    分区数\n" +
-        "  --preProcessedTable tableName    预处理后的数据（如果不设置，默认从配置中读取）\n" +
         "  --batchDuration int    流式批处理时间间隔"
     )
     // scalastyle:on println

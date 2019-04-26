@@ -6,13 +6,15 @@ import org.apache.kafka.common.TopicPartition
 import org.apache.spark.SparkConf
 import org.apache.spark.streaming.kafka010.OffsetRange
 
+import scala.collection.JavaConverters._
+
 /**
   * Kafka offset zookeeper 保存工具
   *
   * @param getClient 构造 ZkClient
   * @param getZkRoot 构造 ZkRoot
   */
-class ZkKafkaOffset(getClient: () => ZkClient, getZkRoot: () => String) {
+class ZkKafkaOffset(getClient: () => ZkClient, getZkRoot: () => String) extends Serializable {
 
   // 定义为 lazy 实现了懒汉式的单例模式，解决了序列化问题，方便使用 broadcast
   lazy val zkClient: ZkClient = getClient()
@@ -30,9 +32,10 @@ class ZkKafkaOffset(getClient: () => ZkClient, getZkRoot: () => String) {
     val keys = zkClient.getChildren(zkRoot)
     var initOffsetMap: Map[TopicPartition, Long] = Map()
     if (!keys.isEmpty) {
-      for (k: String <- keys) {
+      for (k: String <- keys.asScala) {
         val ks = k.split("!")
         val value: Long = zkClient.readData(zkRoot + "/" + k)
+        println(s"****** [get] Topic $ks , Offset $value ******")
         initOffsetMap += (new TopicPartition(ks(0), Integer.parseInt(ks(1))) -> value)
       }
     }
@@ -56,6 +59,7 @@ class ZkKafkaOffset(getClient: () => ZkClient, getZkRoot: () => String) {
       else {
         zkClient.writeData(path, offset.fromOffset)
       }
+      println(s"****** [Update] Topic ${offset.topic} Partition ${offset.partition} Offset ${offset.fromOffset} ******")
     }
     true
   }
