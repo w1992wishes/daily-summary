@@ -1,6 +1,6 @@
-package me.w1992wishes.spark.streaming.preprocess.config
+package me.w1992wishes.spark.streaming.config
 
-import me.w1992wishes.spark.streaming.preprocess.util.{BooleanParam, IntParam}
+import me.w1992wishes.my.common.util.{BooleanParam, IntParam}
 
 import scala.annotation.tailrec
 
@@ -13,9 +13,6 @@ class CommandLineArgs(args: Array[String]) extends Serializable {
 
   // 是否本地模式运行
   var isLocal: Boolean = false
-
-  // 预处理的实现： 1 PreProcessOnRDBMS； 2 PreProcessOnPartitions
-  var preProcessImpl: Int = 1
 
   // 设置并行的分区度
   var partitions: Int = 54
@@ -33,10 +30,6 @@ class CommandLineArgs(args: Array[String]) extends Serializable {
 
     case ("--isLocal") :: BooleanParam(value) :: tail =>
       isLocal = value
-      parse(tail)
-
-    case ("--preProcessImpl") :: IntParam(value) :: tail =>
-      preProcessImpl = value
       parse(tail)
 
     case ("--partitions") :: IntParam(value) :: tail =>
@@ -67,7 +60,6 @@ class CommandLineArgs(args: Array[String]) extends Serializable {
         "\n" +
         "Options:\n" +
         "  --isLocal true|false    master url 是否是 local，true 多用作调试\n" +
-        "  --preProcessImpl int    预处理的实现, 1 PreProcessOnRDBMS, 2 PreProcessOnPartitions，默认是 1  \n" +
         "  --partitions num    分区数\n" +
         "  --preProcessedTable tableName    预处理后的数据（如果不设置，默认从配置中读取）\n" +
         "  --batchDuration int    流式批处理时间间隔"
