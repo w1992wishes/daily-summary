@@ -74,6 +74,7 @@ class ZkKafkaOffset(getClient: () => ZkClient, getZkRoot: () => String) extends 
       else {
         zkClient.writeData(path, offset.untilOffset)
       }
+      println(s"****** [Commit] Topic ${offset.topic} Partition ${offset.partition} Offset ${offset.fromOffset} ******")
     }
     true
   }

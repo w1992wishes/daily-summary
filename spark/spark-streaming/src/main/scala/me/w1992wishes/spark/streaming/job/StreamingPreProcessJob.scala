@@ -147,6 +147,7 @@ object StreamingPreProcessJob {
     val command: CommandLineArgs = new CommandLineArgs(args)
 
     val job: StreamingPreProcessJob = StreamingPreProcessJob(config, command)
+    job.processDStreamFromKafkaOffset()
 
     job.getSparkStream.start()
     job.getSparkStream.awaitTermination()
