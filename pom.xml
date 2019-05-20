@@ -29,6 +29,7 @@
         <module>my-common</module>
         <module>my-script</module>
         <module>spark</module>
+        <module>zookeeper</module>
     </modules>
 
     <repositories>
