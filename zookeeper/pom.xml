@@ -13,6 +13,7 @@
     <packaging>pom</packaging>
     <modules>
         <module>zk-example</module>
+        <module>zk-config-server</module>
     </modules>
 
     <dependencies>
