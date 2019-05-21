@@ -94,6 +94,8 @@ object ZkKafkaOffset {
       val zkRoot = "/kafka/streaming/offset/" + offsetId
       zkRoot
     }
-    new ZkKafkaOffset(getClient, getZkRoot)
+    val zkKafkaOffset = new ZkKafkaOffset(getClient, getZkRoot)
+    zkKafkaOffset.initOffset()
+    zkKafkaOffset
   }
 }

@@ -106,6 +106,11 @@ public class EventFace implements Serializable {
     private String targetRectFloat;
 
     /**
+     * 人脸小图基于背景大图的坐标
+     */
+    private String targetThumbnailRect;
+
+    /**
      * 一些脸部轮廓信息
      */
     private String landMarkInfo;
@@ -411,5 +416,13 @@ public class EventFace implements Serializable {
 
     public void setSaveTime(Timestamp saveTime) {
         this.saveTime = saveTime;
+    }
+
+    public String getTargetThumbnailRect() {
+        return targetThumbnailRect;
+    }
+
+    public void setTargetThumbnailRect(String targetThumbnailRect) {
+        this.targetThumbnailRect = targetThumbnailRect;
     }
 }
