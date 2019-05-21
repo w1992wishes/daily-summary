@@ -14,6 +14,7 @@
     <modules>
         <module>zk-example</module>
         <module>zk-config-server</module>
+        <module>zk-config-server2</module>
     </modules>
 
     <dependencies>

@@ -20,7 +20,8 @@
     * [参考 spark kmeans 实现的分区聚类](spark/spark-partitioning/README.md)
 * [Zookeeper 相关](zookeeper/README.md)
     * [zk api 使用例子](zookeeper/zk-example/README.md)
-    * [zk 配置中心简单原理](zookeeper/zk-config-server/README.md)
+    * [zk 配置中心简单原理](zookeeper/zk-config-server1/README.md)
+    * [zk 可靠地服务配置](zookeeper/zk-config-server2/README.md)
 
 ## 代码适用声明
 

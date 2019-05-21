@@ -9,7 +9,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>zk-config-server</artifactId>
+    <artifactId>zk-config-server2</artifactId>
 
 
 </project>
