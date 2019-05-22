@@ -1,5 +1,16 @@
 # Zookeeper
 
+## Zookeeper 节点
+
+和文件系统一样，我们能够自由的增加、删除 znode,在 znode 下增加、删除子 znode,唯一不同的在于 znode 是可以存储数据的。
+
+有4种类型的 znode：
+
+1. PERSISTENT--持久化目录节点：客户端与zookeeper断开连接后，该节点依旧存在
+2. PERSISTENT_SEQUENTIAL-持久化顺序编号目录节点：客户端与zookeeper断开连接后，该节点依旧存在，只是Zookeeper给该节点名称进行顺序编号
+3. EPHEMERAL-临时目录节点：客户端与zookeeper断开连接后，该节点被删除
+4. EPHEMERAL_SEQUENTIAL-临时顺序编号目录节点：客户端与zookeeper断开连接后，该节点被删除，只是Zookeeper给该节点名称进行顺序编号
+
 ## ZooKeeper 异常
 
 在 Java API 中的每一个 ZooKeeper 操作都在其 throws 子句中声明了两种类型的异常，分别是 InterruptedException 和 KeeperException。
