@@ -13,9 +13,10 @@
     <packaging>pom</packaging>
     <modules>
         <module>zk-example</module>
-        <module>zk-config-server</module>
+        <module>zk-config-server1</module>
         <module>zk-config-server2</module>
         <module>zk-lock-server</module>
+        <module>zk-leader-election</module>
     </modules>
 
     <dependencies>

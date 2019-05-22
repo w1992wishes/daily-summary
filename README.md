@@ -23,3 +23,4 @@
     * [zk 配置中心简单原理](zookeeper/zk-config-server1/README.md)
     * [zk 可靠地服务配置](zookeeper/zk-config-server2/README.md)
     * [zk 实现分布式锁](zookeeper/zk-lock-server/README.md)
+    * [zk master 选举](zookeeper/zk-leader-election/README.md)
