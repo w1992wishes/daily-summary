@@ -138,13 +138,6 @@ Server 收到 Client 发送的操作请求（除 exists、getAcl 之外），需
 2. 只有匹配权限成功才进行 session 的 auth 信息与 ACL 的用户名、密码匹配
 3. 如果两次匹配都成功，则允许操作；否则，返回权限不够 error（rc=-102）
 
-## Session 机制
-
-每个 ZooKeeper 客户端的配置中都包括集合体中服务器的列表。在启动时，客户端会尝试连接到列表中的一台服务器。如果连接失败，它会尝试连接另一台服务器，
-以此类推，直到成功与一台服务器建立连接或因为所有 ZooKeeper 服务器都不可用而失败。
-
-
-
 ## ZooKeeper 异常
 
 在 Java API 中的每一个 ZooKeeper 操作都在其 throws 子句中声明了两种类型的异常，分别是 InterruptedException 和 KeeperException。
@@ -199,6 +192,58 @@ InterruptedException 异常并不意味着有故障，而是表明相应的操�
 在某些情况下，ZooKeeper 会话会失效——也许因为超时或因为会话被关闭，两种情况下都会收到 KeeperException.SessionExpiredException 异常，
 或因为身份验证失败，KeeperException.AuthFailedException 异常。无论上述哪种情况，所有与会话相关联的短暂 znode 都将丢失，
 因此应用程序需要在重新连接到 ZooKeeper 之前重建它的状态。
+
+## Session 机制
+
+每个 ZooKeeper 客户端的配置中都包括集合体中服务器的列表。在启动时，客户端会尝试连接到列表中的一台服务器。如果连接失败，它会尝试连接另一台服务器，
+以此类推，直到成功与一台服务器建立连接或因为所有 ZooKeeper 服务器都不可用而失败。
+
+![](../images/zk%20体系结构.png)
+
+一旦客户端与一台 ZooKeeper 服务器建立连接，这台服务器就会为该客户端创建一个新的会话。每个会话都会有一个超时的时间设置，这个设置由创建会话的应用来设定。
+如果服务器在超时时间段内没有收到任何请求，则相应的会话会过期。一旦一个会话已经过期，就无法重新打开，并且任何与该会话相关联的短暂 znode 都会丢失。
+会话通常长期存在，而且会话过期是一种比较罕见的事件，但对应用来说，如何处理会话过期仍是非常重要的。
+
+只要一个会话空闲超过一定时间，都可以通过客户端发送 ping 请求（也称为心跳）保持会话不过期。ping 请求由 ZooKeeper 的客户端库自动发送，因此在我们的代码
+中不需要考虑如何维护会话。这个时间长度的设置应当足够低，以便能档检测出服务器故障（由读超时体现），并且能够在会话超时的时间段内重新莲接到另外一台服务器。
+
+### 故障切换
+
+ZooKeeper 客户端可以自动地进行故障切换，切换至另一台 ZooKeeper 服务器。并且关键的一点是，在另一台服务器接替故障服务器之后，所有的会话和相关的短暂 Znode 仍然是有效的。
+在故障切换过程中，应用程序将收到断开连接和连接至服务的通知。当客户端断开连接时，观察通知将无法发送；但是当客户端成功恢复连接后，这些延迟的通知会被发送。
+当然，在客户端重新连接至另一台服务器的过程中，如果应用程序试图执行一个操作，这个操作将会失败。这充分体现了在真实的 ZooKeeper 应用中处理连接丢失异常的重要性。
+
+## ZooKeeper 实例状态
+
+#### ZooKeeper 状态
+
+ZooKeeper 对象在其生命周期中会经历几种不同的状态。可以在任何时刻通过 getState() 方法来查询对象的状态：
+
+public States getState()
+
+States 被定义成代表 ZooKeeper 对象不同状态的枚举类型值（不管是什么枚举值，一个 ZooKeeper 的实例在一个时刻只能处于一种状态）。
+在试图与 ZooKeeper 服务建立连接的过程中，一个新建的 ZooKeeper 实例处于 CONNECTING 状态。一旦建立连接，它就会进入 CONNECTED 状态。 
+
+![](../images/zk%20状态转换.png)
+
+通过注册观察对象，使用了 ZooKeeper 对象的客户端可以收到状态转换通知。在进入 CONNECTED 状态时，观察对象会收到一个 WatchedEvent 通知，
+其中 KeeperState 的值是 SyncConnected。
+
+### Watch 与 ZooKeeper 状态
+
+ZooKeeper的观察对象肩负着双重责任：
+1. 可以用来获得 ZooKeeper 状态变化的相关通知；
+2. 可以用来获得 Znode 变化的相关通知。
+
+监视 ZooKeeper 状态变化：可以使用 ZooKeeper 对象默认构造函数的观察。
+
+监视 Znode 变化：可以使用一个专用的观察对象，将其传递给适当的读操作。也可以通过读操作中的布尔标识来设定是否共享使用默认的观察。
+
+ZooKeeper 实例可能失去或重新连接 ZooKeeper 服务，在 CONNECTED 和 CONNECTING 状态中切换。如果连接断开，watcher 得到一个 Disconnected 事件。
+要注意的是，这些状态的迁移是由 ZooKeeper 实例自己发起的，如果连接断开他将自动尝试自动连接。
+
+如果任何一个 close() 方法被调用，或是会话由 Expired 类型的 KeepState 提示过期时，ZooKeeper 可能会转变成第三种状态 CLOSED。一旦处于 CLOSED 状态，
+ZooKeeper 对象将不再是活动的了(可以使用 states 的 isActive() 方法进行测试)，而且不能被重用。客户端必须建立一个新的 ZooKeeper 实例才能重新连接到 ZooKeeper 服务。
 
 ## ZooKeeper 应用场景
 
