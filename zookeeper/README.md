@@ -56,6 +56,95 @@ ZooKeeper 是一个高可用的分布式数据管理与系统协调框架。基�
 3. EPHEMERAL-临时目录节点：客户端与zookeeper断开连接后，该节点被删除
 4. EPHEMERAL_SEQUENTIAL-临时顺序编号目录节点：客户端与zookeeper断开连接后，该节点被删除，只是Zookeeper给该节点名称进行顺序编号
 
+## Zookeeper Watch 机制
+
+Zookeeper 客户端在数据节点上设置监视，则当数据节点发生变化时，客户端会收到提醒。
+
+ZooKeeper 中的各种读请求，如 getDate()，getChildren()，和 exists()，都可以选择加"监视点"(watch)。
+
+"监视点"指的是一种一次性的触发器(trigger)，当受监视的数据发生变化时，该触发器会通知客户端。
+
+**监视机制有三个关键点：**
+1. "监视点"是一次性的，当触发过一次之后，除非重新设置，新的数据变化不会提醒客户端。
+2. "监视点"将数据改变的通知客户端。如果数据改变是客户端A引起的，不能保证"监视点"通知事件会在引发数据修改的函数返回前到达客户端A。
+3. 对于"监视点"，ZooKeeper 有如下保证：客户端一定是在接收到"监视"事件（watch event）之后才接收到数据的改变信息。
+
+"监视点"保留在 ZooKeeper 服务器上，则当客户端连接到新的 ZooKeeper 服务器上时，所有需要被触发的相关"监视点"都会被触发。当客户端断线后重连，
+与它的相关的"监视点"都会自动重新注册，这对客户端来说是透明的。在以下情况，"监视点"会被错过：客户端 B 设置了关于节点A存在性的"监视点"，但 B 断线了，
+在 B 断线过程中节点 A 被创建又被删除。此时，B 再连线后不知道 A 节点曾经被创建过。
+
+**ZooKeeper 的"监视"机制保证以下几点：**
+1. "监视"事件的触发顺序和事件的分发顺序一致
+2. 客户端将先接收到"监视"事件，然后才收到新的数据
+3. "监视"事件触发的顺序与 ZooKeeper 服务器上数据变化的顺序一致
+
+**关于 ZooKeeper"监视"机制的注意点：**
+1. "监视点"是一次性的
+2. 由于"监视点"是一次性的，而且，从接收到"监视"事件到设置新"监视点"是有延时的，所以客户端可能监控不到数据的所有变化。
+3. 一个监控对象，只会被相关的通知触发一次。如果一个客户端设置了关于某个数据点 exists 和 getData 的监控，则当该数据被删除的时候，只会触发"文件被删除"的
+通知。
+4. 当客户端断开与服务器的连接时，客户端不再能收到"监视"事件，直到重新获得连接。所以关于 Session 的信息将被发送给所有 ZooKeeper 服务器。由于当连接断开时收不到"监视"，所以在这种情况下，模块行为需要容错方面的设计。
+
+## Zookeeper 权限管理机制
+
+### 权限管理 ACL(Access Control List)　
+
+ZooKeeper 的权限管理亦即 ACL 控制功能，使用 ACL 来对 Znode 进行访问控制。ACL 的实现和 Unix 文件访问许可非常相似：
+它使用许可位来对一个节点的不同操作进行允许或禁止的权限控制。
+
+ZooKeeper 的权限管理通过 Server、Client 两端协调完成。
+
+#### Server端
+
+一个 ZooKeeper 的节点存储两部分内容：数据和状态，状态中包含ACL 信息。创建一个 znode 会产生一个 ACL 列表，列表中每个 ACL 包括：
+1. 权限 perms
+2. 验证模式 scheme
+3. 具体内容 expression：Ids
+
+**ZooKeeper 提供了如下几种验证模式：**
+1. Digest： Client 端由用户名和密码验证，譬如 user:pwd
+3. Ip：Client 端由 IP 地址验证，譬如 172.2.0.0/24
+4. World ：固定用户为 anyone，为所有 Client 端开放权限
+
+当会话建立的时候，客户端将会进行自我验证。例如，当 scheme="digest" 时， Ids 为用户名密码， 即 "root ：J0sTy9BCUKubtK1y8pkbL7qoxSw"。
+
+**权限许可集合如下：**
+1. Create 允许对子节点 Create 操作
+2. Read 允许对本节点 GetChildren 和 GetData 操作
+3. Write 允许对本节点 SetData 操作
+4. Delete 允许对子节点 Delete 操作
+5. Admin 允许对本节点 setAcl 操作
+
+另外，ZooKeeper Java API 支持三种标准的用户权限，它们分别为：
+1. ZOO_PEN_ACL_UNSAFE：对于所有的ACL来说都是完全开放的，任何应用程序可以在节点上执行任何操作，比如创建、列出并删除子节点。
+2. ZOO_READ_ACL_UNSAFE：对于任意的应用程序来说，仅仅具有读权限。
+3. ZOO_CREATOR_ALL_ACL：授予节点创建者所有权限。需要注意的是，设置此权限之前，创建者必须已经通了服务器的认证。
+
+Znode ACL 权限用一个 int 型数字p erms 表示， perms 的 5 个二进制位分别表示 setacl、delete、create、write、read。
+
+比如adcwr=0x1f(11111)，----r=0x1(00001)，a-c-r=0x15(10101)。
+
+**注意的是，exists 操作和 getAcl 操作并不受 ACL许可控制，因此任何客户端可以查询节点的状态和节点的 ACL。**
+
+#### 客户端
+
+Client 通过调用 addAuthInfo() 函数设置当前会话的 Author 信息（针对 Digest 验证模式）。
+
+Server 收到 Client 发送的操作请求（除 exists、getAcl 之外），需要进行 ACL 验证：
+对该请求携带的 Author 明文信息加密，并与目标节点的 ACL 信息进行比较，如果匹配则具有相应的权限，否则请求被 Server 拒绝。
+
+一次 Client 对 Znode 进行操作的验证 ACL 的方式为，遍历 znode 的所有 ACL：
+1. 对于每一个 ACL，首先操作类型与权限（perms）匹配
+2. 只有匹配权限成功才进行 session 的 auth 信息与 ACL 的用户名、密码匹配
+3. 如果两次匹配都成功，则允许操作；否则，返回权限不够 error（rc=-102）
+
+## Session 机制
+
+每个 ZooKeeper 客户端的配置中都包括集合体中服务器的列表。在启动时，客户端会尝试连接到列表中的一台服务器。如果连接失败，它会尝试连接另一台服务器，
+以此类推，直到成功与一台服务器建立连接或因为所有 ZooKeeper 服务器都不可用而失败。
+
+
+
 ## ZooKeeper 异常
 
 在 Java API 中的每一个 ZooKeeper 操作都在其 throws 子句中声明了两种类型的异常，分别是 InterruptedException 和 KeeperException。
@@ -72,23 +161,22 @@ InterruptedException 异常并不意味着有故障，而是表明相应的操�
 
 (1) 如果 ZooKeeper 服务器发出一个错误信号或与服务器存在通信问题，抛出的则是 KeeperException 异常。
 
-①针对不同的错误情况，KeeperException 异常存在不同的子类。
+**针对不同的错误情况，KeeperException 异常存在不同的子类。**
 
 例如:　KeeperException.NoNodeException 是 KeeperException 的一个子类，如果你试图针对一个不存在的 znode 执行操作，抛出的则是该异常。
 
-②每一个 KeeperException 异常的子类都对应一个关于错误类型信息的代码。
+**每一个 KeeperException 异常的子类都对应一个关于错误类型信息的代码。**
 
 例如:　KeeperException.NoNodeException 异常的代码是 KeeperException.Code.NONODE
 
-(2) 有两种方法被用来处理 KeeperException 异常：
+**有两种方法被用来处理 KeeperException 异常。**
 
-①捕捉 KeeperException 异常，并且通过检测它的代码来决定采取何种补救措施；
-
-②另一种是捕捉等价的 KeeperException 子类，并且在每段捕捉代码中执行相应的操作。
+1. 捕捉 KeeperException 异常，并且通过检测它的代码来决定采取何种补救措施；
+2. 另一种是捕捉等价的 KeeperException 子类，并且在每段捕捉代码中执行相应的操作。
 
 (3) KeeperException 异常分为三大类
 
-① 状态异常 
+* 状态异常 
 
 当一个操作因不能被应用于 znode 树而导致失败时，就会出现状态异常。状态异常产生的原因通常是在同一时间有另外一个进程正在修改znode。
 例如，如果一个 znode 先被另外一个进程更新了，根据版本号执行 setData 操作的进程就会失败，并收到一个 KeeperException.BadVersionException 异常，
@@ -96,7 +184,7 @@ InterruptedException 异常并不意味着有故障，而是表明相应的操�
 
 一些状态异常会指出程序中的错误，例如 KeeperException.NoChildrenForEphemeralsException 异常，试图在短暂 znode 下创建子节点时就会抛出该异常。
 
-② 可恢复异常
+* 可恢复异常
 
 可恢复的异常是指那些应用程序能够在同一个 ZooKeeper 会话中恢复的异常。一个可恢复的异常是通过 KeeperException.ConnectionLossException 来表示的，
 它意味着已经丢失了与 ZooKeeper 的连接。ZooKeeper 会尝试重新连接，并且在大多数情况下重新连接会成功，并确保会话是完整的。
@@ -106,7 +194,7 @@ InterruptedException 异常并不意味着有故障，而是表明相应的操�
 幂等操作是指那些一次或多次执行都会产生相同结果的操作，例如读请求或无条件执行的 setData 操作。对于幂等操作，只需要简单地进行重试即可。对于非幂等操作，就不能盲目地进行重试，
 因为它们多次执行的结果与一次执行是完全不同的。程序可以通过在 znode 的路径和它的数据中编码信息来检测是否非幂等操怍的更新已经完成。
 
-③不可恢复的异常 
+* 不可恢复的异常 
 
 在某些情况下，ZooKeeper 会话会失效——也许因为超时或因为会话被关闭，两种情况下都会收到 KeeperException.SessionExpiredException 异常，
 或因为身份验证失败，KeeperException.AuthFailedException 异常。无论上述哪种情况，所有与会话相关联的短暂 znode 都将丢失，
