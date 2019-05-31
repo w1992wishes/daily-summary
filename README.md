@@ -6,6 +6,8 @@
 
 * [数据挖掘相关](data-mining/README.md)
     * [聚类算法](data-mining/cluster-algorithm/README.md)
+* [Hadoop 相关](hadoop)
+    * [Hadoop MapReduce 例子](hadoop/map-reduce/README.md)
 * [kafka 相关](kafka)
     * [消费者简单例子](kafka/kafaka-consumer)
     * [生产者简单例子](kafka/kafka-producer)

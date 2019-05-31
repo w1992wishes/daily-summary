@@ -30,6 +30,7 @@
         <module>my-script</module>
         <module>spark</module>
         <module>zookeeper</module>
+        <module>hadoop</module>
     </modules>
 
     <repositories>
