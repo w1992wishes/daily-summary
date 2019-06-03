@@ -41,7 +41,7 @@ public class MaxTemperatureTest {
     }
 
     @Test
-    public void test() throws Exception {
+    public void testLocalDriver() throws Exception {
 
         Configuration conf = new Configuration();
         conf.set("fs.defaultFS", "file:///");

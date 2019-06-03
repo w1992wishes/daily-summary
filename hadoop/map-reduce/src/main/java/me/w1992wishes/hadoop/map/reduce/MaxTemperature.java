@@ -28,10 +28,11 @@ public class MaxTemperature {
         Job job = Job.getInstance(conf, "Temperature");
 
         //如果需要打成jar运行，需要下面这句
-        //job.setJarByClass(NewMaxTemperature.class);
+        //job.setJarByClass(MaxTemperature.class);
 
         //指定自定义的Mapper和Reducer作为两个阶段的任务处理类
         job.setMapperClass(TemperatureMapper.class);
+        job.setCombinerClass(TemperatureReducer.class);
         job.setReducerClass(TemperatureReducer.class);
 
         //设置最后输出结果的Key和Value的类型
