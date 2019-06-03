@@ -81,6 +81,14 @@
 
     <plugins>
         <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-compiler-plugin</artifactId>
+            <configuration>
+                <source>8</source>
+                <target>8</target>
+            </configuration>
+        </plugin>
+        <plugin>
             <groupId>net.alchim31.maven</groupId>
             <artifactId>scala-maven-plugin</artifactId>
             <version>3.2.2</version>
@@ -100,7 +108,6 @@
                 </execution>
             </executions>
         </plugin>
-
         <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-shade-plugin</artifactId>
@@ -127,7 +134,7 @@
                             <!-- add Main-Class to manifest file -->
                             <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                                 <!--you can add you want to need   the main class-->
-                                <mainClass>me.w1992wishes.spark.streaming.job.StreamingPreProcessJob</mainClass>
+                                <mainClass>me.w1992wishes.spark.streaming.task.StreamingPreProcessTask</mainClass>
                             </transformer>
                         </transformers>
                         <createDependencyReducedPom>false</createDependencyReducedPom>
@@ -135,13 +142,12 @@
                 </execution>
             </executions>
         </plugin>
-        <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-compiler-plugin</artifactId>
-            <configuration>
-                <source>8</source>
-                <target>8</target>
-            </configuration>
-        </plugin>
     </plugins>
+
+    <repositories>
+        <repository>
+            <id>hand-china</id>
+            <url>http://nexus.saas.hand-china.com/content/repositories/rdc//</url>
+        </repository>
+    </repositories>
 </project>
