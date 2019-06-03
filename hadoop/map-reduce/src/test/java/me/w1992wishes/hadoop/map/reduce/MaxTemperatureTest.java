@@ -11,6 +11,7 @@ import org.apache.hadoop.mrunit.mapreduce.ReduceDriver;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.io.IOException;
 import java.util.Arrays;
 
 
@@ -31,13 +32,35 @@ public class MaxTemperatureTest {
     }
 
     @Test
-    public void returnsMaximumInValues() {
+    public void returnsMaximumInValues() throws IOException {
         new ReduceDriver<Text, IntWritable, Text, IntWritable>()
                 .withReducer(new MaxTemperature.TemperatureReducer())
-                .withInputKey(new Text("2014"))
-                .withInputValues(Arrays.asList(new IntWritable(10), new IntWritable(14)))
+                .withInput(new Text("2014"), Arrays.asList(new IntWritable(10), new IntWritable(14)))
                 .withOutput(new Text("2014"), new IntWritable(14))
                 .runTest();
+    }
+
+    @Test
+    public void test() throws Exception {
+
+        Configuration conf = new Configuration();
+        conf.set("fs.defaultFS", "file:///");
+        conf.set("mapreduce.framework.name", "local");
+        conf.setInt("mapreduce.task.io.sort.mb", 1);
+
+        Path input = new Path("input/input.txt");
+        Path output = new Path("output");
+
+        FileSystem fs = FileSystem.getLocal(conf);
+        fs.delete(output, true);
+
+        MaxTemperatureDriver driver = new MaxTemperatureDriver();
+        driver.setConf(conf);
+
+        int exitCode = driver.run(new String[]{input.toString(), output.toString()});
+
+        Assert.assertEquals(exitCode, 0);
+
     }
 }
 
