@@ -20,6 +20,8 @@
     * [etl 离线加载数据预处理](spark/etl-offline-preprocess/README.md)
     * [spark 例子](spark/spark-example/README.md)
     * [参考 spark kmeans 实现的分区聚类](spark/spark-partitioning/README.md)
+* [数据结构和算法题相关](structures-algorithms)
+    * [初级算法](structures-algorithms/easy-collection/README.md)
 * [Zookeeper 相关](zookeeper/README.md)
     * [zk api 使用例子](zookeeper/zk-example/README.md)
     * [zk 配置中心简单原理](zookeeper/zk-config-server1/README.md)

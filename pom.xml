@@ -31,6 +31,7 @@
         <module>spark</module>
         <module>zookeeper</module>
         <module>hadoop</module>
+        <module>structures-algorithms</module>
     </modules>
 
     <repositories>
