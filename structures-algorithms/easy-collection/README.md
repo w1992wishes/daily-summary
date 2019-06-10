@@ -2,7 +2,7 @@
 
 ## Array
 
-### removeDuplicates
+### RemoveDuplicatesArray
 
 Given a sorted array nums, remove the duplicates in-place such that each element appear only once and return the new length.
 
@@ -12,7 +12,7 @@ Do not allocate extra space for another array, you must do this by modifying the
 
 不要使用额外的数组空间，你必须在原地修改输入数组并在使用 O(1) 额外空间的条件下完成。
 
-### maxProfit
+### MaxProfitArray
 
 Say you have an array for which the ith element is the price of a given stock on day i.
 
@@ -25,3 +25,12 @@ Note: You may not engage in multiple transactions at the same time (i.e., you mu
 设计一个算法来计算你所能获取的最大利润。你可以尽可能地完成更多的交易（多次买卖一支股票）。
 
 注意：你不能同时参与多笔交易（你必须在再次购买前出售掉之前的股票）。
+
+### RotateArray
+
+Given an array, rotate the array to the right by k steps, where k is non-negative.
+
+Note:
+
+Try to come up as many solutions as you can, there are at least 3 different ways to solve this problem.
+Could you do it in-place with O(1) extra space?
