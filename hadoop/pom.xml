@@ -11,6 +11,7 @@
 
     <modules>
         <module>map-reduce</module>
+        <module>hbase</module>
     </modules>
 
     <properties>
