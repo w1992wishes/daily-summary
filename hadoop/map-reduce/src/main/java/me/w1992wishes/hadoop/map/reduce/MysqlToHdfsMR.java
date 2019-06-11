@@ -2,6 +2,8 @@ package me.w1992wishes.hadoop.map.reduce;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.*;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
@@ -10,6 +12,7 @@ import org.apache.hadoop.mapreduce.lib.db.DBConfiguration;
 import org.apache.hadoop.mapreduce.lib.db.DBInputFormat;
 import org.apache.hadoop.mapreduce.lib.db.DBOutputFormat;
 import org.apache.hadoop.mapreduce.lib.db.DBWritable;
+import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 
 import java.io.DataInput;
 import java.io.DataOutput;
@@ -20,12 +23,11 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 /**
- *
  * 为了方便 MapReduce 直接訪问关系型数据库（Mysql,Oracle）。Hadoop提供了DBInputFormat和DBOutputFormat两个类。
  *
  * @author Administrator
  */
-public class MysqlMR {
+public class MysqlToHdfsMR {
 
     /**
      * Writable 是为了与 MapReduce 进行对接，DBWritable 是为了与 MySQL 进行对接。
@@ -42,11 +44,6 @@ public class MysqlMR {
         protected int input_speed;
         protected int output_speed;
 
-        /**
-         * DBWritable 负责对数据库进行操作，所以输出格式是 PreparedStatement
-         *
-         * PreparedStatement 接口继承并扩展了 Statement 接口，用来执行动态的 SQL 语句，即包含参数的 SQL 语句
-         */
         @Override
         public void write(PreparedStatement preparedStatement) throws SQLException {
             preparedStatement.setInt(1, this.size);
@@ -55,11 +52,6 @@ public class MysqlMR {
             preparedStatement.setInt(4, this.output_speed);
         }
 
-        /**
-         * DBWritable 负责对数据库进行操作，输入格式是 ResultSet
-         *
-         * ResultSet 接口类似于一张数据表，用来暂时存放从数据库查询操作所获得的结果集
-         */
         @Override
         public void readFields(ResultSet resultSet) throws SQLException {
             this.size = resultSet.getInt(1);
@@ -68,9 +60,6 @@ public class MysqlMR {
             this.output_speed = resultSet.getInt(4);
         }
 
-        /**
-         * Writable 接口是对数据流进行操作的，所以输出是 DataOutput 类对象
-         */
         @Override
         public void write(DataOutput dataOutput) throws IOException {
             dataOutput.writeInt(this.size);
@@ -79,9 +68,6 @@ public class MysqlMR {
             dataOutput.writeInt(this.output_speed);
         }
 
-        /**
-         * Writable 接口是对数据流进行操作的，所以输入是 DataInput 类对象
-         */
         @Override
         public void readFields(DataInput dataInput) throws IOException {
             this.size = dataInput.readInt();
@@ -96,43 +82,6 @@ public class MysqlMR {
         }
     }
 
-    private static class MySQLStatistic implements DBWritable, Writable {
-        private Date date;
-        private int nums;
-
-        MySQLStatistic(String date, int nums) {
-            this.date = Date.valueOf(date);
-            this.nums = nums;
-        }
-
-        @Override
-        public void write(DataOutput dataOutput) throws IOException {
-            Text.writeString(dataOutput, date.toString());
-            dataOutput.writeInt(nums);
-        }
-
-        @Override
-        public void readFields(DataInput dataInput) throws IOException {
-            date = Date.valueOf(Text.readString(dataInput));
-            nums = dataInput.readInt();
-        }
-
-        @Override
-        public void write(PreparedStatement preparedStatement) throws SQLException {
-            preparedStatement.setDate(1, date);
-            preparedStatement.setInt(2, nums);
-        }
-
-        @Override
-        public void readFields(ResultSet resultSet) throws SQLException {
-            date = resultSet.getDate(1);
-            nums = resultSet.getInt(2);
-        }
-    }
-
-    /**
-     * 此处是静态内部类，要不然需要实现无参构造器，否则会抛异常
-     */
     private static class SQLMapper extends Mapper<LongWritable, MysqlRecord, Text, IntWritable> {
         @Override
         protected void map(LongWritable key, MysqlRecord value, Context context)
@@ -143,7 +92,7 @@ public class MysqlMR {
         }
     }
 
-    private static class SQLReducer extends Reducer<Text, IntWritable, MySQLStatistic, NullWritable> {
+    private static class MyReducer extends Reducer<Text, IntWritable, Text, IntWritable> {
         @Override
         protected void reduce(Text key, Iterable<IntWritable> values, Context context)
                 throws IOException, InterruptedException {
@@ -151,8 +100,7 @@ public class MysqlMR {
             for (IntWritable v : values) {
                 sum += v.get();
             }
-            MySQLStatistic res = new MySQLStatistic(key.toString(), sum);
-            context.write(res, NullWritable.get());
+            context.write(key, new IntWritable(sum));
         }
     }
 
@@ -160,7 +108,7 @@ public class MysqlMR {
         Configuration conf = new Configuration();
         String host = StringUtils.isEmpty(args[0]) ? "localhost" : args[0];
         // 用DBConfiguration.configureDB 来设定连接 MySQL 所需要的一些认证信息。
-        String url = "jdbc:mysql://" + host +":3306/test";
+        String url = "jdbc:mysql://" + host + ":3306/test";
         DBConfiguration.configureDB(
                 conf,
                 "com.mysql.jdbc.Driver",
@@ -168,21 +116,16 @@ public class MysqlMR {
                 "root",
                 "introcks1234");
 
-
         Job job = Job.getInstance(conf, "MysqlMR");
-        job.setJarByClass(MysqlMR.class);
+        job.setJarByClass(MysqlToHdfsMR.class);
         job.setMapperClass(SQLMapper.class);
-        job.setReducerClass(SQLReducer.class);
+        job.setReducerClass(MyReducer.class);
 
         job.setMapOutputKeyClass(Text.class);
         job.setMapOutputValueClass(IntWritable.class);
 
-        job.setOutputKeyClass(MySQLStatistic.class);
-        job.setOutputValueClass(NullWritable.class);
-
-        // 设置输出输出类
+        // 设置输入类
         job.setInputFormatClass(DBInputFormat.class);
-        job.setOutputFormatClass(DBOutputFormat.class);
         // 再设置表名，字段名等信息。
         DBInputFormat.setInput(
                 job,                // job
@@ -191,11 +134,9 @@ public class MysqlMR {
                 null,               // condition
                 "time",             // order by
                 "size", "time", "input_speed", "output_speed");            // fields
-        DBOutputFormat.setOutput(
-                job,                // job
-                "hadoop_out",       // output table name
-                "date", "nums"       // fields
-        );
+        Path outPath = new Path("output");
+        FileSystem.get(conf).delete(outPath, true);
+        FileOutputFormat.setOutputPath(job, outPath);
 
         job.waitForCompletion(true);
     }
