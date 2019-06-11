@@ -139,10 +139,11 @@ public class MysqlMR {
     public static void main(String[] args) throws Exception {
         Configuration conf = new Configuration();
         // 用DBConfiguration.configureDB 来设定连接 MySQL 所需要的一些认证信息。
+        String url = "jdbc:mysql://" + args[0] +":3306/test";
         DBConfiguration.configureDB(
                 conf,
                 "com.mysql.jdbc.Driver",
-                "jdbc:mysql://localhost:3306/test",
+                url,
                 "root",
                 "introcks1234");
 
