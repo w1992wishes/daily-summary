@@ -14,9 +14,20 @@
 * 中序遍历：中序遍历是先遍历左子树，然后访问根节点，然后遍历右子树。对于二叉搜索树，我们可以通过中序遍历得到一个递增的有序序列。
 * 后序遍历：后序遍历是先遍历左子树，然后遍历右子树，最后访问树的根节点。
 
-### 1.2、Binary Tree Preorder Traversal
+### 1.2、PreorderTraversal
 
-有两种实现，一是递归，另一个是迭代。
+Given a binary tree, return the preorder traversal of its nodes' values.
 
-* recursivePreorder：先递归左节点，再递归右节点。
-* iterativePreorder：迭代借用栈来实现，利用栈先进后出的特点，先将右节点入栈，再将左节点入栈。
+给定一个二叉树，返回它的 前序 遍历。
+
+### InorderTraversal
+
+Given a binary tree, return the inorder traversal of its nodes' values.
+
+给定一个二叉树，返回它的中序 遍历。
+
+### PostorderTraversal
+
+Given a binary tree, return the postorder traversal of its nodes' values.
+
+给定一个二叉树，返回它的 后序 遍历。
