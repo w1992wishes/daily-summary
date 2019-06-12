@@ -2,7 +2,7 @@ package me.w1992wishes.easy.collection.array;
 
 /**
  * Q: Given a sorted array nums, remove the duplicates in-place such that each element appear only once and return the new length.
- * <p>
+ *
  * Do not allocate extra space for another array, you must do this by modifying the input array in-place with O(1) extra memory.
  *
  * @author w1992wishes 2019/6/10 12:22
@@ -11,7 +11,7 @@ public class RemoveDuplicatesArray {
 
     /**
      * 使用快慢指针来记录遍历的坐标，最开始时两个指针都指向第一个数字，如果两个指针指的数字相同，则快指针向前走一步，
-     * <p>
+     *
      * 如果不同，则两个指针都向前走一步，这样当快指针走完整个数组后，慢指针当前的坐标加1就是数组中不同数字的个数
      */
     public int removeDuplicates(int[] nums) {

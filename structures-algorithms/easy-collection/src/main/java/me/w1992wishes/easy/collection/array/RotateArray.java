@@ -2,9 +2,9 @@ package me.w1992wishes.easy.collection.array;
 
 /**
  * Given an array, rotate the array to the right by k steps, where k is non-negative.
- * <p>
+ *
  * Example 1:
- * <p>
+ *
  * Input: [1,2,3,4,5,6,7] and k = 3
  * Output: [5,6,7,1,2,3,4]
  * Explanation:
