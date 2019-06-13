@@ -12,7 +12,7 @@
 * 中序遍历：中序遍历是先遍历左子树，然后访问根节点，然后遍历右子树。对于二叉搜索树，我们可以通过中序遍历得到一个递增的有序序列。
 * 后序遍历：后序遍历是先遍历左子树，然后遍历右子树，最后访问树的根节点。
 
-### PreorderTraversal
+### 1.1、PreorderTraversal
 
 Given a binary tree, return the preorder traversal of its nodes' values.
 
@@ -30,7 +30,7 @@ Output: [1,2,3]
 
 给定一个二叉树，返回它的 前序 遍历。
 
-### InorderTraversal
+### 1.2、InorderTraversal
 
 Given a binary tree, return the inorder traversal of its nodes' values.
 
@@ -48,7 +48,7 @@ Output: [1,3,2]
 
 给定一个二叉树，返回它的中序 遍历。
 
-### PostorderTraversal
+### 1.3、PostorderTraversal
 
 Given a binary tree, return the postorder traversal of its nodes' values.
 
@@ -66,7 +66,7 @@ Output: [3,2,1]
 
 给定一个二叉树，返回它的 后序 遍历。
 
-## 二、层序遍历
+### 1.4、层序遍历
 
 层序遍历就是逐层遍历树结构。
 
@@ -74,7 +74,7 @@ Output: [3,2,1]
 
 当我们在树中进行广度优先搜索时，我们访问的节点的顺序是按照层序遍历顺序的。
 
-### LevelOrderTraversal
+**LevelOrderTraversal**
 
 Given a binary tree, return the level order traversal of its nodes' values. (ie, from left to right, level by level).
 
@@ -97,13 +97,13 @@ return its level order traversal as:
 ]
 ```
 
-## 三、运用递归解决树的问题
+## 二、运用递归解决树的问题
 
 树可以以递归的方式定义为一个节点（根节点），它包括一个值和一个指向其他节点指针的列表。 递归是树的特性之一。 因此，许多树问题可以通过递归的方式来解决。 对于每个递归层级，我们只能关注单个节点内的问题，并通过递归调用函数来解决其子节点问题。
 
 通常，可以通过 “自顶向下” 或 “自底向上” 的递归来解决树问题。
 
-### “自顶向下” 的解决方案
+### 2.1、“自顶向下” 的解决方案
 
 “自顶向下” 意味着在每个递归层级，我们将首先访问节点来计算一些值，并在递归调用函数时将这些值传递到子节点。 所以 “自顶向下” 的解决方案可以被认为是一种前序遍历。
 
@@ -129,7 +129,7 @@ return its level order traversal as:
 5. maximum_depth(root.right, depth + 1)     // call the function recursively for right child
 ```
 
-### “自底向上” 的解决方案
+### 2.2、“自底向上” 的解决方案
 
 “自底向上” 是另一种递归方法。 在每个递归层次上，首先对所有子节点递归地调用函数，然后根据返回值和根节点本身的值得到答案。 这个过程可以看作是后序遍历的一种。 通常， “自底向上” 的递归函数 bottom_up(root) 为如下所示：
 
@@ -153,7 +153,7 @@ return its level order traversal as:
 4. return max(left_depth, right_depth) + 1  // return depth of the subtree rooted at root
 ```
 
-### 总结
+### 2.3、总结
 
 当遇到树问题时，先思考一下两个问题：
 
@@ -164,3 +164,31 @@ return its level order traversal as:
 或者可以这样思考：
 对于树中的任意一个节点，如果知道它子节点的答案，能计算出该节点的答案吗？ 
 如果答案是肯定的，那么 “自底向上” 的递归可能是一个不错的解决方法。
+
+### 2.4、Maximum Depth of Binary Tree
+
+Given a binary tree, find its maximum depth.
+
+The maximum depth is the number of nodes along the longest path from the root node down to the farthest leaf node.
+
+Note: A leaf is a node with no children.
+
+Example:
+
+Given binary tree [3,9,20,null,null,15,7],
+
+```
+    3
+   / \
+  9  20
+    /  \
+   15   7
+```
+return its depth = 3.
+
+给定一个二叉树，找出其最大深度。
+
+二叉树的深度为根节点到最远叶子节点的最长路径上的节点数。
+
+说明: 叶子节点是指没有子节点的节点。
+
