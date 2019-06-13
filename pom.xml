@@ -32,6 +32,7 @@
         <module>zookeeper</module>
         <module>hadoop</module>
         <module>structures-algorithms</module>
+        <module>java</module>
     </modules>
 
     <repositories>
