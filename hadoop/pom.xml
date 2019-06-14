@@ -12,6 +12,7 @@
     <modules>
         <module>map-reduce</module>
         <module>hbase</module>
+        <module>hive</module>
     </modules>
 
     <properties>
