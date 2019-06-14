@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# 第一步，先创建 hive 表，见 hive.sql
+
 # 执行sqoop直接导入hive
 sqoop import \
 --connect jdbc:postgresql://192.168.13.82:5432/bigdata_dwd \
