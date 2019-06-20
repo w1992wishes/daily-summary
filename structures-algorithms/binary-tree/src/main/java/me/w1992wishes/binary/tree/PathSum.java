@@ -1,7 +1,5 @@
 package me.w1992wishes.binary.tree;
 
-import java.util.ArrayDeque;
-import java.util.Deque;
 import java.util.LinkedList;
 
 /**
@@ -55,22 +53,22 @@ public class PathSum {
         nodes.add(root);
         values.add(root.val);
 
-        while(!nodes.isEmpty()){
+        while (!nodes.isEmpty()) {
             TreeNode curr = nodes.poll();
             int sumValue = values.poll();
 
-            if(curr.left == null && curr.right == null && sumValue==sum){
+            if (curr.left == null && curr.right == null && sumValue == sum) {
                 return true;
             }
 
-            if(curr.left != null){
+            if (curr.left != null) {
                 nodes.add(curr.left);
-                values.add(sumValue+curr.left.val);
+                values.add(sumValue + curr.left.val);
             }
 
-            if(curr.right != null){
+            if (curr.right != null) {
                 nodes.add(curr.right);
-                values.add(sumValue+curr.right.val);
+                values.add(sumValue + curr.right.val);
             }
         }
         return false;
