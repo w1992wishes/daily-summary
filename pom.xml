@@ -33,6 +33,7 @@
         <module>hadoop</module>
         <module>structures-algorithms</module>
         <module>java</module>
+        <module>azkaban</module>
     </modules>
 
     <repositories>
