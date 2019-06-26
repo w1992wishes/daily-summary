@@ -18,7 +18,7 @@ import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
  
 public class HBaseWordCount {
     
-    public static class hBaseMapper extends Mapper<LongWritable, Text, Text, IntWritable> {
+    public static class HBaseMapper extends Mapper<LongWritable, Text, Text, IntWritable> {
  
         private final static IntWritable ONE = new IntWritable(1);
         private Text word = new Text();
@@ -33,7 +33,7 @@ public class HBaseWordCount {
         }
     }
     
-    public static class hBaseReducer extends TableReducer<Text, IntWritable, NullWritable> {
+    public static class HBaseReducer extends TableReducer<Text, IntWritable, NullWritable> {
  
         @Override
         protected void reduce(Text key, Iterable<IntWritable> values, Context context) throws IOException, InterruptedException {
@@ -77,8 +77,8 @@ public class HBaseWordCount {
         // 配置任务
         Job job = Job.getInstance(conf, jobName);
         job.setJarByClass(HBaseWordCount.class);
-        job.setMapperClass(hBaseMapper.class);
-        job.setReducerClass(hBaseReducer.class);
+        job.setMapperClass(HBaseMapper.class);
+        job.setReducerClass(HBaseReducer.class);
 
         job.setMapOutputKeyClass(Text.class);
         job.setMapOutputValueClass(IntWritable.class);

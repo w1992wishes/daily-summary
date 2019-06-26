@@ -244,3 +244,26 @@ Given the below binary tree and sum = 22,
 ```
 
 return true, as there exist a root-to-leaf path 5->4->11->2 which sum is 22.
+
+## 三、conclusion
+
+### 3.1、Construct Binary Tree from Inorder and Postorder Traversal
+
+Given inorder and postorder traversal of a tree, construct the binary tree.
+
+Note:  
+You may assume that duplicates do not exist in the tree.
+
+For example, given
+
+inorder = [9,3,15,20,7]  
+postorder = [9,15,7,20,3]  
+Return the following binary tree:
+
+```
+    3
+   / \
+  9  20
+    /  \
+   15   7
+```
