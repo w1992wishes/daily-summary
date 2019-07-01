@@ -1,0 +1,58 @@
+-- -- ----------------------------
+-- -- Table structure for mid_graph_dictionary 图关系字典
+-- -- ----------------------------
+-- DROP TABLE IF EXISTS "public"."mid_graph_dictionary";
+-- CREATE TABLE "public"."mid_graph_dictionary" (
+--   "id" int4,
+--   "type" varchar(100),
+--   "code" varchar(50),
+--   "value" varchar(255),
+--   "create_time" timestamp(0) DEFAULT (('now'::text)::timestamp(0) with time zone)::timestamp without time zone,
+--   "update_time" timestamp(0),
+--   "delete_flag" int4 DEFAULT 0
+-- )
+-- ;
+-- COMMENT ON COLUMN "public"."mid_graph_dictionary"."type" IS '类型';
+-- COMMENT ON COLUMN "public"."mid_graph_dictionary"."code" IS '代码';
+-- COMMENT ON COLUMN "public"."mid_graph_dictionary"."value" IS 'code代表的含义';
+-- COMMENT ON COLUMN "public"."mid_graph_dictionary"."create_time" IS '数据入库时间';
+-- COMMENT ON COLUMN "public"."mid_graph_dictionary"."update_time" IS '数据更新时间';
+-- COMMENT ON COLUMN "public"."mid_graph_dictionary"."delete_flag" IS '逻辑删除标志';
+-- COMMENT ON TABLE "public"."mid_graph_dictionary" IS '字典表';
+--
+-- -- ----------------------------
+-- -- Records of mid_graph_dictionary
+-- -- ----------------------------
+-- INSERT INTO "public"."mid_graph_dictionary" VALUES (3, 'relationship', 'MZ', '母子', '2019-02-18 12:23:01', NULL, 0);
+-- INSERT INTO "public"."mid_graph_dictionary" VALUES (7, 'relationship', 'JM', '姐妹', '2019-02-18 12:23:01', NULL, 0);
+-- INSERT INTO "public"."mid_graph_dictionary" VALUES (11, 'relationship', 'TS', '同事', '2019-02-18 12:23:01', NULL, 0);
+-- INSERT INTO "public"."mid_graph_dictionary" VALUES (4, 'relationship', 'FN', '父女', '2019-02-18 12:23:01', NULL, 0);
+-- INSERT INTO "public"."mid_graph_dictionary" VALUES (8, 'relationship', 'ZM', '姊妹', '2019-02-18 12:23:01', NULL, 0);
+-- INSERT INTO "public"."mid_graph_dictionary" VALUES (1, 'relationship', 'FQ', '夫妻', '2019-02-18 12:23:01', NULL, 0);
+-- INSERT INTO "public"."mid_graph_dictionary" VALUES (5, 'relationship', 'MN', '母女', '2019-02-18 12:23:01', NULL, 0);
+-- INSERT INTO "public"."mid_graph_dictionary" VALUES (9, 'relationship', 'QTQS', '其他亲属', '2019-02-18 12:23:01', NULL, 0);
+-- INSERT INTO "public"."mid_graph_dictionary" VALUES (2, 'relationship', 'FZ', '父子', '2019-02-18 12:23:01', NULL, 0);
+-- INSERT INTO "public"."mid_graph_dictionary" VALUES (6, 'relationship', 'XD', '兄弟', '2019-02-18 12:23:01', NULL, 0);
+-- INSERT INTO "public"."mid_graph_dictionary" VALUES (10, 'relationship', 'PY', '朋友', '2019-02-18 12:23:01', NULL, 0);
+--
+-- -- ----------------------------
+-- -- Table structure for mid_graph_dictionary 图关系字典
+-- -- ----------------------------
+-- DROP TABLE IF EXISTS "public"."mid_${bizCode}_graph_relation_${algVersion}";
+-- CREATE TABLE "public"."mid_${bizCode}_graph_relation_${algVersion}" (
+--   "id" int8,
+--   "archive_id" varchar(50),
+--   "link_archive_id" varchar(50),
+--   "code" varchar(10),
+--   "create_time" timestamp(0),
+--   "update_time" timestamp(0),
+--   "delete_flag" int4
+-- )
+-- ;
+-- COMMENT ON COLUMN "public"."mid_${bizCode}_graph_relation_${algVersion}"."id" IS 'id';
+-- COMMENT ON COLUMN "public"."mid_${bizCode}_graph_relation_${algVersion}"."archive_id" IS '档案编号';
+-- COMMENT ON COLUMN "public"."mid_${bizCode}_graph_relation_${algVersion}"."link_archive_id" IS '被添加关系的档案编号';
+-- COMMENT ON COLUMN "public"."mid_${bizCode}_graph_relation_${algVersion}"."code" IS '关系代码';
+-- COMMENT ON COLUMN "public"."mid_${bizCode}_graph_relation_${algVersion}"."create_time" IS '数据入库时间';
+-- COMMENT ON COLUMN "public"."mid_${bizCode}_graph_relation_${algVersion}"."update_time" IS '数据更新时间';
+-- COMMENT ON TABLE "public"."mid_${bizCode}_graph_relation_${algVersion}" IS '人际关系表';

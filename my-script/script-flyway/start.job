@@ -1,0 +1,2 @@
+type=command
+command=echo "this is start.job"
