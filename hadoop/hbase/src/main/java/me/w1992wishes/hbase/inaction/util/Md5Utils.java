@@ -13,6 +13,12 @@ public class Md5Utils {
 
     public static final int MD5_LENGTH = 16; // bytes
 
+    /**
+     * 信息摘要是安全的单向哈希函数，它接收随意大小的数据，输出固定长度的哈希值。
+     *
+     * @param s 数据
+     * @return 固定长度的哈希值
+     */
     public static byte[] md5sum(String s) {
         MessageDigest d;
         try {

@@ -1,6 +1,7 @@
 package me.w1992wishes.hbase.inaction.hbase;
 
 import me.w1992wishes.hbase.inaction.util.Md5Utils;
+import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.*;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.log4j.Logger;
@@ -18,18 +19,18 @@ import java.util.List;
 public class TwitsDAO {
 
     public static final byte[] TABLE_NAME = Bytes.toBytes("twits");
-    public static final byte[] TWITS_FAM  = Bytes.toBytes("twits");
+    public static final byte[] TWITS_FAM = Bytes.toBytes("twits");
 
-    public static final byte[] USER_COL   = Bytes.toBytes("user");
-    public static final byte[] TWIT_COL   = Bytes.toBytes("twit");
+    public static final byte[] USER_COL = Bytes.toBytes("user");
+    public static final byte[] TWIT_COL = Bytes.toBytes("twit");
     private static final int longLength = 8; // bytes
 
-   /* private HTablePool pool;
+    private Connection conn;
 
     private static final Logger log = Logger.getLogger(TwitsDAO.class);
 
-    public TwitsDAO(HTablePool pool) {
-        this.pool = pool;
+    public TwitsDAO(Connection conn) {
+        this.conn = conn;
     }
 
     private static byte[] mkRowKey(Twit t) {
@@ -49,8 +50,8 @@ public class TwitsDAO {
 
     private static Put mkPut(Twit t) {
         Put p = new Put(mkRowKey(t));
-        p.add(TWITS_FAM, USER_COL, Bytes.toBytes(t.user));
-        p.add(TWITS_FAM, TWIT_COL, Bytes.toBytes(t.text));
+        p.addColumn(TWITS_FAM, USER_COL, Bytes.toBytes(t.user));
+        p.addColumn(TWITS_FAM, TWIT_COL, Bytes.toBytes(t.text));
         return p;
     }
 
@@ -62,11 +63,11 @@ public class TwitsDAO {
     }
 
     private static String to_str(byte[] xs) {
-        StringBuilder sb = new StringBuilder(xs.length *2);
-        for(byte b : xs) {
+        StringBuilder sb = new StringBuilder(xs.length * 2);
+        for (byte b : xs) {
             sb.append(b).append(" ");
         }
-        sb.deleteCharAt(sb.length() -1);
+        sb.deleteCharAt(sb.length() - 1);
         return sb.toString();
     }
 
@@ -74,12 +75,12 @@ public class TwitsDAO {
         byte[] userHash = Md5Utils.md5sum(user);
         byte[] startRow = Bytes.padTail(userHash, longLength); // 212d...866f00...
         byte[] stopRow = Bytes.padTail(userHash, longLength);
-        stopRow[Md5Utils.MD5_LENGTH-1]++;                      // 212d...867000...
+        stopRow[Md5Utils.MD5_LENGTH - 1]++;                      // 212d...867000...
 
         log.debug("Scan starting at: '" + to_str(startRow) + "'");
         log.debug("Scan stopping at: '" + to_str(stopRow) + "'");
 
-        Scan s = new Scan(startRow, stopRow);
+        Scan s = new Scan().withStartRow(startRow).withStopRow(stopRow);
         s.addColumn(TWITS_FAM, USER_COL);
         s.addColumn(TWITS_FAM, TWIT_COL);
         return s;
@@ -87,7 +88,7 @@ public class TwitsDAO {
 
     public void postTwit(String user, DateTime dt, String text) throws IOException {
 
-        HTableInterface twits = pool.getTable(TABLE_NAME);
+        Table twits = conn.getTable(TableName.valueOf(TABLE_NAME));
 
         Put p = mkPut(new Twit(user, dt, text));
         twits.put(p);
@@ -95,27 +96,28 @@ public class TwitsDAO {
         twits.close();
     }
 
-    public HBaseIA.TwitBase.model.Twit getTwit(String user, DateTime dt) throws IOException {
+    public me.w1992wishes.hbase.inaction.model.Twit getTwit(String user, DateTime dt) throws IOException {
 
-        HTableInterface twits = pool.getTable(TABLE_NAME);
+        Table twits = conn.getTable(TableName.valueOf(TABLE_NAME));
 
         Get g = mkGet(user, dt);
         Result result = twits.get(g);
-        if (result.isEmpty())
+        if (result.isEmpty()) {
             return null;
+        }
 
         Twit t = new Twit(result);
         twits.close();
         return t;
     }
 
-    public List<HBaseIA.TwitBase.model.Twit> list(String user) throws IOException {
+    public List<me.w1992wishes.hbase.inaction.model.Twit> list(String user) throws IOException {
 
-        HTableInterface twits = pool.getTable(TABLE_NAME);
+        Table twits = conn.getTable(TableName.valueOf(TABLE_NAME));
 
         ResultScanner results = twits.getScanner(mkScan(user));
-        List<HBaseIA.TwitBase.model.Twit> ret = new ArrayList<HBaseIA.TwitBase.model.Twit>();
-        for(Result r : results) {
+        List<me.w1992wishes.hbase.inaction.model.Twit> ret = new ArrayList<>();
+        for (Result r : results) {
             ret.add(new Twit(r));
         }
 
@@ -123,13 +125,13 @@ public class TwitsDAO {
         return ret;
     }
 
-    private static class Twit extends HBaseIA.TwitBase.model.Twit {
+    private static class Twit extends me.w1992wishes.hbase.inaction.model.Twit {
 
         private Twit(Result r) {
             this(
-                    r.getColumnLatest(TWITS_FAM, USER_COL).getValue(),
+                    r.getValue(TWITS_FAM, USER_COL),
                     Arrays.copyOfRange(r.getRow(), Md5Utils.MD5_LENGTH, Md5Utils.MD5_LENGTH + longLength),
-                    r.getColumnLatest(TWITS_FAM, TWIT_COL).getValue());
+                    r.getValue(TWITS_FAM, TWIT_COL));
         }
 
         private Twit(byte[] user, byte[] dt, byte[] text) {
@@ -144,6 +146,6 @@ public class TwitsDAO {
             this.dt = dt;
             this.text = text;
         }
-    }*/
+    }
 
 }
