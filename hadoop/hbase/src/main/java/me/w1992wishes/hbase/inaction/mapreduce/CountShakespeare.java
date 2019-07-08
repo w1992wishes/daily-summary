@@ -27,9 +27,8 @@ public class CountShakespeare {
     public static class Map
             extends TableMapper<Text, LongWritable> {
 
-        public static enum Counters {ROWS, SHAKESPEAREAN}
+        public static enum Counters {ROWS, SHAKESPEAREAN};
 
-        ;
         private Random rand;
 
         /**
@@ -52,14 +51,19 @@ public class CountShakespeare {
             byte[] b = result.getColumnLatestCell(
                     TwitsDAO.TWITS_FAM,
                     TwitsDAO.TWIT_COL).getValueArray();
-            if (b == null) return;
+            if (b == null) {
+                return;
+            }
 
             String msg = Bytes.toString(b);
-            if (msg.isEmpty()) return;
+            if (msg.isEmpty()) {
+                return;
+            }
 
             context.getCounter(Counters.ROWS).increment(1);
-            if (containsShakespeare(msg))
+            if (containsShakespeare(msg)) {
                 context.getCounter(Counters.SHAKESPEAREAN).increment(1);
+            }
         }
     }
 

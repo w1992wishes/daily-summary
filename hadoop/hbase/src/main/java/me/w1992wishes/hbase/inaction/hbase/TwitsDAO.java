@@ -24,7 +24,7 @@ public class TwitsDAO {
     public static final byte[] TWIT_COL   = Bytes.toBytes("twit");
     private static final int longLength = 8; // bytes
 
-    private HTablePool pool;
+   /* private HTablePool pool;
 
     private static final Logger log = Logger.getLogger(TwitsDAO.class);
 
@@ -144,6 +144,6 @@ public class TwitsDAO {
             this.dt = dt;
             this.text = text;
         }
-    }
+    }*/
 
 }

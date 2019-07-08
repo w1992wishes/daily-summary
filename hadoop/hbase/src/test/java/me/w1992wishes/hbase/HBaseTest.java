@@ -1,5 +1,6 @@
 package me.w1992wishes.hbase;
 
+import me.w1992wishes.hbase.example.HBaseUtils;
 import org.junit.Test;
 
 import java.io.IOException;

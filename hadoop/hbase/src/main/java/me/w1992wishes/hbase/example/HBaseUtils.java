@@ -1,4 +1,4 @@
-package me.w1992wishes.hbase;
+package me.w1992wishes.hbase.example;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.Cell;
