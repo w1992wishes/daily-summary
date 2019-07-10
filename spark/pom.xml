@@ -13,6 +13,7 @@
         <module>spark-example</module>
         <module>spark-partitioning</module>
         <module>spark-streaming</module>
+        <module>spark-window</module>
     </modules>
 
     <dependencies>
