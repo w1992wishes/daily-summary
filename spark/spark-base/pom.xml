@@ -9,29 +9,14 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>spark-window</artifactId>
-
-    <properties>
-        <arangodb-spark.version>1.0.2</arangodb-spark.version>
-    </properties>
+    <artifactId>spark-base</artifactId>
 
     <dependencies>
-        <dependency>
-            <groupId>me.w1992wishes.study</groupId>
-            <artifactId>my-common</artifactId>
-            <version>1.0-SNAPSHOT</version>
-        </dependency>
-
         <dependency>
             <groupId>org.apache.spark</groupId>
             <artifactId>spark-sql_2.11</artifactId>
             <version>2.3.1</version>
         </dependency>
-
-        <dependency>
-            <groupId>com.arangodb</groupId>
-            <artifactId>arangodb-spark-connector</artifactId>
-            <version>${arangodb-spark.version}</version>
-        </dependency>
     </dependencies>
+
 </project>
