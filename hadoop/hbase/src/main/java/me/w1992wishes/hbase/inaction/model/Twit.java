@@ -2,6 +2,9 @@ package me.w1992wishes.hbase.inaction.model;
 
 import org.joda.time.DateTime;
 
+/**
+ * @author w1992wishes
+ */
 public abstract class Twit {
 
     public String user;
