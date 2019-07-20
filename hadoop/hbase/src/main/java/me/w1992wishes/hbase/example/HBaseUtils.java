@@ -6,6 +6,7 @@ import org.apache.hadoop.hbase.CellUtil;
 import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.*;
+import org.apache.hadoop.hbase.regionserver.*;
 import org.apache.hadoop.hbase.util.Bytes;
 
 import java.io.IOException;
@@ -71,13 +72,44 @@ public class HBaseUtils {
             //System.exit(0);
         } else {
             // 新建一个表描述
-            TableDescriptorBuilder tableBuilder = TableDescriptorBuilder.newBuilder(tn);
+            TableDescriptorBuilder tableBuilder =
+                    TableDescriptorBuilder.newBuilder(tn)
+                    .setRegionSplitPolicyClassName(IncreasingToUpperBoundRegionSplitPolicy.class.getName())
+                    .setValue("hbase.increasing.policy.initial.size", "134217728");
             // 在表描述里添加列族
             for (String columnFamily : columnFamilys) {
                 tableBuilder.setColumnFamily(ColumnFamilyDescriptorBuilder.newBuilder(Bytes.toBytes(columnFamily)).build());
             }
             // 根据配置好的表描述建表
             admin.createTable(tableBuilder.build());
+            System.out.println("创建" + tableName + "表成功");
+        }
+        conn.close();
+    }
+
+    // 创建数据库表
+    public static void createTable(String tableName, byte[][] splitKeys, String... columnFamilys) throws IOException {
+        // 建立一个数据库的连接
+        Connection conn = getCon();
+        // 创建一个数据库管理员
+        Admin admin = conn.getAdmin();
+        TableName tn = TableName.valueOf(tableName);
+        if (admin.tableExists(tn)) {
+            System.out.println(tableName + "表已存在");
+            //conn.close();
+            //System.exit(0);
+        } else {
+            // 新建一个表描述
+            TableDescriptorBuilder tableBuilder =
+                    TableDescriptorBuilder.newBuilder(tn)
+                            .setRegionSplitPolicyClassName(IncreasingToUpperBoundRegionSplitPolicy.class.getName())
+                            .setValue("hbase.increasing.policy.initial.size", "134217728");
+            // 在表描述里添加列族
+            for (String columnFamily : columnFamilys) {
+                tableBuilder.setColumnFamily(ColumnFamilyDescriptorBuilder.newBuilder(Bytes.toBytes(columnFamily)).build());
+            }
+            // 根据配置好的表描述建表
+            admin.createTable(tableBuilder.build(), splitKeys);
             System.out.println("创建" + tableName + "表成功");
         }
         conn.close();

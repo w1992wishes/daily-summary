@@ -8,7 +8,6 @@ import java.util.Map;
 
 import me.w1992wishes.hbase.inaction.coprocessors.RelationCountProtocol;
 import me.w1992wishes.hbase.inaction.util.Md5Utils;
-import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.*;
 import org.apache.hadoop.hbase.client.coprocessor.Batch;
