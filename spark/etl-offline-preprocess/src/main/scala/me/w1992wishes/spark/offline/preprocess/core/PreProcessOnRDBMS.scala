@@ -18,7 +18,7 @@ class PreProcessOnRDBMS(commandLineArgs: CommandLineArgs) extends CommonPreProce
 
   override def preProcessBefore(): Unit = {
     // 2.先清除数据，防止数据重复
-    clearDatas(startTimeStr, endTimeStr)
+    //clearDatas(startTimeStr, endTimeStr)
   }
 
   override def preProcessPost(): Unit = {
@@ -34,7 +34,7 @@ class PreProcessOnRDBMS(commandLineArgs: CommandLineArgs) extends CommonPreProce
     * @param endTimeStr   结束时间字符 yyyyMMddHHmmss
     * @return
     */
-  override def getTimeScope(startTimeStr: String, endTimeStr: String): (String, String) = {
+  def getTimeScope(startTimeStr: String, endTimeStr: String): (String, String) = {
     val start =
       if (StringUtils.isEmpty(startTimeStr)) getStartTime else DateUtils.dateTimeToStr(LocalDateTime.parse(startTimeStr, DateUtils.DF_NORMAL_NO_LINE))
     val end =
@@ -63,12 +63,6 @@ class PreProcessOnRDBMS(commandLineArgs: CommandLineArgs) extends CommonPreProce
         startTime = rs.getTimestamp(1)
       }
       startLocalTime = if (startTime != null) LocalDateTime.ofInstant(startTime.toInstant, ZoneId.systemDefault()) else getSourceMinTime
-      // 如果开启了防护，确保时间不小于运行时间的前一天的 0时0分
-      if (commandLineArgs.timeProtection) {
-        val yesterday = LocalDateTime.now().minusDays(1).minusHours(0)
-          .withMinute(0).withSecond(0).withSecond(0)
-        startLocalTime = if (startLocalTime.compareTo(yesterday) < 0) yesterday else startLocalTime
-      }
       DateUtils.dateTimeToStr(startLocalTime)
     } finally {
       ConnectionUtils.closeResource(conn, st, rs)
@@ -135,26 +129,26 @@ class PreProcessOnRDBMS(commandLineArgs: CommandLineArgs) extends CommonPreProce
     }
   }
 
-  /**
-    * 清除数据
-    *
-    * @param timeRange 起始时间 Tupple
-    */
-  private def clearDatas(timeRange: (String, String)): Unit = {
-    var conn: Connection = null
-    var st: Statement = null
-    try {
-      conn = ConnectionUtils.getConnection(config.sinkUrl, config.sinkUser, config.sinkPasswd)
-      val sql = s"delete from $preProcessedTable WHERE create_time > '${timeRange._1}' and create_time <= '${timeRange._2}'"
-      println(s"======> clear sql -- $sql")
+  /*  /**
+      * 清除数据
+      *
+      * @param timeRange 起始时间 Tupple
+      */
+    private def clearDatas(timeRange: (String, String)): Unit = {
+      var conn: Connection = null
+      var st: Statement = null
+      try {
+        conn = ConnectionUtils.getConnection(config.sinkUrl, config.sinkUser, config.sinkPasswd)
+        val sql = s"delete from $preProcessedTable WHERE create_time > '${timeRange._1}' and create_time <= '${timeRange._2}'"
+        println(s"======> clear sql -- $sql")
 
-      st = conn.createStatement()
-      val result = st.executeUpdate(sql)
-      println(s"======> clear $result row data from $preProcessedTable")
-    } finally {
-      ConnectionUtils.closeConnection(conn)
-      ConnectionUtils.closeStatement(st)
-    }
-  }
+        st = conn.createStatement()
+        val result = st.executeUpdate(sql)
+        println(s"======> clear $result row data from $preProcessedTable")
+      } finally {
+        ConnectionUtils.closeConnection(conn)
+        ConnectionUtils.closeStatement(st)
+      }
+    }*/
 
 }

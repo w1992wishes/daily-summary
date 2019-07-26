@@ -6,7 +6,8 @@ import java.time.LocalDateTime
 import com.alibaba.fastjson.JSON
 import com.alibaba.fastjson.serializer.SerializeFilter
 import me.w1992wishes.common.domain.EventFace
-import me.w1992wishes.my.common.util.{ConnectionPool, KafkaSender}
+import me.w1992wishes.common.util.{ConnectionPool, KafkaSender}
+import me.w1992wishes.common.util.ConnectionPool
 import me.w1992wishes.spark.streaming.ability.{DbcpSupportAbility, FeatureQualityAbility}
 import me.w1992wishes.spark.streaming.config.{PreProcessTaskArguments, StreamingConfig, TaskArguments}
 import me.w1992wishes.spark.streaming.core.StreamingTask

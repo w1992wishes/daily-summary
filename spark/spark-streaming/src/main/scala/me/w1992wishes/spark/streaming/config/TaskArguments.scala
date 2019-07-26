@@ -1,6 +1,6 @@
 package me.w1992wishes.spark.streaming.config
 
-import me.w1992wishes.my.common.util.IntParam
+import me.w1992wishes.common.util.IntParam
 
 import scala.annotation.tailrec
 

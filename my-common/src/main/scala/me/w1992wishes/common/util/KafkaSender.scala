@@ -1,4 +1,4 @@
-package me.w1992wishes.my.common.util
+package me.w1992wishes.common.util
 
 import java.util.concurrent.Future
 

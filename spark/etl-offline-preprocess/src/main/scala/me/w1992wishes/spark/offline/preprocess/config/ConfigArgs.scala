@@ -8,11 +8,10 @@ import java.util.Properties
   *
   * @author w1992wishes 2019/1/14 10:37
   */
-class ConfigArgs extends Serializable{
+class ConfigArgs(confName: String) extends Serializable{
 
-  val filePath = "system.properties"
   val properties = new Properties()
-  properties.load(new FileInputStream(filePath))
+  properties.load(new FileInputStream(confName))
 
   // preProcess 数据源配置
   val sourceUrl: String = properties.getProperty("preProcess.source.url")

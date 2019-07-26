@@ -1,4 +1,4 @@
-package me.w1992wishes.my.common.util
+package me.w1992wishes.common.util
 
 import java.sql.{Connection, ResultSet, SQLException, Statement}
 import java.util.Properties

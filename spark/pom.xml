@@ -15,6 +15,7 @@
         <module>spark-streaming</module>
         <module>spark-window</module>
         <module>spark-base</module>
+        <module>spark-sql</module>
     </modules>
 
     <dependencies>
@@ -28,6 +29,7 @@
             <groupId>org.apache.spark</groupId>
             <artifactId>spark-mllib_2.11</artifactId>
             <version>2.2.0</version>
+            <scope>provided</scope>
         </dependency>
 
     </dependencies>
