@@ -42,7 +42,7 @@
     </dependencies>
 
     <build>
-        <finalName>except-set</finalName>
+        <finalName>exceptset</finalName>
 
         <plugins>
             <!-- scala 打包插件 -->
