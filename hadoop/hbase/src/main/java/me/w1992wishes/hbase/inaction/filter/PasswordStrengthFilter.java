@@ -5,8 +5,6 @@ import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.CellUtil;
 import org.apache.hadoop.hbase.filter.FilterBase;
 
-import java.io.IOException;
-
 /**
  * @author w1992wishes 2019/7/20 14:25
  */
@@ -19,16 +17,12 @@ public class PasswordStrengthFilter extends FilterBase {
     // columns in the same row can be skipped faster by NEXT_ROW instead of NEXT_COL.
     private boolean columnFound = false;
 
-    public PasswordStrengthFilter() {
-        super();
-    }
-
     public PasswordStrengthFilter(int len) {
         this.len = len;
     }
 
     @Override
-    public ReturnCode filterCell(final Cell c) throws IOException {
+    public ReturnCode filterCell(final Cell c) {
         if (!CellUtil.matchingColumn(c, UsersDAO.INFO_FAM, UsersDAO.PASS_COL)) {
             return columnFound ? ReturnCode.NEXT_ROW : ReturnCode.NEXT_COL;
         }
