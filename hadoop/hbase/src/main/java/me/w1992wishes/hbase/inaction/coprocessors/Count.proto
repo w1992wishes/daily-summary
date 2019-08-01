@@ -1,0 +1,29 @@
+syntax = "proto2";
+
+option java_package = "me.w1992wishes.hbase.inaction.coprocessors";
+option java_outer_classname = "CountCoprocessor";
+option java_generic_services = true;
+option java_generate_equals_and_hash = true;
+option optimize_for = SPEED;
+
+/*具体的消息
+ *每个message域对应一个内部类，该内部类还包含一个Builder内部类
+ *域内字段会生成对应的 setter和getter方法
+ *使用Builder内部类来对字段赋值
+ **/
+message CountRequest {
+    required string startKey = 1;
+    optional string endKey = 2;
+}
+
+message CountResponse {
+    required int64 count = 1 [default = 0]; 
+}
+
+/*提供服务的类
+ *该类没有Builder内部类
+ */
+service CountService { 
+    rpc followedByCount(CountRequest)
+      returns (CountResponse); 
+}

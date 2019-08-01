@@ -13,6 +13,8 @@ import org.apache.hadoop.hbase.coprocessor.RegionCoprocessorEnvironment;
 import org.apache.hadoop.hbase.coprocessor.RegionObserver;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.hadoop.hbase.wal.WALEdit;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
@@ -25,16 +27,19 @@ import static me.w1992wishes.hbase.inaction.hbase.RelationsDAO.*;
  */
 public class FollowsObserver implements RegionObserver, RegionCoprocessor {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(FollowsObserver.class);
 
-    private Connection conn = null;
+    private Connection conn;
 
     @Override
     public void start(CoprocessorEnvironment env) throws IOException {
+        LOGGER.info("****** start ******");
         conn = ConnectionFactory.createConnection(env.getConfiguration());
     }
 
     @Override
     public void stop(CoprocessorEnvironment env) throws IOException {
+        LOGGER.info("****** stop ******");
         conn.close();
     }
 
@@ -52,8 +57,9 @@ public class FollowsObserver implements RegionObserver, RegionCoprocessor {
         Cell tCell = put.get(RELATION_FAM, TO).get(0);
         String to = Bytes.toString(tCell.getValueArray());
 
-        RelationsDAO relations = new RelationsDAO(conn);
-        relations.addFollowedBy(to, from);
+        RelationsDAO relationsDAO = new RelationsDAO(conn);
+        relationsDAO.addFollowedBy(to, from);
+        LOGGER.info("****** Create followedBy relation successfully! ****** ");
     }
 
 }
