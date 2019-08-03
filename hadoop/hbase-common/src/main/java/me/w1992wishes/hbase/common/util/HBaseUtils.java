@@ -1,4 +1,4 @@
-package me.w1992wishes.hbase.example;
+package me.w1992wishes.hbase.common.util;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.Cell;
@@ -6,7 +6,7 @@ import org.apache.hadoop.hbase.CellUtil;
 import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.*;
-import org.apache.hadoop.hbase.regionserver.*;
+import org.apache.hadoop.hbase.regionserver.IncreasingToUpperBoundRegionSplitPolicy;
 import org.apache.hadoop.hbase.util.Bytes;
 
 import java.io.IOException;

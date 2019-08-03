@@ -2,6 +2,7 @@ package me.w1992wishes.hbase.example;
  
 import java.io.IOException;
 
+import me.w1992wishes.hbase.common.util.HBaseUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.hbase.client.*;
