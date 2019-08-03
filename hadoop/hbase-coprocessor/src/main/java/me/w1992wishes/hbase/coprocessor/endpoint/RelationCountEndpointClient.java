@@ -1,4 +1,25 @@
-    public long followedByCount(final String userId) throws Throwable {
+package me.w1992wishes.hbase.coprocessor.endpoint;
+
+import me.w1992wishes.hbase.common.util.Md5Utils;
+import org.apache.hadoop.hbase.TableName;
+import org.apache.hadoop.hbase.client.Connection;
+import org.apache.hadoop.hbase.client.Table;
+import org.apache.hadoop.hbase.client.coprocessor.Batch;
+import org.apache.hadoop.hbase.ipc.CoprocessorRpcUtils.BlockingRpcCallback;
+import org.apache.hadoop.hbase.ipc.ServerRpcController;
+import org.apache.hadoop.hbase.util.Bytes;
+
+import java.util.Arrays;
+import java.util.Map;
+
+import static me.w1992wishes.hbase.common.dao.RelationsDAO.FOLLOWED_TABLE_NAME;
+
+/**
+ * @author w1992wishes 2019/8/3 11:07
+ */
+public class RelationCountEndpointClient {
+
+    public long followedByCount(Connection conn, final String userId) throws Throwable {
 
         Table followed = conn.getTable(TableName.valueOf(FOLLOWED_TABLE_NAME));
 
@@ -39,3 +60,5 @@
 
         return sum;
     }
+
+}

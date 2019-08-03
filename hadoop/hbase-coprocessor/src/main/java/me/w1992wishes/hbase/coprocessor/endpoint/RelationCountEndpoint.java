@@ -71,6 +71,7 @@ public class RelationCountEndpoint extends CountCoprocessor.CountService impleme
                 // count 个数
                 hasMore = scanner.next(results);
                 sum += results.size();
+                // 两次循环之间清空本地结果缓存
                 results.clear();
 
                 // 累加
