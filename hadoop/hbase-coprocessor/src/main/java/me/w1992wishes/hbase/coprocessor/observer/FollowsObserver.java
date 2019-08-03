@@ -14,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.Optional;
 
 import static me.w1992wishes.hbase.common.dao.RelationsDAO.*;
 
@@ -59,4 +60,13 @@ public class FollowsObserver implements RegionObserver, RegionCoprocessor {
         LOGGER.info("****** Create followedBy relation successfully! ****** ");
     }
 
+    /**
+     * 必须实现这个方法，否则不会生效
+     *
+     * @return Optional<RegionObserver>
+     */
+    @Override
+    public Optional<RegionObserver> getRegionObserver() {
+        return Optional.of(this);
+    }
 }

@@ -35,16 +35,16 @@
         </plugins>
     </build>
 
-    <repositories>
+<!--    <repositories>
         <repository>
             <id>alimaven</id>
             <url>http://maven.aliyun.com/nexus/content/groups/public/</url>
         </repository>
-        <!-- <repository> <id>Public</id> <url>http://192.168.2.7:8081/nexus/content/repositories/public/</url>
-            </repository> -->
+        &lt;!&ndash; <repository> <id>Public</id> <url>http://192.168.2.7:8081/nexus/content/repositories/public/</url>
+            </repository> &ndash;&gt;
         <repository>
             <id>maven-center</id>
             <url>http://central.maven.org/maven2/</url>
         </repository>
-    </repositories>
+    </repositories>-->
 </project>
