@@ -4,19 +4,21 @@ import com.google.protobuf.RpcCallback;
 import com.google.protobuf.RpcController;
 import com.google.protobuf.Service;
 import org.apache.hadoop.hbase.Cell;
-import org.apache.hadoop.hbase.Coprocessor;
 import org.apache.hadoop.hbase.CoprocessorEnvironment;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.coprocessor.CoprocessorException;
-import org.apache.hadoop.hbase.coprocessor.CoprocessorService;
+import org.apache.hadoop.hbase.coprocessor.RegionCoprocessor;
 import org.apache.hadoop.hbase.coprocessor.RegionCoprocessorEnvironment;
 import org.apache.hadoop.hbase.filter.PrefixFilter;
 import org.apache.hadoop.hbase.regionserver.InternalScanner;
 import org.apache.hadoop.hbase.shaded.protobuf.ResponseConverter;
 import org.apache.hadoop.hbase.util.Bytes;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static me.w1992wishes.hbase.common.dao.RelationsDAO.FROM;
@@ -28,33 +30,38 @@ import static me.w1992wishes.hbase.common.dao.RelationsDAO.RELATION_FAM;
  *
  * @author w1992wishes 2019/8/1 16:58
  */
-public class RelationCountEndpoint extends CountCoprocessor.CountService implements Coprocessor, CoprocessorService {
+public class RelationCountEndpoint extends CountCoprocessor.CountService implements RegionCoprocessor {
+
+    private static final Logger LOG = LoggerFactory.getLogger(RelationCountEndpoint.class);
 
     private RegionCoprocessorEnvironment env;
 
     @Override
-    public Service getService() {
-        return this;
+    public Iterable<Service> getServices() {
+        return Collections.singleton(this);
     }
 
     @Override
     public void start(CoprocessorEnvironment env) throws IOException {
         if (env instanceof RegionCoprocessorEnvironment) {
             this.env = (RegionCoprocessorEnvironment) env;
+            LOG.info("****** {} start. ******", this.getClass().getName());
         } else {
+            LOG.warn("****** Must be loaded on a table region .******");
             throw new CoprocessorException("Must be loaded on a table region!");
         }
     }
 
     @Override
     public void stop(CoprocessorEnvironment env) throws IOException {
-        // do nothing
+        LOG.info("****** {} stop. ******", this.getClass().getName());
     }
 
     @Override
     public void followedByCount(RpcController controller, CountCoprocessor.CountRequest request, RpcCallback<CountCoprocessor.CountResponse> done) {
         Scan scan = new Scan();
         byte[] startKey = Bytes.toBytes(request.getStartKey());
+        LOG.info("****** startKey {}. ******", request.getStartKey());
         scan.withStartRow(startKey);
         scan.setFilter(new PrefixFilter(startKey));
         scan.addColumn(RELATION_FAM, FROM);

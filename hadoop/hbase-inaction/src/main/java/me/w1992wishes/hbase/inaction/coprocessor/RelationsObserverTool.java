@@ -1,4 +1,4 @@
-package me.w1992wishes.hbase.inaction;
+package me.w1992wishes.hbase.inaction.coprocessor;
 
 import me.w1992wishes.hbase.common.dao.RelationsDAO;
 import me.w1992wishes.hbase.common.model.Relation;
@@ -13,13 +13,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * RelationsTool
+ * RelationsObserverTool
  *
  * @author Administrator
  */
-public class RelationsTool {
+public class RelationsObserverTool {
 
-    private static final Logger log = LoggerFactory.getLogger(RelationsTool.class);
+    private static final Logger log = LoggerFactory.getLogger(RelationsObserverTool.class);
 
     public static final String usage =
             "relationstool action ...\n" +

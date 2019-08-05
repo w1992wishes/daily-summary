@@ -197,6 +197,11 @@ protoc --java_out=E:\project\my_project\test Count.proto
 
 3）Endpoint Coprocessor服务端实现：
 
+之前直接实现 Coprocessor, CoprocessorService 这两个接口，但 HBase api 提示 CoprocessorService 接口将被废弃，但并没有提供替换者，继续
+实现，运行会出现空指针错误，这时 start 方法不会被调用，env 无法初始化。
+
+后来改为实现 RegionCoprocessor 就正常了。
+
 ```java
 /**
  * 说明：hbase 协处理器 Endpooint 的服务端代码
@@ -204,33 +209,38 @@ protoc --java_out=E:\project\my_project\test Count.proto
  *
  * @author w1992wishes 2019/8/1 16:58
  */
-public class RelationCountEndpoint extends CountCoprocessor.CountService implements Coprocessor, CoprocessorService {
+public class RelationCountEndpoint extends CountCoprocessor.CountService implements RegionCoprocessor {
+
+    private static final Logger LOG = LoggerFactory.getLogger(RelationCountEndpoint.class);
 
     private RegionCoprocessorEnvironment env;
 
     @Override
-    public Service getService() {
-        return this;
+    public Iterable<Service> getServices() {
+        return Collections.singleton(this);
     }
 
     @Override
     public void start(CoprocessorEnvironment env) throws IOException {
         if (env instanceof RegionCoprocessorEnvironment) {
             this.env = (RegionCoprocessorEnvironment) env;
+            LOG.info("****** {} start. ******", this.getClass().getName());
         } else {
+            LOG.warn("****** Must be loaded on a table region .******");
             throw new CoprocessorException("Must be loaded on a table region!");
         }
     }
 
     @Override
     public void stop(CoprocessorEnvironment env) throws IOException {
-        // do nothing
+        LOG.info("****** {} stop. ******", this.getClass().getName());
     }
 
     @Override
     public void followedByCount(RpcController controller, CountCoprocessor.CountRequest request, RpcCallback<CountCoprocessor.CountResponse> done) {
         Scan scan = new Scan();
         byte[] startKey = Bytes.toBytes(request.getStartKey());
+        LOG.info("****** startKey {}. ******", request.getStartKey());
         scan.withStartRow(startKey);
         scan.setFilter(new PrefixFilter(startKey));
         scan.addColumn(RELATION_FAM, FROM);
@@ -247,6 +257,7 @@ public class RelationCountEndpoint extends CountCoprocessor.CountService impleme
                 // count 个数
                 hasMore = scanner.next(results);
                 sum += results.size();
+                // 两次循环之间清空本地结果缓存
                 results.clear();
 
                 // 累加
@@ -257,11 +268,13 @@ public class RelationCountEndpoint extends CountCoprocessor.CountService impleme
                 results.clear();*/
             } while (hasMore);
 
+            // 设置返回结果
             response = CountCoprocessor.CountResponse.newBuilder().setCount(sum).build();
         } catch (IOException ioe) {
             ResponseConverter.setControllerException(controller, ioe);
         }
 
+        // 将rpc结果返回给客户端
         done.run(response);
     }
 }
