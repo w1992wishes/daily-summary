@@ -1,4 +1,4 @@
-package me.w1992wishes.hbase.example;
+package me.w1992wishes.hbase.inaction.mapreduce;
  
 import java.io.IOException;
 
