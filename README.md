@@ -4,12 +4,9 @@
 
 ## 目录
 
-* [Azkaban 相关](azkaban)
-    * [azkaban api java 封装](azkaban/azkaban-java-api)
 * [数据挖掘相关](data-mining/README.md)
     * [聚类算法](data-mining/cluster-algorithm/README.md)
 * [Hadoop 相关](hadoop)
-    * [Hadoop MapReduce 例子](hadoop/map-reduce/README.md)
     * [Hadoop HBase 相关](hadoop/hbase-common/README.md)
         * [HBase 安装](hadoop/hbase-common/HBaseInstall.md)
         * [HBase 列族属性配置](hadoop/hbase-common/HBaseColumnProperties.md)
@@ -18,6 +15,8 @@
         * [HBase 自动拆分和预分区](hadoop/hbase-common/HBaseSplit.md)
         * [HBase 过滤器](hadoop/hbase-common/HBaseFilter.md)
         * [HBase 协处理器](hadoop/hbase-coprocessor/README.md)
+    * [Hadoop Hive 相关](hadoop/hive/README.md)
+        * [Hive Join 介绍](hadoop/hive/HiveJoin.md)
 * [Java 相关](java)
     * [jvm 相关](java/jvm)
 * [Kafka 相关](kafka)
