@@ -13,13 +13,15 @@
         <module>hbase-common</module>
         <module>hbase-coprocessor</module>
         <module>hbase-inaction</module>
-        <module>hive</module>
+        <module>hive-udf</module>
         <module>map-reduce</module>
+        <module>hive-common</module>
     </modules>
 
     <properties>
         <hadoop.version>2.7.4</hadoop.version>
         <hbase.version>2.0.5</hbase.version>
+        <hive.version>2.3.5</hive.version>
     </properties>
 
     <build>
