@@ -10,7 +10,7 @@
 将配置信息保存在 Zookeeper 的某个目录节点中，然后将所有需要修改的应用机器监控配置信息的状态，一旦配置信息发生变化，每台应用机器就会收到 Zookeeper 的通知，然后从 Zookeeper 获取新的配置信息应用到系统中。
 ZooKeeper 配置管理服务如下图所示：
 
-![](../../images/zk%20配置管理结构图.png)
+![](../../images/zk/zk%20配置管理结构图.png)
 
 Zookeeper 很容易实现这种集中式的配置管理，比如将所需要的配置信息放到 /Configuration 节点上，集群中所有机器一启动就会通过 Client 对 /Configuration 这个节点进行监控【zk.exist("/Configuration″,true)】，
 并且实现 Watcher 回调方法 process()，那么在 zookeeper 上 /Configuration 节点下数据发生变化的时候，每个机器都会收到通知，Watcher 回调方法将会被执行，那么应用再取下数据即可【zk.getData("/Configuration″,false,null)】。
@@ -73,7 +73,7 @@ Zookeeper 却很容易实现这个功能，实现方式也是需要获得锁的 
 Zookeeper 能够很容易的实现集群管理的功能，如有多台 Server 组成一个服务集群，那么必须要一个"总管"知道当前集群中每台机器的服务状态，一旦有机器不能提供服务，集群中其它集群必须知道，
 从而做出调整重新分配服务策略。同样当增加集群的服务能力时，就会增加一台或多台 Server，同样也必须让"总管"知道，这就是 ZooKeeper 的集群监控功能。
 
-![](../../images/zk%20集群管理结构图.png)
+![](../../images/zk/zk%20集群管理结构图.png)
 
 在 zookeeper 服务器端有一个 znode 叫 /Configuration，那么集群中每一个机器启动的时候都去这个节点下创建一个 EPHEMERAL 类型的节点，比如 server1 创建 /Configuration/Server1，
 server2 创建 /Configuration/Server2，然后 Server1 和 Server2 都 watch /Configuration 这个父节点，那么也就是这个父节点下数据或者子节点变化都会通知对该节点进行 watch 的客户端。

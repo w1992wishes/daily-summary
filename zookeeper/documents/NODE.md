@@ -1,6 +1,6 @@
 ## ZooKeeper 数据结构
 
-![](../../images/zk%20数据结构图.png)
+![](../../images/zk/zk%20数据结构图.png)
 
 1. 每个子目录项如 NameService 都被称作为 znode，这个 znode 是被它所在的路径唯一标识，如 Server1 这个 znode 的标识为 /NameService/Server1；
 2. znode 可以有子节点目录，并且每个 znode 可以存储数据，注意 EPHEMERAL 类型的目录节点不能有子节点目录；

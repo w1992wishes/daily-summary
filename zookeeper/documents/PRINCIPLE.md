@@ -8,7 +8,7 @@ ZooKeeper 服务有两种不同的运行模式。
 
 在生产环境中的 ZooKeeper 通常以"复制模式"(replicated mode)运行于一个计算机集群上，这个计算机集群被称为一个"集合体"(ensemble)。
 
-![](../../images/zk%20集群.png)
+![](../../images/zk/zk%20集群.png)
 
 ZooKeeper 通过复制来实现高可用性，只要集合体中半数以上的机器处于可用状态，它就能够提供服务。
 
@@ -26,7 +26,7 @@ Zookeeper 集群是一个由多个 Server 组成的集群，该集群有一个 L
 
 客户端可以连接任意 ZooKeeper 服务节点来读写数据，如下图所示。
 
-![](../../images/zk%20集群服务.png)
+![](../../images/zk/zk%20集群服务.png)
 
 ZK 集群中每个 Server，都保存一份数据副本。Zookeeper 使用简单的同步策略，通过以下两条基本保证来实现数据的一致性：
 1. 全局串行化所有的写操作

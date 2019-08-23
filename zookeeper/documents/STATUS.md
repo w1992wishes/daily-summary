@@ -9,7 +9,7 @@ public States getState()
 States 被定义成代表 ZooKeeper 对象不同状态的枚举类型值（不管是什么枚举值，一个 ZooKeeper 的实例在一个时刻只能处于一种状态）。
 在试图与 ZooKeeper 服务建立连接的过程中，一个新建的 ZooKeeper 实例处于 CONNECTING 状态。一旦建立连接，它就会进入 CONNECTED 状态。 
 
-![](../../images/zk%20状态转换.png)
+![](../../images/zk/zk%20状态转换.png)
 
 通过注册观察对象，使用了 ZooKeeper 对象的客户端可以收到状态转换通知。在进入 CONNECTED 状态时，观察对象会收到一个 WatchedEvent 通知，
 其中 KeeperState 的值是 SyncConnected。

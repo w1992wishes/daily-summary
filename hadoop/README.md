@@ -9,3 +9,4 @@
         * [HBase 协处理器](hbase-coprocessor/README.md)
     * [Hadoop Hive 相关](hive-common/README.md)
         * [Hive Join 介绍](hive-common/HiveJoin.md)
+        * [Hive UDF](hive-udf/README.md)
