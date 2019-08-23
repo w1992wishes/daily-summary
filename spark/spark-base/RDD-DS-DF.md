@@ -18,7 +18,7 @@ Spark 的核心概念是 RDD (resilientdistributed dataset)，指的是一个只
 
 设计 DataFrame 的目的就是要让对大型数据集的处理变得更简单，它让开发者可以为分布式的数据集指定一个模式，进行更高层次的抽象。
 
-![](https://ws1.sinaimg.cn/large/90c2c6e5gy1g69pzoza4wj20go099t9w.jpg)
+![](../../images/spark/base/RDD-DF.jpg)
 
 ### 1.3、Dataset
 
@@ -44,7 +44,7 @@ Dataset API 的核心是一个被称为 Encoder 的概念。它是负责对 JVM 
 
 所有这些最终都被解释成关于类型安全的图谱，内容就是 Spark 代码里的语法和分析错误。在图谱中，Dataset 是最严格的一端，但对于开发者来说也是效率最高的。
 
-![](https://ws1.sinaimg.cn/large/90c2c6e5gy1g69qyz5l9yj21e40l00uq.jpg)
+![](../../images/spark/base/RDD-DF-DS.jpg)
 
 **2.关于结构化和半结构化数据的高级抽象和定制视图**
 
