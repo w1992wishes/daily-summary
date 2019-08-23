@@ -1,4 +1,4 @@
-package me.w1992wishes.spark.sql
+package me.w1992wishes.spark.example.sql
 
 import java.time.{Duration, LocalDateTime}
 

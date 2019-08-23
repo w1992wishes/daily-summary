@@ -1,13 +1,7 @@
-# spark 学习例子
+# spark 相关知识
 
-记录学习spark 的过程。
-
-## 模块
-
-* [etl 离线加载数据预处理](etl-offline-preprocess/README.md)
-* [spark-base](spark-base)
-* [spark 例子](spark-example/README.md)
-* [参考 spark kmeans 实现的分区聚类](spark-partitioning/README.md)
-* [spark-sql](spark-sql/README.md)
-* [spark 流处理](spark-streaming/README.md)
-* [spark 窗口函数](spark-window)
+* [Spark 基础相关](spark-base/README.md)
+    * [Spark RDD、DataFrame 和 DataSet](spark-base/RDD-DS-DF.md)
+* [Spark 代码示例](spark-example/README.md)
+    * [Spark 批处理](etl-offline-preprocess/README.md)
+    * [Spark 零散例子](spark-example/README.md)
