@@ -31,7 +31,7 @@
         <module>spark</module>
         <module>zookeeper</module>
         <module>hadoop</module>
-        <module>structures-algorithms</module>
+        <module>leet-code</module>
         <module>java</module>
         <module>azkaban</module>
         <module>scala</module>
