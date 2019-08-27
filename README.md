@@ -4,8 +4,10 @@
 
 ## 目录
 
-* [数据挖掘相关](data-mining/README.md)
-    * [聚类算法](data-mining/cluster-algorithm/README.md)
+* [算法相关](algorithm/README.md)
+    * [聚类算法](algorithm/cluster/Cluster.md)
+        * [排序算法](algorithm/sort/README.md)
+            * [快速排序算法](algorithm/sort/QuickSort.md)
 * [Hadoop 相关](hadoop/README.md)
     * [Hadoop HBase 相关](hadoop/hbase-common/README.md)
         * [HBase 安装](hadoop/hbase-common/HBaseInstall.md)

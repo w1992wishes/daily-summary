@@ -35,6 +35,7 @@
         <module>java</module>
         <module>azkaban</module>
         <module>scala</module>
+        <module>algorithm</module>
     </modules>
 
     <repositories>
