@@ -8,6 +8,7 @@
     * [聚类算法](algorithm/cluster/Cluster.md)
         * [排序算法](algorithm/sort/README.md)
             * [快速排序算法](algorithm/sort/QuickSort.md)
+            * [归并排序算法](algorithm/sort/MergeSort.md)
 * [Hadoop 相关](hadoop/README.md)
     * [Hadoop HBase 相关](hadoop/hbase-common/README.md)
         * [HBase 安装](hadoop/hbase-common/HBaseInstall.md)
