@@ -177,23 +177,13 @@ public class UDFZodiacSign extends UDF {
 测试一下：
 
 ```java
-public class GenericUDFNvlTest {
+public class UDFZodiacSignTest {
 
     @Test
-    public void testGenericUDFNvl() throws HiveException {
-        // 建立需要的模型
-        GenericUDFNvl example = new GenericUDFNvl();
-        ObjectInspector stringOI1 = PrimitiveObjectInspectorFactory.javaStringObjectInspector;
-        ObjectInspector stringOI2 = PrimitiveObjectInspectorFactory.javaStringObjectInspector;
-        StringObjectInspector resultInspector = (StringObjectInspector) example.initialize(new ObjectInspector[]{stringOI1, stringOI2});
-
-        // 测试结果
-        Object result1 = example.evaluate(new GenericUDF.DeferredObject[]{new GenericUDF.DeferredJavaObject(null), new GenericUDF.DeferredJavaObject("a")});
-        Assert.assertEquals("a", resultInspector.getPrimitiveJavaObject(result1));
-
-        // 测试结果
-        Object result2 = example.evaluate(new GenericUDF.DeferredObject[]{new GenericUDF.DeferredJavaObject("dd"), new GenericUDF.DeferredJavaObject("a")});
-        Assert.assertNotEquals("a", resultInspector.getPrimitiveJavaObject(result2));
+    public void testUDFZodiacSign() {
+        UDFZodiacSign example = new UDFZodiacSign();
+        Assert.assertEquals("魔蝎座", example.evaluate(1, 1));
+        Assert.assertEquals("魔蝎座", example.evaluate("2019-01-01"));
     }
 
 }
@@ -410,87 +400,138 @@ public Object terminate(AggregationBuffer agg) throws HiveException;
 下面的函数代码是计算指定列中字符的总数（包括空格）：
 
 ```java
+/**
+ * @author Administrator
+ */
 @Description(
-        name = "array_uniq_element_number",
-        value = "_FUNC_(array) - Returns nubmer of objects with duplicate elements eliminated.",
-        extended = "Example:\n"
-        + "  > SELECT _FUNC_(array(1, 2, 2, 3, 3)) FROM src LIMIT 1;\n" + "  3")
-public class GenericUDFArrayUniqElementNumber extends GenericUDF {
-
-    private static final int ARRAY_IDX = 0;
-    // Number of arguments to this UDF
-    private static final int ARG_COUNT = 1;
-    // External Name
-    private static final String FUNC_NAME = "ARRAY_UNIQ_ELEMENT_NUMBER";
-
-    private ListObjectInspector arrayOI;
-    private ObjectInspector arrayElementOI;
-    private final IntWritable result = new IntWritable(-1);
+        name = "letters",
+        value = "_FUNC_(expr) - 返回该列中所有字符串的字符总数")
+public class GenericUDAFTotalNumOfLetters extends AbstractGenericUDAFResolver {
 
     @Override
-    public ObjectInspector initialize(ObjectInspector[] arguments)
-            throws UDFArgumentException {
-
-        // Check if two arguments were passed
-        if (arguments.length != ARG_COUNT) {
-            throw new UDFArgumentException("The function " + FUNC_NAME
-                    + " accepts " + ARG_COUNT + " arguments.");
+    public GenericUDAFEvaluator getEvaluator(TypeInfo[] parameters)
+            throws SemanticException {
+        if (parameters.length != 1) {
+            throw new UDFArgumentTypeException(parameters.length - 1,
+                    "Exactly one argument is expected.");
         }
 
-        // Check if ARRAY_IDX argument is of category LIST
-        if (!arguments[ARRAY_IDX].getCategory().equals(ObjectInspector.Category.LIST)) {
-            throw new UDFArgumentTypeException(ARRAY_IDX, "\""
-                    + org.apache.hadoop.hive.serde.Constants.LIST_TYPE_NAME
-                    + "\" " + "expected at function ARRAY_CONTAINS, but "
-                    + "\"" + arguments[ARRAY_IDX].getTypeName() + "\" "
-                    + "is found");
+        ObjectInspector oi = TypeInfoUtils.getStandardJavaObjectInspectorFromTypeInfo(parameters[0]);
+
+        if (oi.getCategory() != ObjectInspector.Category.PRIMITIVE) {
+            throw new UDFArgumentTypeException(0,
+                    "Argument must be PRIMITIVE, but "
+                            + oi.getCategory().name()
+                            + " was passed.");
         }
 
-        arrayOI = (ListObjectInspector) arguments[ARRAY_IDX];
-        arrayElementOI = arrayOI.getListElementObjectInspector();
+        PrimitiveObjectInspector inputOI = (PrimitiveObjectInspector) oi;
 
-        return PrimitiveObjectInspectorFactory.writableIntObjectInspector;
+        if (inputOI.getPrimitiveCategory() != PrimitiveObjectInspector.PrimitiveCategory.STRING) {
+            throw new UDFArgumentTypeException(0,
+                    "Argument must be String, but "
+                            + inputOI.getPrimitiveCategory().name()
+                            + " was passed.");
+        }
+
+        return new TotalNumOfLettersEvaluator();
     }
 
-    @Override
-    public IntWritable evaluate(DeferredObject[] arguments)
-            throws HiveException {
+    public static class TotalNumOfLettersEvaluator extends GenericUDAFEvaluator {
 
-        result.set(0);
+        PrimitiveObjectInspector inputOI;
+        PrimitiveObjectInspector integerOI;
 
-        Object array = arguments[ARRAY_IDX].get();
-        int arrayLength = arrayOI.getListLength(array);
-        if (arrayLength <= 1) {
-            result.set(arrayLength);
+        private IntWritable result;
+
+        @Override
+        public ObjectInspector init(Mode m, ObjectInspector[] parameters)
+                throws HiveException {
+
+            super.init(m, parameters);
+            result = new IntWritable(0);
+            inputOI = (PrimitiveObjectInspector) parameters[0];
+            integerOI = PrimitiveObjectInspectorFactory.writableIntObjectInspector;
+            // 指定各个阶段输出数据格式都为Integer类型
+            return PrimitiveObjectInspectorFactory.writableIntObjectInspector;
+
+        }
+
+        /**
+         * 存储当前字符总数的类
+         */
+        static class LetterSumAgg implements AggregationBuffer {
+            int sum = 0;
+
+            void add(int num) {
+                sum += num;
+            }
+        }
+
+        /**
+         * 创建新的聚合计算的需要的内存，用来存储mapper,combiner,reducer运算过程中的相加总和。
+         */
+        @Override
+        public AggregationBuffer getNewAggregationBuffer() throws HiveException {
+            LetterSumAgg sum = new LetterSumAgg();
+            reset(sum);
+            return sum;
+        }
+
+        /**
+         * mapreduce支持mapper和reducer的重用，所以为了兼容，也需要做内存的重用。
+         */
+        @Override
+        public void reset(AggregationBuffer agg) throws HiveException {
+            LetterSumAgg myagg = (LetterSumAgg) agg;
+            myagg.sum = 0;
+        }
+
+        /**
+         * map阶段调用，把保存当前和的对象agg，再加上输入的参数传入。
+         */
+        @Override
+        public void iterate(AggregationBuffer agg, Object[] parameters)
+                throws HiveException {
+            if (parameters[0] != null) {
+                LetterSumAgg myagg = (LetterSumAgg) agg;
+                Object p1 = inputOI.getPrimitiveJavaObject(parameters[0]);
+                myagg.add(String.valueOf(p1).length());
+            }
+        }
+
+        /**
+         * mapper 结束要返回的结果，还有 combiner 结束返回的结果
+         */
+        @Override
+        public Object terminatePartial(AggregationBuffer agg) throws HiveException {
+            return terminate(agg);
+        }
+
+        /**
+         * combiner合并map返回的结果，还有reducer合并mapper或combiner返回的结果。
+         */
+        @Override
+        public void merge(AggregationBuffer agg, Object partial)
+                throws HiveException {
+            if (partial != null) {
+
+                LetterSumAgg myagg = (LetterSumAgg) agg;
+
+                myagg.sum += PrimitiveObjectInspectorUtils.getInt(partial, integerOI);
+            }
+        }
+
+        /**
+         * reducer返回结果，或者是只有mapper，没有reducer时，在mapper端返回结果。
+         */
+        @Override
+        public Object terminate(AggregationBuffer agg) throws HiveException {
+            LetterSumAgg myagg = (LetterSumAgg) agg;
+            result.set(myagg.sum);
             return result;
         }
 
-        //element compare; Algorithm complexity: O(N^2)
-        int num = 1;
-        int i, j;
-        for (i = 1; i < arrayLength; i++) {
-            Object listElement = arrayOI.getListElement(array, i);
-            for (j = i - 1; j >= 0; j--) {
-                if (listElement != null) {
-                    Object tmp = arrayOI.getListElement(array, j);
-                    if (ObjectInspectorUtils.compare(tmp, arrayElementOI, listElement,
-                            arrayElementOI) == 0) {
-                        break;
-                    }
-                }
-            }
-            if (-1 == j) {
-                num++;
-            }
-        }
-
-        result.set(num);
-        return result;
-    }
-
-    @Override
-    public String getDisplayString(String[] children) {
-        return "array_uniq_element_number(" + children[ARRAY_IDX] + ")";
     }
 }
 ```
