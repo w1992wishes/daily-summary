@@ -5,7 +5,7 @@ import org.apache.spark.sql.SparkSession
 /**
   * @author w1992wishes 2019/7/10 10:52
   */
-object Example {
+object MakeDF {
 
   def main(args: Array[String]): Unit = {
 

@@ -17,6 +17,13 @@
             <artifactId>spark-sql_2.11</artifactId>
             <version>2.3.1</version>
         </dependency>
+
+        <!-- 解决读取 txt 文件报错的问题 -->
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>15.0</version>
+        </dependency>
     </dependencies>
 
 </project>
