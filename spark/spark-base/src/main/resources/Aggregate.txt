@@ -1,0 +1,8 @@
+id1,user1,2,http://www.hupu.com
+id1,user1,2,http://www.hupu.com
+id1,user1,3,http://www.hupu.com
+id1,user1,100,http://www.hupu.com
+id2,user2,2,http://www.hupu.com
+id2,user2,1,http://www.hupu.com
+id2,user2,50,http://www.hupu.com
+id2,user2,2,http://touzhu.hupu.com

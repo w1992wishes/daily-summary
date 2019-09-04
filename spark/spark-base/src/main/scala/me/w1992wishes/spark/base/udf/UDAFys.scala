@@ -6,7 +6,7 @@ import org.apache.spark.sql.expressions.{MutableAggregationBuffer, UserDefinedAg
 import org.apache.spark.sql.types._
 import org.apache.spark.sql.{Dataset, Row, SparkSession}
  
-object UDAFTest {
+object UDAFys {
  
   def main(args: Array[String]): Unit = {
  
