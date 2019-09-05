@@ -9,13 +9,11 @@
     <version>1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
     <modules>
-        <module>etl-offline-preprocess</module>
-        <module>spark-example</module>
-        <module>spark-partitioning</module>
+        <module>spark-base</module>
+        <module>spark-mllib</module>
+        <module>spark-sql</module>
         <module>spark-streaming</module>
         <module>spark-window</module>
-        <module>spark-base</module>
-        <module>spark-sql</module>
     </modules>
 
     <dependencies>

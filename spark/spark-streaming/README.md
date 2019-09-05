@@ -1,6 +1,6 @@
 ## PreprocessJob
 
-APP_MAINCLASS="me.w1992wishes.spark.streaming.task.StreamingPreProcessTask"
+APP_MAINCLASS="me.w1992wishes.spark.streaming.common.task.StreamingPreProcessTask"
 CONF_FILE="preprocess.properties"
 spark-submit \
 --master spark://127.0.0.1:7077 \
