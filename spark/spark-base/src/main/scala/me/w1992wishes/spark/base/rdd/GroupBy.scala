@@ -3,7 +3,7 @@ package me.w1992wishes.spark.base.rdd
 import org.apache.spark.sql.SparkSession
 
 /**
-  * Spark Scala TopN分组排序，核心思想是先对分组内部排序，取前Ｎ个，然后对分组之间进行排序；
+  * Spark TopN 分组排序，核心思想是先对分组内部排序，取前Ｎ个，然后对分组之间进行排序；
   *
   * @author w1992wishes 2019/9/2 17:35
   */
@@ -17,8 +17,8 @@ object GroupBy {
     val groups = lines.groupByKey()
 
     /**
-      * groupBy和groupByKey是不同的，比如（A，1），（A，2）；使用groupBy之后结果是（A，（（A，1），（A，2）））；
-      * 使用groupByKey之后结果是：（A，（1,2））；关键区别就是合并之后是否会自动去掉key信息；
+      * groupBy 和 groupByKey 是不同的，比如（A，1），（A，2）；使用 groupBy 之后结果是（A，（（A，1），（A，2）））；
+      * 使用 groupByKey 之后结果是：（A，（1,2））；关键区别就是合并之后是否会自动去掉key信息；
       */
     val groupsSort = groups.map(tu => {
       val key = tu._1
