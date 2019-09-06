@@ -12,8 +12,8 @@ import org.apache.spark.sql.{Dataset, SparkSession}
   * from table
   * group by id,name;
   *
-  * map阶段： id和name组合为key， url为value
-  * reduce阶段： len(urls) 出现次数, len(set(urls)) 访问 url 数
+  * map 阶段： id 和 name 组合为 key， url 为 value
+  * reduce 阶段： len(urls) 出现次数, len(set(urls)) 访问 url 数
   *
   * @author w1992wishes 2019/9/4 13:47
   */
