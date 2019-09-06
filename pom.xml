@@ -36,6 +36,7 @@
         <module>azkaban</module>
         <module>scala</module>
         <module>algorithm</module>
+        <module>graph-db</module>
     </modules>
 
     <repositories>
