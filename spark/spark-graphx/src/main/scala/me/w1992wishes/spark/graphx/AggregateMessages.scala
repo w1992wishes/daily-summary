@@ -9,19 +9,17 @@ import org.apache.spark.sql.SparkSession
   *
   * @author w1992wishes 2019/9/9 22:42.
   */
-object AggregateMessages {
+object AggregateMessages extends SampleGraphTrait{
 
   def main(args: Array[String]): Unit = {
     val spark = SparkSession.builder().master("local").getOrCreate()
-    val myVertices: RDD[(Long, String)] = spark.sparkContext.makeRDD(Array((1L, "Ann"), (2L, "Bill"),
-      (3L, "Charles"), (4L, "Diane"), (5L, "Went to gym this morning")))
-    val myEdges: RDD[Edge[String]] = spark.sparkContext.makeRDD(Array(Edge(1L, 2L, "is-friends-with "),
-      Edge(2L, 3L, "is-friends-with"), Edge(3L, 4L, "is-friends-with"), Edge(4L, 5L, "Likes-status"), Edge(3L, 5L, "Wrote- status ")
-    ))
-    val myGraph: Graph[String, String] = Graph(myVertices, myEdges)
+
+    val myGraph: Graph[String, String] = sampleGraph(spark)
 
     calOutDegrees(myGraph)
     calFarthestDis(myGraph)
+
+    spark.stop()
   }
 
   // 计算出度，一次 Map/Reduce 即可
@@ -35,7 +33,7 @@ object AggregateMessages {
       *   sendToDst ： 将 Msg 类型的消息发送给目标顶点。
       * mergeMsg: 每个顶点收到的所有消息都会被聚集起来传递给 mergeMsg 函数
       *
-      * 在每个顶点上应用 mergeMsg 函数最终返回一 个 VertexRDD[Int ］对象 。VertexRDD 是一个包含了 二元组的 RDD ，包括了顶点的 B 以及该顶点的 mergeMsg 操作的结果。
+      * 在每个顶点上应用 mergeMsg 函数最终返回一 个 VertexRDD[Int］对象 。VertexRDD 是一个二元组的 RDD ，包括了顶点的 B 以及该顶点的 mergeMsg 操作的结果。
       */
     val outDegrees: VertexRDD[Int] = myGraph.aggregateMessages[Int](_.sendToSrc(1), _ + _)
     outDegrees.cache()
@@ -63,7 +61,7 @@ object AggregateMessages {
     * (Charles,2)
     * (Bill,1)
      */
-    // 么重新获得丢弃的 5# 顶点
+    // 重新获得丢弃的 5# 顶点
     outDegrees.rightOuterJoin(myGraph.vertices).map(_._2.swap).collect.foreach(println(_))
     /*
      * (Diane,Some(1))
