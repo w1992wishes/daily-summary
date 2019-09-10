@@ -1,7 +1,7 @@
-package me.w1992wishes.spark.graphx
+package me.w1992wishes.spark.graphx.mapping
 
-import org.apache.spark.graphx.{Edge, EdgeContext, Graph, VertexRDD}
-import org.apache.spark.rdd.RDD
+import me.w1992wishes.spark.graphx.`trait`.SampleGraphTrait
+import org.apache.spark.graphx.{EdgeContext, Graph, VertexRDD}
 import org.apache.spark.sql.SparkSession
 
 /**

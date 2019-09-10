@@ -1,5 +1,6 @@
-package me.w1992wishes.spark.graphx
+package me.w1992wishes.spark.graphx.mapping
 
+import me.w1992wishes.spark.graphx.`trait`.SampleGraphTrait
 import org.apache.spark.sql.SparkSession
 
 /**

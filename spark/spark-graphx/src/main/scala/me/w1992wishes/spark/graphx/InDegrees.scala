@@ -10,7 +10,7 @@ object InDegrees {
 
   def main(args: Array[String]): Unit = {
 
-    val spark = SparkSession.builder().appName("").master("local").getOrCreate()
+    val spark = SparkSession.builder().master("local").getOrCreate()
 
     val graph: Graph[Int, Int] = GraphLoader.edgeListFile(spark.sparkContext, "Cit-HepTh.txt")
 

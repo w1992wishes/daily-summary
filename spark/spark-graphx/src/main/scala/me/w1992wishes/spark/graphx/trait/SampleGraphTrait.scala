@@ -1,4 +1,4 @@
-package me.w1992wishes.spark.graphx
+package me.w1992wishes.spark.graphx.`trait`
 
 import org.apache.spark.graphx.{Edge, Graph}
 import org.apache.spark.rdd.RDD
