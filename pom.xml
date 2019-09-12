@@ -36,6 +36,7 @@
         <module>scala</module>
         <module>algorithm</module>
         <module>graph-db</module>
+        <module>scheduler</module>
     </modules>
 
     <repositories>

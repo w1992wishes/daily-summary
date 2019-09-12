@@ -3,3 +3,5 @@
     * [排序算法](sort/README.md)
         * [快速排序算法](sort/QuickSort.md)
         * [归并排序算法](sort/MergeSort.md)
+    * [图算法](graph)
+        * [拓扑排序算法](graph/TopoSort.md)
