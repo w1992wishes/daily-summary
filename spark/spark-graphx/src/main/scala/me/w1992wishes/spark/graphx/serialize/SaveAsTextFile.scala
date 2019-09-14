@@ -60,8 +60,7 @@ object SaveAsTextFile extends SampleGraphTrait {
           val mapper = new ObjectMapper()
           mapper.registerModule(DefaultScalaModule)
           vertices.map(v => {
-            val r = mapper.readValue[(Integer, String)](v, new
-                TypeReference[(Integer, String)] {})
+            val r = mapper.readValue[(Integer, String)](v, new TypeReference[(Integer, String)] {})
             (r._1.toLong, r._2)
           })
         }),
@@ -69,8 +68,7 @@ object SaveAsTextFile extends SampleGraphTrait {
         .mapPartitions(edges => {
           val mapper = new ObjectMapper()
           mapper.registerModule(DefaultScalaModule)
-          edges.map(e => mapper.readValue[Edge[String]](e,
-            new TypeReference[Edge[String]] {}))
+          edges.map(e => mapper.readValue[Edge[String]](e, new TypeReference[Edge[String]] {}))
         })
     )
     myGraph2.triplets.collect().foreach(println(_))
