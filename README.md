@@ -61,6 +61,8 @@
     * [ElasticSearch 安装](elasticsearch/document/ESInstall.md)
     * [ElasticSearch 入门使用](elasticsearch/document/ESStarted.md)
     * [ElasticSearch 文档操作](elasticsearch/document/ESDocument.md)
+    * [ElasticSearch 映射（mapping）](elasticsearch/document/ESMapping.md)
+    * [ElasticSearch 结构化查询和过滤](elasticsearch/document/ESDSL.md)
 * [Scheduler](scheduler)
     * [大数据调度系统设计](scheduler/SchedulerSystemImpl.md)
 * [LeetCode](leet-code)
