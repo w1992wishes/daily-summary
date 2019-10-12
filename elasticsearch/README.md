@@ -4,3 +4,4 @@
     * [ElasticSearch 文档操作](document/ESDocument.md)
     * [ElasticSearch 映射（mapping）](document/ESMapping.md)
     * [ElasticSearch 结构化查询和过滤](document/ESDSL.md)
+    * [ElasticSearch analyzer 和 analyze API](document/ESAnalyzer.md)
