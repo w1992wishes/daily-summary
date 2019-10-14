@@ -64,6 +64,7 @@
     * [ElasticSearch 映射（mapping）](elasticsearch/document/ESMapping.md)
     * [ElasticSearch 结构化查询和过滤](elasticsearch/document/ESDSL.md)
     * [ElasticSearch analyzer 和 analyze API](elasticsearch/document/ESAnalyzer.md)
+    * [ElasticSearch 深入分片](elasticsearch/document/ESShard.md)
 * [Scheduler](scheduler)
     * [大数据调度系统设计](scheduler/SchedulerSystemImpl.md)
 * [LeetCode](leet-code)
