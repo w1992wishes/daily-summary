@@ -47,6 +47,7 @@
         * [Spark 提交调度阶段](spark/spark-base/documents/core/SubmitStage.md)
         * [Spark 提交任务](spark/spark-base/documents/core/SubmitTask.md)
         * [Spark 执行任务](spark/spark-base/documents/core/RunTask.md)
+        * [Spark作业执行原理--获取执行结果](spark/spark-base/documents/core/ResultTask.md)
 * [Zookeeper](zookeeper/README.md)
     * [zk api 使用例子](zookeeper/zk-example/README.md)
     * [zk 配置中心简单原理](zookeeper/zk-config-server1/README.md)
