@@ -13,4 +13,7 @@
     * [Spark 提交调度阶段](spark-base/documents/core/SubmitStage.md)
     * [Spark 提交任务](spark-base/documents/core/SubmitTask.md)
     * [Spark 执行任务](spark-base/documents/core/RunTask.md)
-    * [Spark作业执行原理--获取执行结果](spark-base/documents/core/ResultTask.md)
+    * [获取执行结果](spark-base/documents/core/ResultTask.md)
+* [Spark 容错处理](spark-base)
+    * [Executor 异常](spark-base/documents/ha/ExecutorHA.md)
+    * [Worker 异常](spark-base/documents/ha/WorkerHA.md)

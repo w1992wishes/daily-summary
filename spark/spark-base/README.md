@@ -12,3 +12,6 @@
     * [Spark 提交任务](documents/core/SubmitTask.md)
     * [Spark 执行任务](documents/core/RunTask.md)
     * [Spark作业执行原理--获取执行结果](documents/core/ResultTask.md)
+* [Spark 容错处理]()
+    * [Executor 异常](documents/ha/ExecutorHA.md)
+    * [Worker 异常](documents/ha/WorkerHA.md)
