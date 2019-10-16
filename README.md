@@ -51,6 +51,7 @@
     * [Spark 容错处理](spark/spark-base)
         * [Executor 异常](spark/spark-base/documents/ha/ExecutorHA.md)
         * [Worker 异常](spark/spark-base/documents/ha/WorkerHA.md)
+        * [Master 异常](spark/spark-base/documents/ha/MasterHA.md)
 * [Zookeeper](zookeeper/README.md)
     * [zk api 使用例子](zookeeper/zk-example/README.md)
     * [zk 配置中心简单原理](zookeeper/zk-config-server1/README.md)

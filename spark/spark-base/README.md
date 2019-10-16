@@ -15,3 +15,4 @@
 * [Spark 容错处理]()
     * [Executor 异常](documents/ha/ExecutorHA.md)
     * [Worker 异常](documents/ha/WorkerHA.md)
+    * [Master 异常](documents/ha/MasterHA.md)

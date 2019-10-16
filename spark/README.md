@@ -17,3 +17,4 @@
 * [Spark 容错处理](spark-base)
     * [Executor 异常](spark-base/documents/ha/ExecutorHA.md)
     * [Worker 异常](spark-base/documents/ha/WorkerHA.md)
+    * [Master 异常](spark-base/documents/ha/MasterHA.md)
