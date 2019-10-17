@@ -65,11 +65,11 @@ HAR 文件是通过在 HDFS 上构建一个分层文件系统来工作。HAR 文
 
 har 文件是通过 MapReduce 生成的，job 结束后源文件不会删除，其结构如下：
 
-![](../images/hadoop/hadoop-small-files-problem-1.png)
+![](../../images/hadoop/hadoop-small-files-problem-1.png)
 
 Hadoop Archives 唯一的优势可能就是将众多的小文件打包成一个 HAR 文件了，那这个文件就会按照 `dfs.block.size` 的大小进行分块，打成 HAR 文件可以大大降低 NameNode 守护节点的内存压力。但对于MapReduce 来说起不到任何作用，因为 HAR 文件就相当一个目录，仍然不能讲小文件合并到一个 Split 中去，一个小文件一个 Split ，任然是低效的，甚至是更慢的。因为 HAR 文件仍然随机存储在磁盘上，并且每个 HAR 文件访问需要读取两个索引文件以及还要读取数据文件本。
 
-![](../images/hadoop/hadoop-small-files-problem-2.png)
+![](../../images/hadoop/hadoop-small-files-problem-2.png)
 
 ```shell
 # Usage: hadoop archive -archiveName name -p <parent> <src>  <dest>
@@ -139,7 +139,7 @@ MapReduce 性能问题是由随机磁盘 IO 和启动/管理太多 map 任务的
 
 当需要维护原始文件名时，一种非常常见的方法是使用 Sequence 文件。方案中，使用文件名作为 key，文件内容作为 value，可以在 map/reduce 过程中的input/output 的 format 时被使用。在 map/reduce 过程中，map 处理文件的临时输出就是使用 SequenceFile 处理过的。
 
-![](../images/hadoop/hadoop-small-files-problem-3.png)
+![](../../images/hadoop/hadoop-small-files-problem-3.png)
 
 使用 SequenceFile 作为表存储格式：
 

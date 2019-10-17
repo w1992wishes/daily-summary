@@ -349,6 +349,6 @@ private[scheduler] def handleTaskCompletion(event: CompletionEvent) {
 }
 ```
 
-![](../../../../images/spark/base/submit-stage-1.jpg)
+![](../../../images/spark/base/submit-stage-1.jpg)
 
-![](../../../../images/spark/base/submit-stage-2.jpg)
+![](../../../images/spark/base/submit-stage-2.jpg)

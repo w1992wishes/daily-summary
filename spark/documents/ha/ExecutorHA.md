@@ -4,7 +4,7 @@ Spark 支持多种运行模式，这些运行模式中的集群管理器会为�
 
 以独立运行（standalone ）模式为例分析 Executor 出现异常的情况，其运行结构如下图所示，其中虚线为正常运行中进行消息通信线路，实现为异常处理步骤。
 
-![](../../../../images/spark/ha/executor-ha-01.jpg)
+![](../../../images/spark/ha/executor-ha-01.jpg)
 
 （1） 在 standalone 模式中，提交一个程序后，集群中的 Master 给应用程序分配运行资源，然后在Worker 中启动 ExecutorRunner，而 ExecutorRunner 根据当前的运行模式启动 CoarseGrainedExecutorBackend  进程，该进程启动后会向 Driver 发送  RegisterExecutor 注册信息，如果注册成功，则 CoarseGrainedExecutorBackend 在其内部启动 Executor。Executor 由 ExecutorRunner 进行管理，当 Executor 出现异常（如所运行容器 CoarseGrainedExecutorBackend 进程异常退出等）时，由ExecutorRunner 捕获该异常并发送 ExecutorStateChanged 消息给 Worker。
 

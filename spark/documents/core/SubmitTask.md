@@ -303,6 +303,6 @@ private def launchTasks(tasks: Seq[Seq[TaskDescription]]) {
 
 在该方法中，把任务一个个发送到 Worker 节点上的 CoarseGrainedExecutorBackend，然后通过其内部的 Executor 执行任务。
 
-![](../../../../images/spark/base/submit-task-1.jpg)
+![](../../../images/spark/base/submit-task-1.jpg)
 
-![](../../../../images/spark/base/submit-task-2.jpg)
+![](../../../images/spark/base/submit-task-2.jpg)

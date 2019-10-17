@@ -83,17 +83,17 @@ cat $HOME/.ssh/id_rsa.pub >> $HOME/.ssh/authorized_keys
 
 http://www.apache.org/dyn/closer.cgi/hadoop/common/
 
-![](../images/hadoop/Hadoop-Installation-1.jpg)
+![](../../images/hadoop/Hadoop-Installation-1.jpg)
 
 选一个连接进去：
 
 http://mirror.bit.edu.cn/apache/hadoop/common/
 
-![](../images/hadoop/Hadoop-Installation-2.jpg)
+![](../../images/hadoop/Hadoop-Installation-2.jpg)
 
 然后选择一个版本下载：
 
-![](../images/hadoop/Hadoop-Installation-3.jpg)
+![](../../images/hadoop/Hadoop-Installation-3.jpg)
 
 **3.2、解压**
 

@@ -170,4 +170,4 @@ private def relaunchDriver(driver: DriverInfo) {
 
 ## 四、线路图
 
-![](../../../../images/spark/ha/worker-ha-01.jpg)
+![](../../../images/spark/ha/worker-ha-01.jpg)

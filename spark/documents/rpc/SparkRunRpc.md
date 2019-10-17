@@ -13,7 +13,7 @@
 
 用户提交应用程序时，应用程序的 SparkContext 会向 Master 发送应用注册消息，并由 Master 给应用分配 Executor，Executor 会向 SparkContext 发送注册成功消息；当 SparkContext 的 RDD 触发行动操作后，将创建 RDD 的 DAG，通过 DAGScheduler 进行划分 Stage，并将 Stage 转化为 TaskSet；接着由 TaskScheduler 向注册的 Executor 发送执行消息，Executor 接收到任务消息后启动并运行；最后当所有任务运行完毕，由 Driver 处理结果并回收资源。
 
-![](../../../../images/spark/rpc/spark-run-rpc-0.jpg)
+![](../../../images/spark/rpc/spark-run-rpc-0.jpg)
 
 ## 二、详细过程
 

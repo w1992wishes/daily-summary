@@ -1,4 +1,4 @@
-* [Hadoop HBase 相关](README.md)
+* [HBase](README.md)
     * [HBase 安装](HBaseInstall.md)
     * [HBase 列族属性配置](HBaseColumnProperties.md)
     * [HBase 宽表和高表](HBaseTable.md)

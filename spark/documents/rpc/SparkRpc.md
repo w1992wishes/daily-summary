@@ -73,7 +73,7 @@ create() 方法的重心就是通过工厂方法由 RpcEnvFactory 创建 RpcEnv�
 
 RpcEnv 在 Spark 中有一个实现 NettyRpcEnv，RpcEnvFactory 也有一个实现 NettyRpcEnvFactory。典型的工厂模式。
 
-![](../../../../images/spark/rpc/spark-rpc-0.jpg)
+![](../../../images/spark/rpc/spark-rpc-0.jpg)
 
 ### 3.2、RpcEnv 的启动
 
@@ -369,7 +369,7 @@ private[spark] abstract class RpcEndpointRef(conf: SparkConf)
 
 ## 六、RpcEnv 和 RpcEndpoint 关系类图
 
-![](../../../../images/spark/rpc/spark-rpc-1.jpg)
+![](../../../images/spark/rpc/spark-rpc-1.jpg)
 
 对于服务端来说，RpcEnv 是 RpcEndpoint 的运行环境，负责 Endpoint 的整个生命周期管理，它可以注册或Endpoint，解析 TCP 层的数据包并反序列化，封装成 RpcMessage，并且路由请求到指定的 Endpoint，调用业务逻辑代码，如果 Endpoint 需要响应，把返回的对象序列化后通过 TCP 层再传输到远程对端，如果 Endpoint 发生异常，那么调用 RpcCallContext.sendFailure 来把异常发送回去。
 
@@ -578,7 +578,7 @@ stop 会调用 unregisterRpcEndpoint 方法，走该方法的逻辑，然后会�
 
 ### 7.4、Dispatcher 和 Inbox 请求流程图
 
-![](../../../../images/spark/rpc/spark-rpc-2.jpg)
+![](../../../images/spark/rpc/spark-rpc-2.jpg)
 
 ## 八、Outbox
 
@@ -653,21 +653,21 @@ postToOutbox 方法中如果 client 为 null，会新建 Outbox，缓存在 outb
 
 最后就是调用 TransportClient 发送消息。
 
-![](../../../../images/spark/rpc/spark-rpc-3.jpg)
+![](../../../images/spark/rpc/spark-rpc-3.jpg)
 
 ## 九、时序图
 
 ### 9.1、Endpoint 启动时序图
 
-![](../../../../images/spark/rpc/spark-rpc-4.jpg)
+![](../../../images/spark/rpc/spark-rpc-4.jpg)
 
 ### 9.2、Endpoint send 和 ask 时序图
 
-![](../../../../images/spark/rpc/spark-rpc-5.jpg)
+![](../../../images/spark/rpc/spark-rpc-5.jpg)
 
 ### 9.3、Endpoint receive 时序图
 
-![](../../../../images/spark/rpc/spark-rpc-6.jpg)
+![](../../../images/spark/rpc/spark-rpc-6.jpg)
 
 
 

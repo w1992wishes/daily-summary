@@ -9,7 +9,7 @@
 
 在介绍了 Spark RPC 框架的大致内容后，下面以 Standalone 运行模式分析下 Spark 启动过程中的通信。
 
-![](../../../../images/spark/rpc/spark-start-rpc-0.jpg)
+![](../../../images/spark/rpc/spark-start-rpc-0.jpg)
 
 启动过程中主要是 Master 和 Worker 之间的通信。首先 Worker 向 Master 发送注册消息，然后 Master 回复注册成功或者注册失败的消息，如果 Worker 收到注册成功的消息，就定时向 Master 发送心跳信息。
 
@@ -17,7 +17,7 @@
 
 一般启动 spark 集群是运行 start-all.sh 脚本，该脚本先启动 Master，后启动 Worker。
 
-![](../../../../images/spark/rpc/spark-start-rpc-1.jpg)
+![](../../../images/spark/rpc/spark-start-rpc-1.jpg)
 
 start-master.sh 最后会在 Master 节点运行 org.apache.spark.deploy.master.Master 类，start-slaves.sh 中最后会在各 slave 节点运行 org.apache.spark.deploy.worker.Worker。
 

@@ -244,7 +244,7 @@ def createShuffleMapStage(shuffleDep: ShuffleDependency[_, _, _], jobId: Int): S
 
 以网上一个例子来说明，如下，有 7个 RDD， 分别为 rddA~rddG，它们之间有5个操作，划分调度阶段详细步骤如下：
 
-![](../../../../images/spark/base/create-stage-1.jpg)
+![](../../../images/spark/base/create-stage-1.jpg)
 
 （1）在 SparkContext 中提交运行时，经过一系列调用后 DAGScheduler 的 submitJob 提交作业，作业消息由 handleJobSubmitted 进行处理；
 
