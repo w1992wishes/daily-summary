@@ -1,5 +1,6 @@
 * [HBase](README.md)
     * [HBase 安装](HBaseInstall.md)
+    * [HBase 架构](HBaseArchitecture.md)
     * [HBase 列族属性配置](HBaseColumnProperties.md)
     * [HBase 宽表和高表](HBaseTable.md)
     * [HBase 行健设计](HBaseRowKey.md)

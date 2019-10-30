@@ -27,6 +27,7 @@
         * [MR shuffle 过程详解](hadoop/map-reduce/document/MRShuffle.md) 
     * [HBase](hadoop/hbase-common/README.md)
         * [HBase 安装](hadoop/hbase-common/HBaseInstall.md)
+        * [HBase 架构](hadoop/hbase-common/HBaseArchitecture.md)
         * [HBase 列族属性配置](hadoop/hbase-common/HBaseColumnProperties.md)
         * [HBase 宽表和高表](hadoop/hbase-common/HBaseTable.md)
         * [HBase 行健设计](hadoop/hbase-common/HBaseRowKey.md)

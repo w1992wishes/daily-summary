@@ -1,4 +1,4 @@
-*[Hadoop 体系](README.md)
+*[Hadoop](README.md)
    * [Hadoop](README.md)
        * [Hadoop 2.9.1 集群安装](document/Hadoop-Installation.md)
        * [Hadoop 小文件处理](document/Hadoop-Small-File.md)
@@ -7,6 +7,7 @@
        * [MR shuffle 过程详解](map-reduce/document/MRShuffle.md) 
    * [HBase](hbase-common/README.md)
        * [HBase 安装](hbase-common/HBaseInstall.md)
+       * [HBase 架构](hbase-common/HBaseArchitecture.md)
        * [HBase 列族属性配置](hbase-common/HBaseColumnProperties.md)
        * [HBase 宽表和高表](hbase-common/HBaseTable.md)
        * [HBase 行健设计](hbase-common/HBaseRowKey.md)
