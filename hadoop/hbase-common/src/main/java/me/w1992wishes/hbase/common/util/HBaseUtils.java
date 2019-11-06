@@ -27,7 +27,7 @@ public class HBaseUtils {
 
     static {
         conf = HBaseConfiguration.create();
-        conf.set("hbase.zookeeper.quorum", "192.168.199.128");
+        conf.set("hbase.zookeeper.quorum", "192.168.11.72");
         conf.set("hbase.zookeeper.property.clientPort", "2181");
         try {
             con = ConnectionFactory.createConnection(conf);// 获得连接对象
