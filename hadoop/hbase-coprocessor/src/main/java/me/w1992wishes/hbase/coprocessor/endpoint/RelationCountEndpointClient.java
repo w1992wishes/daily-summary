@@ -36,16 +36,20 @@ public class RelationCountEndpointClient {
             ServerRpcController controller = new ServerRpcController();
             BlockingRpcCallback<CountCoprocessor.CountResponse> rpcCallback = new BlockingRpcCallback<>();
 
+            // 调用终端程序方法
             countService.followedByCount(controller, request, rpcCallback);
 
+            // 取出 response
             CountCoprocessor.CountResponse response = rpcCallback.get();
             if (controller.failedOnException()) {
                 throw controller.getFailedOn();
             }
-            return (response != null && response.getCount() != 0) ?
-                    response.getCount() : 0;
+
+            // 由于自定义的变量为 count，所以 protobuf 会自动生成一个 hasCount 方法来判断是否变量有值
+            return response.hasCount() ? response.getCount() : 0;
         };
 
+        // 这里触发调用终端程序
         Map<byte[], Long> results =
                 followed.coprocessorService(
                         CountCoprocessor.CountService.class,
@@ -53,6 +57,7 @@ public class RelationCountEndpointClient {
                         endKey,
                         callable);
 
+        // 对各个 region 的终端结果求和
         long sum = 0;
         for (Map.Entry<byte[], Long> e : results.entrySet()) {
             sum += e.getValue();
