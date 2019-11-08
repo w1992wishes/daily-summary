@@ -1,3 +1,5 @@
 * [Hive](README.md)
-    * [Hive Join 介绍](HiveJoin.md)
+    * [Hive 2.3.4 安装](document/HiveInstall.md)
+    * [Hive 建表语句详解](document/HiveCreateTable.md)
+    * [Hive Join 介绍](document/HiveJoin.md)
     * [Hive UDF](../hive-udf/README.md)

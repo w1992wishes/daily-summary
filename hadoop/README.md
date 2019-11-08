@@ -15,5 +15,7 @@
        * [HBase 过滤器](hbase-common/HBaseFilter.md)
        * [HBase 协处理器](hbase-coprocessor/README.md)
    * [Hive](hive-common/README.md)
-       * [Hive Join 介绍](hive-common/HiveJoin.md)
+       * [Hive 2.3.4 安装](hive-common/document/HiveInstall.md)
+       * [Hive 建表语句详解](hive-common/document/HiveCreateTable.md)
+       * [Hive Join 介绍](hive-common/document/HiveJoin.md)
        * [Hive UDF](hive-udf/README.md)
