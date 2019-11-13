@@ -27,7 +27,7 @@ public class HBaseUtils {
 
     static {
         conf = HBaseConfiguration.create();
-        conf.set("hbase.zookeeper.quorum", "192.168.11.72");
+        conf.set("hbase.zookeeper.quorum", "192.168.11.72,192.168.11.73");
         conf.set("hbase.zookeeper.property.clientPort", "2181");
         try {
             con = ConnectionFactory.createConnection(conf);// 获得连接对象
@@ -102,8 +102,8 @@ public class HBaseUtils {
             // 新建一个表描述
             TableDescriptorBuilder tableBuilder =
                     TableDescriptorBuilder.newBuilder(tn)
-                            .setRegionSplitPolicyClassName(IncreasingToUpperBoundRegionSplitPolicy.class.getName())
-                            .setValue("hbase.increasing.policy.initial.size", "134217728");
+                            /*.setRegionSplitPolicyClassName(IncreasingToUpperBoundRegionSplitPolicy.class.getName())
+                            .setValue("hbase.increasing.policy.initial.size", "134217728")*/;
             // 在表描述里添加列族
             for (String columnFamily : columnFamilys) {
                 tableBuilder.setColumnFamily(ColumnFamilyDescriptorBuilder.newBuilder(Bytes.toBytes(columnFamily)).build());
