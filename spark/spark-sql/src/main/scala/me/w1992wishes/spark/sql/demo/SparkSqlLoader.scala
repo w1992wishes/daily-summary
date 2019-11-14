@@ -1,4 +1,4 @@
-package me.w1992wishes.spark.sql
+package me.w1992wishes.spark.sql.demo
 
 import java.io.File
 

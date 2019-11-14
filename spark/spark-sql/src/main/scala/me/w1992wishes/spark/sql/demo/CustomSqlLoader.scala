@@ -1,4 +1,4 @@
-package me.w1992wishes.spark.sql
+package me.w1992wishes.spark.sql.demo
 
 import org.apache.spark.sql.functions.{col, udf}
 import org.apache.spark.sql.{SaveMode, SparkSession}
