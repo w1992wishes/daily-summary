@@ -13,6 +13,7 @@
         * [JVM 内存溢出异常测试](java/jvm/jvm-内存溢出测试.md)
 * [Spark](spark/README.md)
     * [Spark 基础实践](spark/spark-base)
+        * [Spark On Yarn 安装](spark/documents/base/SparkOnYarnInstall.md)
         * [Spark RDD、DataFrame 和 DataSet](spark/documents/base/RDD-DS-DF.md)
         * [Spark UDF](spark/documents/base/SparkUDF.md)
     * [spark rpc]()
