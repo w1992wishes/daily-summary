@@ -26,21 +26,20 @@ object SparkHivePartition {
 
     //切换hive的数据库
     sql("use wqf")
-    // 1、创建分区表，可以将append改为overwrite，这样如果表已存在会删掉之前的表，新建表
+    // 1、创建分区表，可以将 append 改为 overwrite，这样如果表已存在会删掉之前的表，新建表
     df.write.mode("append").partitionBy("year").saveAsTable("new_test_partition")
-    //2、向Spark创建的分区表写入数据
+    //2、向 Spark 创建的分区表写入数据
     df.write.mode("append").partitionBy("year").saveAsTable("new_test_partition")
     sql("insert into new_test_partition select * from temp_table")
     df.write.insertInto("new_test_partition")
 
     //开启动态分区
     sql("set hive.exec.dynamic.partition.mode=nonstrict")
-    //3、向在Hive里用Sql创建的分区表写入数据，抛出异常
+    //3、向在 Hive 里用 Sql 创建的分区表写入数据，抛出异常
     //    df.write.mode("append").partitionBy("year").saveAsTable("test_partition")
 
     // 4、解决方法
     df.write.mode("append").format("Hive").partitionBy("year").saveAsTable("test_partition")
-
     sql("insert into test_partition select * from temp_table")
     df.write.insertInto("test_partition")
     //这样会抛出异常
