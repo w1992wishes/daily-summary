@@ -1,10 +1,17 @@
 package me.w1992wishes.hbase.inaction.split;
 
 import me.w1992wishes.hbase.common.util.HBaseUtils;
+import org.apache.hadoop.hbase.TableName;
+import org.apache.hadoop.hbase.client.Connection;
+import org.apache.hadoop.hbase.client.ConnectionFactory;
+import org.apache.hadoop.hbase.client.Put;
+import org.apache.hadoop.hbase.client.Table;
 import org.apache.hadoop.hbase.util.Bytes;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.TreeSet;
 
 /**
@@ -14,7 +21,7 @@ public class SplitMain {
 
     public static void main(String[] args) {
         try {
-            HBaseUtils.createTable("mid:bigdata_event_face_person_5030", getSplitKeys(), "face");
+            HBaseUtils.createTable("dwd:bigdata_event_face_person_5029", getSplitKeys(), "basic_info");
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -42,6 +49,30 @@ public class SplitMain {
             i++;
         }
         return splitKeys;
+    }
+
+
+    private static String getRandomNumber() {
+        String ranStr = Math.random() + "";
+        int pointIndex = ranStr.indexOf(".");
+        return ranStr.substring(pointIndex + 1, pointIndex + 3);
+    }
+
+    private static List<Put> batchPut() {
+        List<Put> list = new ArrayList<Put>();
+        for (int i = 1; i <= 10000; i++) {
+            byte[] rowkey = Bytes.toBytes(getRandomNumber() + "-" + System.currentTimeMillis() + "-" + i);
+            Put put = new Put(rowkey);
+            put.addColumn(Bytes.toBytes("face"), Bytes.toBytes("name"), Bytes.toBytes("zs" + i));
+            list.add(put);
+        }
+        return list;
+    }
+
+    private void doPut() throws IOException {
+        Connection conn = HBaseUtils.getCon();
+        Table table = conn.getTable(TableName.valueOf("mid:bigdata_event_face_person_5030"));
+        table.put(batchPut());
     }
 
 }
