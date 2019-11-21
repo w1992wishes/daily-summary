@@ -9,6 +9,10 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
+    <properties>
+        <hbase.version>1.4.1</hbase.version>
+    </properties>
+
     <artifactId>spark-sql</artifactId>
 
     <dependencies>
@@ -41,6 +45,25 @@
             <groupId>com.pivotal</groupId>
             <artifactId>greenplum-jdbc</artifactId>
             <version>5.1.4</version>
+        </dependency>
+
+        <!-- hbase 相关 -->
+        <dependency>
+            <groupId>org.apache.hbase</groupId>
+            <artifactId>hbase-client</artifactId>
+            <version>${hbase.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hbase</groupId>
+            <artifactId>hbase-server</artifactId>
+            <version>${hbase.version}</version>
+        </dependency>
+
+        <!-- geohash 相关 -->
+        <dependency>
+            <groupId>ch.hsr</groupId>
+            <artifactId>geohash</artifactId>
+            <version>1.3.0</version>
         </dependency>
     </dependencies>
 
