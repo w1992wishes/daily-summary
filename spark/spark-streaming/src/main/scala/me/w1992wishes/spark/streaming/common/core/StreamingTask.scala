@@ -54,6 +54,14 @@ abstract class StreamingTask(taskArguments: TaskArguments, streamingConfig: Stre
     val conf = new SparkConf()
       .setAppName(streamingTaskName)
       .set("spark.io.compression.codec", "snappy")
+      .set("kafka.zk.hosts", zkServer)
+      // 设置每秒每个分区最大获取日志数,控制处理数据量，保证数据均匀处理
+      .set("spark.streaming.kafka.maxRatePerPartition", "2000")
+      // 启动优雅关闭服务
+      .set("spark.streaming.stopGracefullyOnShutdown", "true")
+      // Spark Streaming 重启后Kafka数据堆积调优
+      .set("spark.streaming.backpressure.enabled", "true") // 激活反压功能
+      .set("spark.streaming.backpressure.initialRate", "5000") // 启动反压功能后，读取的最大数据量
       .setIfMissing("spark.master", "local[2]")
     conf.set("kafka.zk.hosts", zkServer)
     val sc = new SparkContext(conf)

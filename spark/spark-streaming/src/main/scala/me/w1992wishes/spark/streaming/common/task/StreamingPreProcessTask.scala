@@ -7,7 +7,6 @@ import com.alibaba.fastjson.JSON
 import com.alibaba.fastjson.serializer.SerializeFilter
 import me.w1992wishes.common.domain.EventFace
 import me.w1992wishes.common.util.{ConnectionPool, KafkaSender}
-import me.w1992wishes.common.util.ConnectionPool
 import me.w1992wishes.spark.streaming.common.ability.{DbcpSupportAbility, FeatureQualityAbility}
 import me.w1992wishes.spark.streaming.common.config.{PreProcessTaskArguments, StreamingConfig, TaskArguments}
 import me.w1992wishes.spark.streaming.common.core.StreamingTask
@@ -178,15 +177,17 @@ object StreamingPreProcessTask {
     // 消费数据
     stream
       .foreachRDD(kafkaRdd => {
-        val offsetRanges = kafkaRdd.asInstanceOf[HasOffsetRanges].offsetRanges
-        task.kafkaOffset.updateOffset(offsetRanges)
+        if (!kafkaRdd.isEmpty()) {
+          val offsetRanges = kafkaRdd.asInstanceOf[HasOffsetRanges].offsetRanges
+          task.kafkaOffset.updateOffset(offsetRanges)
 
-        println("****** Start processing RDD data ******")
-        val eventFaceRdd = kafkaRdd.map(json => JSON.parseObject(json.value(), classOf[EventFace]))
-        task.doAction(eventFaceRdd.repartition(taskArguments.partitions), kafkaSender)
-        println("****** End processing RDD data ******")
+          println("****** Start processing RDD data ******")
+          val eventFaceRdd = kafkaRdd.map(json => JSON.parseObject(json.value(), classOf[EventFace]))
+          task.doAction(eventFaceRdd.repartition(taskArguments.partitions), kafkaSender)
+          println("****** End processing RDD data ******")
 
-        task.kafkaOffset.commitOffset(offsetRanges)
+          task.kafkaOffset.commitOffset(offsetRanges)
+        }
       })
 
     task.ssc.start()
