@@ -23,10 +23,15 @@ trait DbcpSupportAbility extends Serializable{
     props.put("minEvictableIdleTimeMillis", streamingConfig.getValidProperty("executor.pool.minEvictableIdleTimeMillis"))
     props.put("numTestsPerEvictionRun", streamingConfig.getValidProperty("executor.pool.numTestsPerEvictionRun"))
     props.put("connectionProperties", streamingConfig.getValidProperty("executor.pool.connectionProperties"))
-    props.put("username", streamingConfig.getValidProperty("streaming.sink.user"))
-    props.put("password", streamingConfig.getValidProperty("streaming.sink.password"))
-    props.put("driverClassName", streamingConfig.getValidProperty("streaming.sink.driver"))
-    props.put("url", streamingConfig.getValidProperty("streaming.sink.url"))
+    props
+  }
+
+  def initDbcpProperties(streamingConfig: StreamingConfig, prefix: String): Properties = {
+    val props: Properties = initDbcpProperties(streamingConfig)
+    props.put("username", streamingConfig.getValidProperty(s"$prefix.user"))
+    props.put("password", streamingConfig.getValidProperty(s"$prefix.password"))
+    props.put("driverClassName", streamingConfig.getValidProperty(s"$prefix.driver"))
+    props.put("url", streamingConfig.getValidProperty(s"$prefix.url"))
     props
   }
 
