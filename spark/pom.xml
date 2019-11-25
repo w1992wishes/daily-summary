@@ -15,6 +15,7 @@
         <module>spark-streaming</module>
         <module>spark-window</module>
         <module>spark-graphx</module>
+        <module>structured-streaming</module>
     </modules>
 
     <properties>
