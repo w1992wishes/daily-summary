@@ -59,9 +59,9 @@ object ConnectionPool {
     }
   }
 
-  def closeResource(conn: Connection, st: Statement, rs: ResultSet): Unit = {
+  def closeResource(conn: Connection, st: Statement, rs: ResultSet = null): Unit = {
     closeConnection(conn)
-    closeStatement(st)
+    closeStatement(st)null
     closeResultSet(rs)
   }
 }
