@@ -9,6 +9,7 @@ import me.w1992wishes.common.util.DateUtil
 import me.w1992wishes.spark.sql.`case`.config.{PersonEventBatchEtlArgsTool, PropertiesTool}
 import org.apache.commons.lang3.StringUtils
 import org.apache.spark.sql.{SaveMode, SparkSession}
+import org.apache.spark.sql.functions.{max, min}
 
 /**
   * @author w1992wishes 2019/11/25 15:01
@@ -62,7 +63,7 @@ class PersonEventBatchEtlTask(propsTool: PropertiesTool, eventType: String = "pe
   }
 
   private def cameraTable(table: String): String = {
-    s"(SELECT id, geo_string FROM $table WHERE geo_string like 'POINT%') AS t_tmp"
+    s"(SELECT id as source_id, geo_string FROM $table WHERE geo_string like 'POINT%') AS t_tmp"
   }
 }
 
@@ -79,14 +80,17 @@ object PersonEventBatchEtlTask {
       .appName(getClass.getSimpleName)
       .config("spark.sql.shuffle.partitions", argsTool.shufflePartitions)
       .config("spark.debug.maxToStringFields", "100")
+      .config("spark.sql.autoBroadcastJoinThreshold", "104857600") // map side join 小表阈值
       .getOrCreate()
 
     val ds = task.getEvents(spark, argsTool.partitions)
-    ds.createOrReplaceTempView("t_person_event")
-    spark.sqlContext.cacheTable("t_person_event")
+    ds.cache()
 
     val cameras = task.getCameras(spark)
-    cameras.createOrReplaceTempView("t_camera")
+
+    // 广播小表，避免 shuffle
+    val eventsWithGeo = ds.join(org.apache.spark.sql.functions.broadcast(cameras), Seq("source_id"), "left")
+    eventsWithGeo.createOrReplaceTempView("t_event_geo")
 
     spark.udf.register("makeGeoHash", makeGeoHash _)
     spark.udf.register("makeId", makeId _)
@@ -97,10 +101,10 @@ object PersonEventBatchEtlTask {
     spark.udf.register("makeBizCode", makeBizCode _)
 
     // import spark.implicits._
-    val personEvents = spark.sql(s"select 'person' as data_type, a.aid, makeId() as id, makeBizCode(a.biz_code) as biz_code, a.time, " +
-      s"makeDt(a.time) as dt, makeProps(a.thumbnail_id, a.thumbnail_url, a.image_id, a.image_url, a.source_id, a.source_type) as props, " +
-      s"makeCreateTime() as create_time, makeLocation(b.geo_string) as location, makeGeoHash(b.geo_string) as geo_hash " +
-      s"from t_person_event a left join t_camera b on a.source_id = b.id")
+    val personEvents = spark.sql(s"select 'person' as data_type, aid, makeId() as id, makeBizCode(biz_code) as biz_code, time, " +
+      s"makeDt(time) as dt, makeProps(thumbnail_id, thumbnail_url, image_id, image_url, source_id, source_type) as props, " +
+      s"makeCreateTime() as create_time, makeLocation(geo_string) as location, makeGeoHash(geo_string) as geo_hash " +
+      s"from t_event_geo")
 
     personEvents
       .write
@@ -114,12 +118,12 @@ object PersonEventBatchEtlTask {
       .option("batchsize", propsTool.getInt("sink.batchsize"))
       .save()
 
-    val time = spark.sql("select max(create_time) max_time from t_person_event").head().getAs[Timestamp]("max_time")
+    val createTimeColumn = ds.col("create_time")
+    val time = ds.agg(min(createTimeColumn), max(createTimeColumn)).head.getAs[Timestamp](1)
     task.updateStartTime(time = time)
+    ds.unpersist()
 
-    spark.sqlContext.uncacheTable("t_person_event")
     spark.stop()
-
   }
 
   private def makeBizCode(bizCode: String): String = {
