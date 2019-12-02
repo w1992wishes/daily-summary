@@ -7,9 +7,10 @@ import ch.hsr.geohash.GeoHash
 import com.alibaba.fastjson.{JSON, JSONObject}
 import me.w1992wishes.common.util.{ConnectionPool, DateUtils}
 import me.w1992wishes.spark.streaming.common.ability.DbcpSupportAbility
-import me.w1992wishes.spark.streaming.common.config.{EventArguments, StreamingConfig, TaskArguments}
+import me.w1992wishes.spark.streaming.common.config.{EventEtlArguments, StreamingConfig, TaskArguments}
 import me.w1992wishes.spark.streaming.common.core.StreamingTask
 import me.w1992wishes.spark.streaming.common.domain.{MultiData, TrackEventInfo}
+import org.apache.commons.lang3.StringUtils
 import org.apache.spark.rdd.RDD
 import org.apache.spark.streaming.kafka010.HasOffsetRanges
 
@@ -18,10 +19,12 @@ import scala.collection.mutable.ArrayBuffer
 /**
   * @author w1992wishes 2019/11/22 10:41
   */
-class EventEtlTask(taskArguments: EventArguments, streamingConfig: StreamingConfig)
+class StreamingEventEtlTask(taskArguments: EventEtlArguments, streamingConfig: StreamingConfig)
   extends StreamingTask(taskArguments: TaskArguments, streamingConfig: StreamingConfig) with DbcpSupportAbility {
 
-  def convertToEvent(data: JSONObject, dataType: String): TrackEventInfo = {
+  def convertToEvent(data: JSONObject, dataType: String): Array[TrackEventInfo] = {
+    val trackEvents = new ArrayBuffer[TrackEventInfo]()
+
     val trackEvent = new TrackEventInfo
 
     val time = DateUtils.strToDateNormal(data.getString("time"))
@@ -30,13 +33,13 @@ class EventEtlTask(taskArguments: EventArguments, streamingConfig: StreamingConf
     trackEvent.setProps(data.toJSONString)
 
     val location = new JSONObject()
-    var latitude = data.getDouble("latitude")
-    var longitude = data.getDouble("longitude")
-    var geoHash = ""
-    if (latitude != null && longitude != null) geoHash = GeoHash.withCharacterPrecision(latitude, longitude, 12).toBase32
+    val latitude = data.getDouble("latitude")
+    val longitude = data.getDouble("longitude")
+    if (latitude != null && longitude != null) {
+      trackEvent.setGeoHash(GeoHash.withCharacterPrecision(latitude, longitude, 12).toBase32)
+    }
     location.put("latitude", latitude)
     location.put("longitude", longitude)
-    location.put("geoHash", geoHash)
     trackEvent.setLocation(location.toJSONString)
 
     trackEvent.setId(UUID.randomUUID().toString)
@@ -46,7 +49,16 @@ class EventEtlTask(taskArguments: EventArguments, streamingConfig: StreamingConf
     trackEvent.setBizCode(streamingConfig.getString("bizCode", "bigdata"))
     trackEvent.setAid(data.getString(dataType))
 
-    trackEvent
+    trackEvents += trackEvent
+
+    if (StringUtils.isNotEmpty(data.getString("imei"))) {
+      val imei = trackEvent.clone().asInstanceOf[TrackEventInfo]
+      imei.setDataType("imei")
+      imei.setId(UUID.randomUUID().toString)
+      trackEvents += imei
+    }
+
+    trackEvents.toArray
   }
 
   def transfer(multiDataRdd: RDD[MultiData]): RDD[TrackEventInfo] = {
@@ -54,8 +66,8 @@ class EventEtlTask(taskArguments: EventArguments, streamingConfig: StreamingConf
       .map(multiData => {
         val trackEvents = new ArrayBuffer[TrackEventInfo]
         for (data <- multiData.getDatas) {
-          val trackEvent = convertToEvent(data, multiData.getType)
-          trackEvents += trackEvent
+          val trackEventArray = convertToEvent(data, multiData.getType)
+          trackEvents ++= trackEventArray
         }
         trackEvents.toArray
       })
@@ -70,27 +82,25 @@ class EventEtlTask(taskArguments: EventArguments, streamingConfig: StreamingConf
 
   def partitionFunc(iter: Iterator[TrackEventInfo]): Unit = {
 
-    var conn: Connection = null
-    var ps: PreparedStatement = null
-
     val macs = new ArrayBuffer[TrackEventInfo]()
     val imsis = new ArrayBuffer[TrackEventInfo]()
     val cars = new ArrayBuffer[TrackEventInfo]()
-    val defaults = new ArrayBuffer[TrackEventInfo]()
+    val imeis = new ArrayBuffer[TrackEventInfo]()
 
     iter.foreach(trackEvent => {
       trackEvent.getDataType.toLowerCase match {
         case "car" => cars += trackEvent
         case "mac" => macs += trackEvent
         case "imsi" => imsis += trackEvent
-        case _ => defaults += trackEvent
+        case "imei" => imeis += trackEvent
+        case _ => trackEvent
       }
     })
 
     save(macs.toArray, "mac")
     save(imsis.toArray, "imsi")
     save(cars.toArray, "car")
-    save(defaults.toArray, "default")
+    save(imeis.toArray, "imei")
   }
 
   private def save(events: Array[TrackEventInfo], prefix: String): Unit = {
@@ -133,23 +143,24 @@ class EventEtlTask(taskArguments: EventArguments, streamingConfig: StreamingConf
     ps.setString(7, trackEvent.getProps)
     ps.setTimestamp(8, new Timestamp(trackEvent.getCreateTime.getTime))
     ps.setString(9, trackEvent.getLocation)
+    ps.setString(10, trackEvent.getGeoHash)
   }
 
   def writeSql(table: String): String = {
     s"insert into $table (data_type, id, aid, biz_code, time, " +
-      "dt, props, create_time, location) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)"
+      "dt, props, create_time, location, geo_hash) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
   }
 
 }
 
-object EventEtlTask {
+object StreamingEventEtlTask {
 
   def main(args: Array[String]): Unit = {
-    val eventArguments: EventArguments = EventArguments(args.toList)
+    val eventArguments: EventEtlArguments = EventEtlArguments(args.toList)
 
     val streamingConfig: StreamingConfig = StreamingConfig(eventArguments.confName)
 
-    val task = EventEtlTask(eventArguments, streamingConfig)
+    val task = StreamingEventEtlTask(eventArguments, streamingConfig)
 
     val stream = task.createStream()
 
@@ -178,7 +189,8 @@ object EventEtlTask {
     task.getStreamingContext.awaitTermination()
   }
 
-  def apply(multidimensionArguments: EventArguments, streamingConfig: StreamingConfig): EventEtlTask =
-    new EventEtlTask(multidimensionArguments, streamingConfig)
+  def apply(eventArguments: EventEtlArguments, streamingConfig: StreamingConfig): StreamingEventEtlTask =
+    new StreamingEventEtlTask(eventArguments, streamingConfig)
 
 }
+

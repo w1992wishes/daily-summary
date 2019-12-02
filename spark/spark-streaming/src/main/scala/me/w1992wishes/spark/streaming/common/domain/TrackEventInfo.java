@@ -32,4 +32,6 @@ public class TrackEventInfo implements Serializable {
 
     private String props;
 
+    private String geoHash;
+
 }
