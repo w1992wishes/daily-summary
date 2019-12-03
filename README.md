@@ -40,6 +40,8 @@
         * [Spark Yarn](spark/documents/yarn/YARNModel.md)
         * [Spark Yarn Client 模式](spark/documents/yarn/YARNClient.md)
         * [Spark Yarn Cluster 模式](spark/documents/yarn/YARNCluster.md)
+    * [Spark 调优]()
+        * [Spark 调优-数据倾斜](spark/documents/optimize/DataSkewOptimize.md)
 * [Hadoop](hadoop/README.md)
     * [Hadoop](hadoop/README.md)
         * [Hadoop 2.9.1 集群安装](hadoop/document/Hadoop-Installation.md)

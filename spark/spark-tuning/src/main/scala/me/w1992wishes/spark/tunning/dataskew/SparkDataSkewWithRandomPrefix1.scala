@@ -4,14 +4,13 @@ import java.util.concurrent.atomic.AtomicInteger
 
 import org.apache.spark.sql.{Row, SparkSession}
 
-import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 import scala.util.Random
 
 /**
   * @author w1992wishes 2019/12/2 16:19
   */
-object SparkDataSkewWithRandomPrefix {
+object SparkDataSkewWithRandomPrefix1 {
 
   def main(args: Array[String]): Unit = {
 
@@ -23,7 +22,7 @@ object SparkDataSkewWithRandomPrefix {
 
     val spark = SparkSession.builder()
       //.master("local[20]")
-      .appName("SparkDataSkewNoRandomPrefix")
+      .appName("SparkDataSkewWithRandomPrefix1")
       .config("spark.sql.shuffle.partitions", parallelism)
       .config("spark.sql.crossJoin.enabled", value = true)
       //.enableHiveSupport()
@@ -53,51 +52,32 @@ object SparkDataSkewWithRandomPrefix {
       })
       .toDF("id", "name2")
 
-    val skewedKeyArray = Array[String]("9500048", "9500096")
-    val skewedKeySet = mutable.Set[String]()
     val addList = new ArrayBuffer[String]
 
-    // 1 - 24 的随机数
-    Range(1, 25).map(
+    // 1 - 48 的随机数
+    Range(1, 49).map(
       i => addList += i.toString
     )
 
-    for (key <- skewedKeyArray) {
-      skewedKeySet.add(key)
-    }
-
-    val skewedKeys = spark.sparkContext.broadcast(skewedKeySet)
+    // 广播随机前缀
     val addListKeys = spark.sparkContext.broadcast(addList)
 
-    import spark.implicits._
-    // 倾斜的 key 单独找出
-    val leftSkewRDD = leftRDD
-      .filter(row => skewedKeys.value.contains(row.getString(0)))
-      .map(row => (s"${(new Random().nextInt(24) + 1).toString},${row.getString(0)}", row.getString(1))) // 映射为随机 24 个前缀
-      .toDF("id", "name3")
+    // 大表增加随机前缀
+    val leftRandomRDD = leftRDD
+      .map(row => (s"${(new Random().nextInt(48) + 1).toString},${row.getString(0)}", row.getString(1)))
 
-    // 连接的 key 加上相同的前缀，相当于扩大 N 倍
-    val rightSkewRDD = rightRDD
-      .filter(row => skewedKeys.value.contains(row.getString(0)))
+    // 小表扩大 N 倍， 每个增加1 to 48 的前缀
+    val rightNewRDD = rightRDD
       .map(row => addListKeys.value.map(i => (s"$i,${row.getString(0)}", row.getString(1))).toArray)
       .flatMap(records => {
         for (record <- records) yield record
       })
       .toDF("id", "name4")
 
-    // 倾斜的 key 做连接
-    val skewedJoinRDD = leftSkewRDD.join(rightSkewRDD, "id")
+    val joinRDD = leftRandomRDD.join(rightNewRDD, "id")
       .map(row => (row.getString(0).split(",")(1), row.getString(2))) // 还原 key
 
-    val leftUnSkewRDD = leftRDD
-      .filter(row => !skewedKeys.value.contains(row.getString(0)))
-      .toDF("id", "mame5")
-
-    val unskewedJoinRDD = leftUnSkewRDD.join(rightRDD, "id")
-      .map(row => (row.getString(0), row.getString(1)))
-
-    skewedJoinRDD.union(unskewedJoinRDD)
-      .toDF()
+    joinRDD.toDF()
       .foreachPartition((iterator: Iterator[Row]) => {
         val atomicInteger = new AtomicInteger()
         iterator.foreach(_ => atomicInteger.incrementAndGet())
