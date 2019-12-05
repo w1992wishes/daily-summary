@@ -39,7 +39,7 @@ class ArchiveBatchEtlTask(propsTool: PropertiesTool, eventType: String) extends 
           .option("url", propsTool.getString("source.url"))
           .option("dbtable", eventTable(table, index, eventParalleledCondition))
           .option("user", propsTool.getString("source.user"))
-          .option("password", propsTool.getString("source.passwd"))
+          .option("password", propsTool.getString("source.password"))
           .option("fetchsize", propsTool.getInt("source.fetchsize"))
           .load()
       })
@@ -66,7 +66,7 @@ class ArchiveBatchEtlTask(propsTool: PropertiesTool, eventType: String) extends 
           .option("url", propsTool.getString("sink.url"))
           .option("dbtable", aidTable(table, index, aidParalleledCondition))
           .option("user", propsTool.getString("sink.user"))
-          .option("password", propsTool.getString("sink.passwd"))
+          .option("password", propsTool.getString("sink.password"))
           .option("fetchsize", propsTool.getInt("sink.batchsize"))
           .load()
       })
@@ -86,8 +86,8 @@ object ArchiveBatchEtlTask {
     val propsTool = PropertiesTool(argsTool.confName)
 
     if (StringUtils.isEmpty(argsTool.eventType) ||
-      !(argsTool.eventType.equals("car") || argsTool.eventType.equals("mac") || argsTool.eventType.equals("imsi")) ) {
-      System.err.println("eventType is need be car|max|imsi.")
+      !(argsTool.eventType.equals("car") || argsTool.eventType.equals("mac") || argsTool.eventType.equals("imsi") || argsTool.eventType.equals("imei")) ) {
+      System.err.println("eventType is need be car|max|imsi|imei.")
       System.exit(1)
     }
 
@@ -95,7 +95,7 @@ object ArchiveBatchEtlTask {
 
     // 初始化 spark
     val spark = SparkSession.builder()
-      .master("local[20]")
+      //.master("local[20]")
       .appName(getClass.getSimpleName)
       .config("spark.debug.maxToStringFields", "100")
       .config("spark.sql.shuffle.partitions", argsTool.shufflePartitions)
@@ -107,17 +107,18 @@ object ArchiveBatchEtlTask {
     val originEvents = task.getEvents(spark, argsTool.partitions, argsTool.eventType)
     originEvents.cache()
     // 先去重
-    val events = originEvents.dropDuplicates("aid")
-    events.createOrReplaceTempView("t_event")
+    val events = originEvents.na.drop(cols = Array("aid")).dropDuplicates("aid")
 
     // 取差集
     val waitToAddAids = events.select("aid").except(aids.select("aid"))
-    waitToAddAids.createOrReplaceTempView("t_wait_add_aids")
 
     spark.udf.register("makeNowTime", makeNowTime _)
+    val archives = events.join(org.apache.spark.sql.functions.broadcast(waitToAddAids), "aid")
+    archives.createOrReplaceTempView("t_archive")
+
     // import spark.implicits._
-    val waitToAddArchives = spark.sql(s"select b.aid, b.data_type, b.biz_code, makeNowTime() as create_time, makeNowTime() as modify_time " +
-    s"from t_wait_add_aids a inner join t_event b on a.aid = b.aid")
+    val waitToAddArchives = spark.sql(s"select aid, data_type, biz_code, makeNowTime() as create_time, makeNowTime() as modify_time " +
+      s"from t_archive")
 
     val sinkTable = propsTool.getString("sink.table").replace("#type", argsTool.eventType)
     waitToAddArchives
@@ -128,11 +129,11 @@ object ArchiveBatchEtlTask {
       .option("url", propsTool.getString("sink.url"))
       .option("dbtable", sinkTable)
       .option("user", propsTool.getString("sink.user"))
-      .option("password", propsTool.getString("sink.passwd"))
+      .option("password", propsTool.getString("sink.password"))
       .option("batchsize", propsTool.getInt("sink.batchsize"))
       .save()
 
-    val createTimeColumn: String = originEvents.columns(3)
+    val createTimeColumn = originEvents.col("create_time")
     val time = originEvents.agg(min(createTimeColumn), max(createTimeColumn)).head.getAs[Timestamp](1)
     originEvents.unpersist()
     task.updateStartTime(time = time)

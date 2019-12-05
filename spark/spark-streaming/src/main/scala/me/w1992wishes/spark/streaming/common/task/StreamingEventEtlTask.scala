@@ -23,6 +23,7 @@ class StreamingEventEtlTask(taskArguments: EventEtlArguments, streamingConfig: S
   extends StreamingTask(taskArguments: TaskArguments, streamingConfig: StreamingConfig) with DbcpSupportAbility {
 
   def convertToEvent(data: JSONObject, dataType: String): Array[TrackEventInfo] = {
+
     val trackEvents = new ArrayBuffer[TrackEventInfo]()
 
     val trackEvent = new TrackEventInfo
@@ -77,7 +78,11 @@ class StreamingEventEtlTask(taskArguments: EventEtlArguments, streamingConfig: S
   }
 
   def doAction(trackEventRdd: RDD[TrackEventInfo]): Unit = {
-    trackEventRdd.foreachPartition(iter => partitionFunc(iter))
+
+    trackEventRdd
+      .filter(trackEvent => StringUtils.isNotEmpty(trackEvent.getAid))
+      .filter(trackEvent => StringUtils.isNotEmpty(trackEvent.getGeoHash))
+      .foreachPartition(iter => partitionFunc(iter))
   }
 
   def partitionFunc(iter: Iterator[TrackEventInfo]): Unit = {
@@ -193,4 +198,3 @@ object StreamingEventEtlTask {
     new StreamingEventEtlTask(eventArguments, streamingConfig)
 
 }
-

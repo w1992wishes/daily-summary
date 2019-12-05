@@ -1,15 +1,16 @@
 package me.w1992wishes.spark.sql.`case`.task
 
 import java.sql.Timestamp
+import java.time.LocalDateTime
+import java.time.temporal.ChronoUnit
 import java.util.{Date, UUID}
 
 import ch.hsr.geohash.GeoHash
 import com.alibaba.fastjson.JSONObject
 import me.w1992wishes.common.util.DateUtil
 import me.w1992wishes.spark.sql.`case`.config.{PersonEventBatchEtlArgsTool, PropertiesTool}
-import org.apache.commons.lang3.StringUtils
-import org.apache.spark.sql.{SaveMode, SparkSession}
 import org.apache.spark.sql.functions.{max, min}
+import org.apache.spark.sql.{SaveMode, SparkSession}
 
 /**
   * @author w1992wishes 2019/11/25 15:01
@@ -42,7 +43,7 @@ class PersonEventBatchEtlTask(propsTool: PropertiesTool, eventType: String = "pe
           .option("url", propsTool.getString("source.url"))
           .option("dbtable", dbtable(propsTool.getString("source.table"), index, paralleledCondition))
           .option("user", propsTool.getString("source.user"))
-          .option("password", propsTool.getString("source.passwd"))
+          .option("password", propsTool.getString("source.password"))
           .option("fetchsize", propsTool.getInt("source.fetchsize"))
           .load()
       })
@@ -63,7 +64,7 @@ class PersonEventBatchEtlTask(propsTool: PropertiesTool, eventType: String = "pe
   }
 
   private def cameraTable(table: String): String = {
-    s"(SELECT id as source_id, geo_string FROM $table WHERE geo_string like 'POINT%') AS t_tmp"
+    s"(SELECT camera_id as source_id, lat, lon FROM $table) AS t_tmp"
   }
 }
 
@@ -76,11 +77,10 @@ object PersonEventBatchEtlTask {
     val task = PersonEventBatchEtlTask(propsTool)
 
     val spark = SparkSession.builder()
-      .master("local[20]")
+      //.master("local[20]")
       .appName(getClass.getSimpleName)
       .config("spark.sql.shuffle.partitions", argsTool.shufflePartitions)
       .config("spark.debug.maxToStringFields", "100")
-      .config("spark.sql.autoBroadcastJoinThreshold", "104857600") // map side join 小表阈值
       .getOrCreate()
 
     val ds = task.getEvents(spark, argsTool.partitions)
@@ -88,8 +88,9 @@ object PersonEventBatchEtlTask {
 
     val cameras = task.getCameras(spark)
 
-    // 广播小表，避免 shuffle
-    val eventsWithGeo = ds.join(org.apache.spark.sql.functions.broadcast(cameras), Seq("source_id"), "left")
+    val eventsWithGeo = ds
+      .join(org.apache.spark.sql.functions.broadcast(cameras), Seq("source_id"), "left")
+      .na.drop(Array("lat", "lon", "time", "aid"))
     eventsWithGeo.createOrReplaceTempView("t_event_geo")
 
     spark.udf.register("makeGeoHash", makeGeoHash _)
@@ -98,12 +99,12 @@ object PersonEventBatchEtlTask {
     spark.udf.register("makeProps", makeProps _)
     spark.udf.register("makeLocation", makeLocation _)
     spark.udf.register("makeCreateTime", makeCreateTime _)
-    spark.udf.register("makeBizCode", makeBizCode _)
 
+    val bizCode = propsTool.getString("biz.code", "bigdata")
     // import spark.implicits._
-    val personEvents = spark.sql(s"select 'person' as data_type, aid, makeId() as id, makeBizCode(biz_code) as biz_code, time, " +
+    val personEvents = spark.sql(s"select 'person' as data_type, aid, makeId() as id, '$bizCode' as biz_code, time, " +
       s"makeDt(time) as dt, makeProps(thumbnail_id, thumbnail_url, image_id, image_url, source_id, source_type) as props, " +
-      s"makeCreateTime() as create_time, makeLocation(geo_string) as location, makeGeoHash(geo_string) as geo_hash " +
+      s"makeCreateTime() as create_time, makeLocation(lat, lon) as location, makeGeoHash(lat, lon) as geo_hash " +
       s"from t_event_geo")
 
     personEvents
@@ -114,7 +115,7 @@ object PersonEventBatchEtlTask {
       .option("url", propsTool.getString("sink.url"))
       .option("dbtable", propsTool.getString("sink.table"))
       .option("user", propsTool.getString("sink.user"))
-      .option("password", propsTool.getString("sink.passwd"))
+      .option("password", propsTool.getString("sink.password"))
       .option("batchsize", propsTool.getInt("sink.batchsize"))
       .save()
 
@@ -126,17 +127,7 @@ object PersonEventBatchEtlTask {
     spark.stop()
   }
 
-  private def makeBizCode(bizCode: String): String = {
-    if (StringUtils.isEmpty(bizCode) || bizCode.startsWith("DeepEye")) {
-      "bigdata"
-    } else {
-      bizCode
-    }
-  }
-
-  private def makeCreateTime: Timestamp = {
-    new Timestamp(new Date().getTime)
-  }
+  private def makeCreateTime: Timestamp = Timestamp.valueOf(LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS))
 
   private def makeId: String = {
     UUID.randomUUID().toString
@@ -157,29 +148,15 @@ object PersonEventBatchEtlTask {
     json.toJSONString
   }
 
-  private def makeGeoHash(site: String): String = {
-    if (StringUtils.isNotEmpty(site) && site.startsWith("POINT")) {
-      val temp = site.replace("POINT(", "").replace(")", "").split(" ")
-      val lon = temp(0).toDouble
-      val lat = temp(1).toDouble
-      GeoHash.withCharacterPrecision(lat, lon, 12).toBase32
-    } else {
-      ""
-    }
+  private def makeGeoHash(lat: Double, lon: Double): String = {
+    GeoHash.withCharacterPrecision(lat, lon, 12).toBase32
   }
 
-  private def makeLocation(site: String): String = {
-    if (StringUtils.isNotEmpty(site) && site.startsWith("POINT")) {
-      val temp = site.replace("POINT(", "").replace(")", "").split(" ")
-      val lon = temp(0).toDouble
-      val lat = temp(1).toDouble
-      val json = new JSONObject()
-      json.put("latitude", lat)
-      json.put("longitude", lon)
-      json.toJSONString
-    } else {
-      ""
-    }
+  private def makeLocation(lat: Double, lon: Double): String = {
+    val json = new JSONObject()
+    json.put("latitude", lat)
+    json.put("longitude", lon)
+    json.toJSONString
   }
 
   def apply(propsTool: PropertiesTool): PersonEventBatchEtlTask = new PersonEventBatchEtlTask(propsTool)
