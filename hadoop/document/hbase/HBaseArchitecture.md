@@ -18,7 +18,7 @@ HBase 适用于：
 
 ## 二、部署架构
 
-![](../../images/hbase/hbase-struct.jpg)
+![](../../../images/hbase/hbase-struct.jpg)
 
 HBase 有两种服务器：Master 服务器和 RegionServer 服务器。
 
@@ -57,7 +57,7 @@ RegionServer 是直接负责存储数据的服务器。RegionServer 保存的表
   - 每个 region 的每个 CF 都有一个 MemStore。
 - Hfile: 真正存在硬盘上的，对行数据排好序的 **键值对** 文件。
 
-![](../../images/hbase/hbase-rs-components.png)
+![](../../../images/hbase/hbase-rs-components.png)
 
 ### 2.3、ZooKeeper
 
@@ -85,7 +85,7 @@ RegionServer 非常依赖 ZooKeeper 服务，可以说没有 ZooKeeper 就没有
 3. 从对应的 RS 拿到数据；
 4. 这以后的读操作都从缓存中获取 META Server 地址。
 
-![](../../images/hbase/hbase-first-read-write.png)
+![](../../../images/hbase/hbase-first-read-write.png)
 
 META 表保存着系统中所有 regions 信息，META 表类似 B 树，META 表的结构如下：
 
@@ -96,10 +96,10 @@ META 表保存着系统中所有 regions 信息，META 表类似 B 树，META �
 
 当 HBase 收到一个 `Put` 请求时： 
 
-1.  首先写数据到 `WAL` 中：数据修改会被**追加**到 WAL 文件的末尾； ![](../../images/hbase/hbase-put-wal.png)
-2.  数据被放在 `MemStore` 中，然后给客户端返回一个 `PUT ack` ；![](../../images/hbase/hbase-put-memstore.png)
-3.  数据在 `MemStore` 中以有序的 **键值对** 的形式存储；每个 `CF` 都有一个 `MemStore` ；![](../../images/hbase/hbase-write-memstore.png)
-4.  当 `MemStore` 中的数据量达到配置的容量时，整个数据集都被写入到 HDFS 中的 `HFile`；一个 `CF` 有多个 `HFile`，每个 `HFile` 存储的是有序键值对；同时，每个 `HFile` 中还存储了`最后被写入的序列数`作为一个元信息，这个信息反映了 CF 中持久化到哪里了。![](../../images/hbase/hbase-region-flush.png)
+1.  首先写数据到 `WAL` 中：数据修改会被**追加**到 WAL 文件的末尾； ![](../../../images/hbase/hbase-put-wal.png)
+2.  数据被放在 `MemStore` 中，然后给客户端返回一个 `PUT ack` ；![](../../../images/hbase/hbase-put-memstore.png)
+3.  数据在 `MemStore` 中以有序的 **键值对** 的形式存储；每个 `CF` 都有一个 `MemStore` ；![](../../../images/hbase/hbase-write-memstore.png)
+4.  当 `MemStore` 中的数据量达到配置的容量时，整个数据集都被写入到 HDFS 中的 `HFile`；一个 `CF` 有多个 `HFile`，每个 `HFile` 存储的是有序键值对；同时，每个 `HFile` 中还存储了`最后被写入的序列数`作为一个元信息，这个信息反映了 CF 中持久化到哪里了。![](../../../images/hbase/hbase-region-flush.png)
 
 ## 三、存储结构
 
@@ -107,7 +107,7 @@ META 表保存着系统中所有 regions 信息，META 表类似 B 树，META �
 
 ### 3.1、逻辑存储结构
 
-![](../../images/hbase/hbase-logic-architecture.png)
+![](../../../images/hbase/hbase-logic-architecture.png)
 
 列簇（`Column Family`）对应的值就是  `info`  和 `area` ，列（ `Column` 或者称为 `Qualifier` ）对应的就是 `name`  、 `age` 、 `country` 和 `city` ，`Row key` 对应的就是 `Row 1` 和 `Row 2`，`Cell` 对应的就是具体的值。
 
@@ -121,7 +121,7 @@ META 表保存着系统中所有 regions 信息，META 表类似 B 树，META �
 
 ### 3.2、物理存储结构
 
-![](../../images/hbase/hbase-physical-architecture.png)
+![](../../../images/hbase/hbase-physical-architecture.png)
 
 在具体的物理结构中
 
