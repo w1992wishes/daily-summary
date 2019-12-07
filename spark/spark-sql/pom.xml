@@ -11,11 +11,13 @@
 
     <properties>
         <hbase.version>1.4.1</hbase.version>
+        <phoenix.version>4.14.3-HBase-1.4</phoenix.version>
     </properties>
 
     <artifactId>spark-sql</artifactId>
 
     <dependencies>
+        <!-- spark -->
         <dependency>
             <groupId>org.apache.spark</groupId>
             <artifactId>spark-core_2.11</artifactId>
@@ -28,23 +30,38 @@
             <version>${spark.version}</version>
             <scope>provided</scope>
         </dependency>
+
+        <!-- hive -->
         <dependency>
             <groupId>org.apache.spark</groupId>
             <artifactId>spark-hive_2.11</artifactId>
             <version>${spark.version}</version>
         </dependency>
-        <dependency><!--数据库驱动：Mysql-->
-            <groupId>mysql</groupId>
-            <artifactId>mysql-connector-java</artifactId>
-            <version>5.1.47</version>
+
+        <!-- phoenix -->
+        <dependency>
+            <groupId>org.apache.phoenix</groupId>
+            <artifactId>phoenix-spark</artifactId>
+            <version>${phoenix.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <!-- 解决连接 phoenix 报错 -->
+        <dependency>
+            <groupId>com.lmax</groupId>
+            <artifactId>disruptor</artifactId>
+            <version>3.3.11</version>
         </dependency>
 
         <!-- db 相关 -->
-        <!-- https://mvnrepository.com/artifact/com.pivotal/greenplum-jdbc -->
         <dependency>
             <groupId>com.pivotal</groupId>
             <artifactId>greenplum-jdbc</artifactId>
             <version>5.1.4</version>
+        </dependency>
+        <dependency><!--数据库驱动：Mysql-->
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>5.1.47</version>
         </dependency>
 
         <!-- hbase 相关 -->
@@ -59,6 +76,7 @@
             <version>${hbase.version}</version>
         </dependency>
 
+        <!-- utils -->
         <!-- geohash 相关 -->
         <dependency>
             <groupId>ch.hsr</groupId>
