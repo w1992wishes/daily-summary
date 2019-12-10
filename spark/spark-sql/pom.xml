@@ -45,6 +45,11 @@
             <version>${phoenix.version}</version>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>org.apache.phoenix</groupId>
+            <artifactId>phoenix-core</artifactId>
+            <version>${phoenix.version}</version>
+        </dependency>
         <!-- 解决连接 phoenix 报错 -->
         <dependency>
             <groupId>com.lmax</groupId>

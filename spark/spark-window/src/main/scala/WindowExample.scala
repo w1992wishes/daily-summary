@@ -1,12 +1,13 @@
 import java.time.LocalDateTime
 
 import com.arangodb.ArangoDB
-import me.w1992wishes.common.util.DateUtils
+import me.w1992wishes.common.util.DateUtil
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.expressions.Window
-import org.apache.spark.sql.functions.{collect_set, unix_timestamp}
+import org.apache.spark.sql.functions.unix_timestamp
 
-import scala.collection.mutable.ListBuffer
+import scala.collection.mutable
+import scala.collection.mutable.{ArrayBuffer, ListBuffer}
 import scala.math.min
 
 /**
@@ -19,65 +20,90 @@ object WindowExample {
       .appName("example")
       .getOrCreate()
 
-    val events = spark.read
-      .format("jdbc")
-      .option("partitionColumn", "aid")
-      .option("lowerBound", 0L)
-      .option("upperBound", 1000000L)
-      .option("numPartitions", 100)
-      .option("fetchsize", 5000)
-      .option("driver", "")
-      .option("url", "")
-      .option("dbtable", "table")
-      .option("user", "")
-      .option("password", "")
-      .load()
+
+    val partitions = 200
+    // 并行加载数据
+    val archives = Range(0, partitions)
+      .map(index => {
+        val sql = s"SELECT aid,time,source_id FROM t_archive WHERE cast(aid as BIGINT) % $partitions = $index"
+        println(s"======> query archive sql -- $sql")
+        spark
+          .read
+          .format("jdbc")
+          .option("driver", "")
+          .option("url", "")
+          .option("dbtable", s"($sql) AS t_tmp_$index")
+          .option("user", "")
+          .option("password", "")
+          .load()
+      }).reduce((ds1, ds2) => ds1.union(ds2))
 
     import spark.implicits._
+    val win = Window.partitionBy("source_id").orderBy(unix_timestamp($"time")).rangeBetween(-10, 10)
 
-    val win = Window.partitionBy("source_id").orderBy(unix_timestamp($"time")).rangeBetween(0, 10)
-    val df = events.withColumn("peers", collect_set('aid) over win)
+    val df = archives.withColumn("peers", ComputePeerNum($"aid", $"time").over(win))
 
+    // aid,time,source_id,peers(Array[aid_time])
     val df1 = df.flatMap(row => {
-      val list = new ListBuffer[(String, Int)]()
-      val sAid = row.getString(0)
-      val date = row.getTimestamp(1).toString.substring(0,10).replace("-", "")
-      val aids = row.getSeq[String](3).foreach(aid =>{
-        if(!aid.equals(sAid)){
-          val key: String  = if(sAid < aid)  sAid + "_" + aid + "_" + date else aid + "_" + sAid + "_" + date
-          list.append((key, 1))
-        }
+      // aid_aid_time   eg 103984_993895_20190813 23:23:00
+      val result = new ArrayBuffer[String]()
+
+      val aid = row.getString(0)
+      val list = new ListBuffer[(String, String)]()
+
+      row.getSeq[String](3).foreach(peer => {
+        val splits = peer.split("_")
+        list.append((splits(0), splits(1)))
       })
-      list
+
+      val tuples = list.sortBy(_._1)
+
+      // aid -> time
+      val map = new mutable.HashMap[String, String]
+      tuples.foreach(row => map += row)
+
+      for ((k, v) <- map) {
+        val key: String = if (aid < k) aid + "_" + k + "_" + v else k + "_" + aid + "_" + v
+        result.append(key)
+      }
+
+      result
+    }).distinct()
+
+
+    val df2 = df1.map(row => {
+      val splits = row.split(" ")
+      // (103984_993895_20190813, 23:23:00)
+      (splits(0), 1)
     })
-
-    val df2 = df1.groupByKey(_._1).count()
+      .groupByKey(_._1).count()
       .map(row => {
+        // (103984_993895_20190813)
         val splits = row._1.split("_")
-        (splits(0) + "_" + splits(1), "t" + splits(2) + ":" + row._2)
+        // (103984_993895) t20190813:3)
+        (splits(0) + "_" + splits(1), "t" + splits(2).replace("-", "") + ":" + row._2)
       })
 
+    val sinkArangoEdge = "archive_edge_core"
+    val sinkArangoDB = "bigdata_archive_graph"
     val df3 = df2.groupByKey(_._1).mapValues(row => row._2).mapGroups((k, i) => (k, i.toSeq))
-
-
     df3.foreachPartition(rows => {
-      val now = DateUtils.dateTimeToStr(LocalDateTime.now())
+      val now = DateUtil.dateTimeToStr(LocalDateTime.now())
       val arangoDB = new ArangoDB.Builder()
-        .host("host", 11)
+        .host("", 999)
         .user("")
         .password("")
         .build
 
-
       val list = rows.map(row => {
         val splits = row._1.split("_")
-        val peers = row._2.foldLeft("{")((s, e) => s + e +  ",").dropRight(1) + "}"
-        s"{from:'${splits(0)}',to:'${splits(0)}',key: '${row._1}', peers:${peers},direction:'${"ANY"}'" +
-          s",weight:'${0}',currentTime:'${now}',label:'${"peer"}'}"
+        val peers = row._2.foldLeft("{")((s, e) => s + e + ",").dropRight(1) + "}"
+        s"{from:'${splits(0)}',to:'${splits(1)}',key: '${row._1}', peers:$peers,direction:'${Direction.ANY}'" +
+          s",weight:'$WEIGHT_0',currentTime:'$now',label:'${Label.PEER}'}"
       }).toList
 
-      for(i <- 0 to list.length / 10000){
-        val elements =  list.slice(i*10000, min((i+1)*10000, list.length)).mkString(",")
+      for (i <- 0 to list.length / 2000) {
+        val elements = list.slice(i * 2000, min((i + 1) * 2000, list.length)).mkString(",")
 
         val aql = s"FOR e IN [$elements]\n " +
           s"LET kys = ATTRIBUTES(e.peers)\n " +
@@ -85,7 +111,7 @@ object WindowExample {
           s"LET sortedDate = sorted(kys) \n" +
           s"LET startdate = substring(sortedDate[0] ,1, 9) \n" +
           s"LET enddate = substring(sortedDate[-1] ,1, 9) \n" +
-          s"LET oldPeers = Document(${"relation_assemble_core"}, e.key).peers \n " +
+          s"LET oldPeers = Document($sinkArangoEdge, e.key).peers \n " +
           s"LEt oldSum = SUM(for ky in kys return oldPeers[ky]) \n " +
           s"UPSERT {_key : e.key}\n " +
           s"INSERT {\n  " +
@@ -107,14 +133,15 @@ object WindowExample {
           s"UPDATE { \n  " +
           s"   modifyTime: e.currentTime , \n" +
           s"   startTime: startdate > OLD.startTime ? OLD.startTime : startdate,  \n" +
-          s"   endTime: enddate > OLD.endTime ? enddate : OLD.endTime, \n"  +
+          s"   endTime: enddate > OLD.endTime ? enddate : OLD.endTime, \n" +
           s"   total: OLD.total - OLD.peers[kys[0]] - OLD.peers[kys[1]] + sum,\n " +
           s"   peers: e.peers\n " +
           s"  }    \n " +
-          s"INTO ${"relation_assemble_core"} \n" +
+          s"IN $sinkArangoEdge \n" +
           s"OPTIONS { waitForSync:true,ignoreRevs:false,ignoreErrors:true,exclusive:true }"
-        //        println(aql)
-        arangoDB.db("db").query(aql,null, null, null)
+
+        println(aql)
+        arangoDB.db(sinkArangoDB).query(aql, null, null, null)
       }
       arangoDB.shutdown()
 
@@ -122,4 +149,24 @@ object WindowExample {
     spark.stop()
   }
 
+  /**
+    * 方向
+    */
+  object Direction {
+    val SINGLE = "SINGLE"
+    val BOTH = "BOTH"
+    val ANY = "ANY"
+  }
+
+  val WEIGHT_0 = "0"
+
+  /**
+    * 标签
+    */
+  object Label {
+    val PEER = "PEER"
+    val PERSON = "PERSON"
+  }
+
 }
+

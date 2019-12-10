@@ -17,7 +17,7 @@ import org.apache.spark.sql.functions.col
 /**
   * @author w1992wishes 2019/11/16 11:13
   */
-object ToHbaseApplication {
+object SparkSqlToHbase {
 
   def main(args: Array[String]): Unit = {
 

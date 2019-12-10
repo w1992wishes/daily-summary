@@ -6,7 +6,7 @@ import org.apache.spark.sql.SparkSession
  * Spar k操作 Hive分区表
  *
  */
-object SparkHivePartition {
+object SparkSqlOnHive {
   def main(args: Array[String]): Unit = {
     val spark = SparkSession
       .builder()
