@@ -1,5 +1,6 @@
 package me.w1992wishes.spark.base.rdd
 
+import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.SparkSession
 
 /**
@@ -7,14 +8,14 @@ import org.apache.spark.sql.SparkSession
   *
   * @author w1992wishes 2019/9/2 17:35
   */
-object GroupBy {
+object GroupByForTopN {
   def main(args: Array[String]): Unit = {
 
     val spark: SparkSession = SparkSession.builder().appName("TopNSecond by Scala").master("local").getOrCreate()
 
-    val data = spark.sparkContext.textFile("src/main/resources/TopNSecond.txt", 1)
-    val lines = data.map(line => (line.split(" ")(0), line.split(" ")(1).toInt))
-    val groups = lines.groupByKey()
+    val data: RDD[String] = spark.sparkContext.textFile("src/main/resources/TopNSecond.txt", 1)
+    val lines: RDD[(String, Int)] = data.map(line => (line.split(" ")(0), line.split(" ")(1).toInt))
+    val groups: RDD[(String, Iterable[Int])] = lines.groupByKey()
 
     /**
       * groupBy 和 groupByKey 是不同的，比如（A，1），（A，2）；使用 groupBy 之后结果是（A，（（A，1），（A，2）））；

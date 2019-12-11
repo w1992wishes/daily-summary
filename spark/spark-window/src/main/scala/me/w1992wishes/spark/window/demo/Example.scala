@@ -1,3 +1,5 @@
+package me.w1992wishes.spark.window.demo
+
 import org.apache.spark.sql.{DataFrame, SparkSession}
 
 /**

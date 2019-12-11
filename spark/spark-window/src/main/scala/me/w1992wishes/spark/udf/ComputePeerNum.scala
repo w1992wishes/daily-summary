@@ -1,3 +1,5 @@
+package me.w1992wishes.spark.udf
+
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.expressions.{MutableAggregationBuffer, UserDefinedAggregateFunction, Window}
 import org.apache.spark.sql.functions._

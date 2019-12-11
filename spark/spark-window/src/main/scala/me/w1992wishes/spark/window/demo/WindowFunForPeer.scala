@@ -1,7 +1,10 @@
+package me.w1992wishes.spark.window.demo
+
 import java.time.LocalDateTime
 
 import com.arangodb.ArangoDB
 import me.w1992wishes.common.util.DateUtil
+import me.w1992wishes.spark.udf.ComputePeerNum
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.expressions.Window
 import org.apache.spark.sql.functions.unix_timestamp
@@ -13,7 +16,7 @@ import scala.math.min
 /**
   * @author w1992wishes 2019/7/10 20:13
   */
-object WindowExample {
+object WindowFunForPeer {
   def main(args: Array[String]): Unit = {
     val spark = SparkSession.builder()
       .master("local[*]")

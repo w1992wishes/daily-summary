@@ -4,6 +4,7 @@
        * [Hadoop 小文件处理](document/base/Hadoop-Small-File.md)
        * [MR 简单使用](map-reduce/README.md)
        * [MR shuffle 过程详解](document/base/MRShuffle.md) 
+       * [Hadoop 集成 lzo](document/base/hadoop-integrate-lzo.md)
    * [HBase](hbase-common/README.md)
        * [HBase 安装](document/hbase/HBaseInstall.md)
        * [HBase 架构](document/hbase/HBaseArchitecture.md)
