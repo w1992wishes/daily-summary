@@ -17,6 +17,7 @@
         <module>map-reduce</module>
         <module>hive-common</module>
         <module>hadoop-util</module>
+        <module>flume</module>
     </modules>
 
     <properties>
