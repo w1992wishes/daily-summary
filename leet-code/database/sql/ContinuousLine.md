@@ -1,0 +1,110 @@
+## 体育馆的人流量
+
+X 市建了一个新的体育馆，每日人流量信息被记录在这三列信息中：序号 (id)、日期 (visit_date)、 人流量 (people)。
+
+请编写一个查询语句，找出人流量的高峰期。高峰期时，至少连续三行记录中的人流量不少于100。
+
+例如，表 stadium：
+```
++------+------------+-----------+
+| id   | visit_date | people    |
++------+------------+-----------+
+| 1    | 2017-01-01 | 10        |
+| 2    | 2017-01-02 | 109       |
+| 3    | 2017-01-03 | 150       |
+| 4    | 2017-01-04 | 99        |
+| 5    | 2017-01-05 | 145       |
+| 6    | 2017-01-06 | 1455      |
+| 7    | 2017-01-07 | 199       |
+| 8    | 2017-01-08 | 188       |
++------+------------+-----------+
+```
+对于上面的示例数据，输出为：
+```
++------+------------+-----------+
+| id   | visit_date | people    |
++------+------------+-----------+
+| 5    | 2017-01-05 | 145       |
+| 6    | 2017-01-06 | 1455      |
+| 7    | 2017-01-07 | 199       |
+| 8    | 2017-01-08 | 188       |
++------+------------+-----------+
+```
+ 
+
+提示：
+每天只有一行记录，日期随着 id 的增加而增加。
+
+## 解题
+
+如果只是找出全部人流量不少于100的记录不难，难点在于如何查找连续的三天，一个想法是，查 3 张表，让三个结果 id 连续
+
+```sql
+SELECT a.*
+FROM stadium as a,stadium as b,stadium as c
+where (a.id = b.id-1 and b.id+1 = c.id) 
+  and (a.people>=100 and b.people>=100 and c.people>=100);
+```
+
+但是这样输出会有问题，比如 5,6,7,8 号人流量不少于100，但是只输出了 5,6号，根本原因在于，我们将 a 的 id 设为
+三个连续值中最小值，所以只返回了每 3 个连续值中最小的一个，同理可想到，我们再将 a 的 id 设为三个连续值中中间值
+和最大值，可以得到全部的连续 3 个值
+
+```sql
+SELECT a.*
+FROM stadium as a,stadium as b,stadium as c
+where ((a.id = b.id-1 and b.id+1 = c.id) or
+       (a.id-1 = b.id and a.id+1 = c.id) or
+       (a.id-1 = c.id and c.id-1 = b.id))
+  and (a.people>=100 and b.people>=100 and c.people>=100);
+```
+
+但是这样还有个问题，比如 5,6,7,8，6 既是 5,6,7 的中间值也是 6,7,8 的最小值，所以还要去重，也许 id 不按序排列，
+再排序 id，最终得到答案
+
+```sql
+SELECT distinct a.*
+FROM stadium as a,stadium as b,stadium as c
+where ((a.id = b.id-1 and b.id+1 = c.id) or
+       (a.id-1 = b.id and a.id+1 = c.id) or
+       (a.id-1 = c.id and c.id-1 = b.id))
+  and (a.people>=100 and b.people>=100 and c.people>=100)
+order by a.id;
+```
+
+或者：
+
+```sql
+select distinct * from 
+    (select s1.* from stadium as s1,stadium as s2,stadium as s3
+    where s1.id+1=s2.id and s2.id+1=s3.id and s1.people>=100 and s2.people>=100 and s3.people>=100
+    union 
+    select s1.* from stadium as s1,stadium as s2,stadium as s3
+    where s1.id-1=s2.id and s1.id+1=s3.id and s1.people>=100 and s2.people>=100 and s3.people>=100
+    union 
+    select s1.* from stadium as s1,stadium as s2,stadium as s3
+    where s1.id-1=s2.id and s2.id-1=s3.id and s1.people>=100 and s2.people>=100 and s3.people>=100) 
+as result order by result.id
+```
+
+或者：
+
+
+1.先用查询算出连续不小于 100 出现的统计，记为countt（小于 100 的值为0，不小于的值在上一次的基础上加一）。
+2.对第1步的结果增加一个标记位flag，倒叙看countt，不小于3或上一flag为1，并且countt不等于0的，标记flag为1
+3.对第2步的结构查询，找出flag为1的就好，排序倒回来
+
+简单点来说就是就是加了两列用来做标记，先用一列来算连续出现的情况，针对新加的上一列倒过来再算一个分组标记。
+
+```sql
+SELECT id, visit_date, people
+FROM (
+	SELECT r1.*, @flag := if((r1.countt >= 3 OR @flag = 1) AND r1.countt != 0, 1, 0) AS flag
+	FROM (
+		SELECT s.*, @count := if(s.people >= 100, @count + 1, 0) AS `countt`
+		FROM stadium s, (SELECT @count := 0) b
+	) r1, (SELECT @flag := 0) c
+	ORDER BY id DESC
+) result
+WHERE flag = 1 ORDER BY id;
+```
