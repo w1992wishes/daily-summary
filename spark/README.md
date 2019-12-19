@@ -29,4 +29,5 @@
     * [Spark Yarn Client 模式](documents/yarn/YARNClient.md)
     * [Spark Yarn Cluster 模式](documents/yarn/YARNCluster.md)
 * [Spark 调优]()
+    * [Spark 调优-基本调优](documents/optimize/Spark-basic-optimize.md)
     * [Spark 调优-数据倾斜](documents/optimize/DataSkewOptimize.md)

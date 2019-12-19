@@ -21,3 +21,4 @@
        * [Hive Join 介绍](document/hive/HiveJoin.md)
        * [Hive UDF](document/hive/hive-udf.md)
        * [Hive On HBase](document/hive/hive-on-hbase.md)
+       * [Hive 优化小结](document/hive/Hive-optimization.md)
