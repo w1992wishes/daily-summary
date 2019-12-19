@@ -1,4 +1,4 @@
-package me.w1992wishes.spark.streaming.common.zookeeper
+package me.w1992wishes.spark.streaming.example.intellif.zookeeper
 
 import org.I0Itec.zkclient.ZkClient
 import org.apache.kafka.clients.consumer.ConsumerRecord

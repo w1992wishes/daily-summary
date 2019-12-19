@@ -1,4 +1,4 @@
-package me.w1992wishes.spark.streaming.common.config
+package me.w1992wishes.spark.streaming.example.intellif.config
 
 /**
   * @author w1992wishes 2019/11/22 10:42

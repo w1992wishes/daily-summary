@@ -1,4 +1,4 @@
-package me.w1992wishes.spark.streaming.common.task
+package me.w1992wishes.spark.streaming.example.intellif.task
 
 import java.sql.{Connection, PreparedStatement, Timestamp}
 import java.util.{Date, UUID}
@@ -6,10 +6,14 @@ import java.util.{Date, UUID}
 import ch.hsr.geohash.GeoHash
 import com.alibaba.fastjson.{JSON, JSONObject}
 import me.w1992wishes.common.util.{ConnectionPool, DateUtils}
-import me.w1992wishes.spark.streaming.common.ability.DbcpSupportAbility
-import me.w1992wishes.spark.streaming.common.config.{EventEtlArguments, StreamingConfig, TaskArguments}
-import me.w1992wishes.spark.streaming.common.core.StreamingTask
-import me.w1992wishes.spark.streaming.common.domain.{MultiData, TrackEventInfo}
+import me.w1992wishes.spark.streaming.example.ability.DbcpSupportAbility
+import me.w1992wishes.spark.streaming.example.config.{EventEtlArguments, StreamingConfig, TaskArguments}
+import me.w1992wishes.spark.streaming.example.core.StreamingTask
+import me.w1992wishes.spark.streaming.example.domain.{MultiData, TrackEventInfo}
+import me.w1992wishes.spark.streaming.example.intellif.ability.DbcpSupportAbility
+import me.w1992wishes.spark.streaming.example.intellif.config.{EventEtlArguments, StreamingConfig, TaskArguments}
+import me.w1992wishes.spark.streaming.example.intellif.core.StreamingTask
+import me.w1992wishes.spark.streaming.example.intellif.domain.{MultiData, TrackEventInfo}
 import org.apache.commons.lang3.StringUtils
 import org.apache.spark.rdd.RDD
 import org.apache.spark.streaming.kafka010.HasOffsetRanges

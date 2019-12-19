@@ -1,4 +1,4 @@
-package me.w1992wishes.spark.streaming.common.task
+package me.w1992wishes.spark.streaming.example.intellif.task
 
 import java.sql.{Connection, PreparedStatement, Timestamp}
 import java.time.LocalDateTime
@@ -7,9 +7,12 @@ import com.alibaba.fastjson.JSON
 import com.alibaba.fastjson.serializer.SerializeFilter
 import me.w1992wishes.common.domain.EventFace
 import me.w1992wishes.common.util.{ConnectionPool, KafkaSender}
-import me.w1992wishes.spark.streaming.common.ability.{DbcpSupportAbility, FeatureQualityAbility}
-import me.w1992wishes.spark.streaming.common.config.{PreProcessTaskArguments, StreamingConfig, TaskArguments}
-import me.w1992wishes.spark.streaming.common.core.StreamingTask
+import me.w1992wishes.spark.streaming.example.ability.{DbcpSupportAbility, FeatureQualityAbility}
+import me.w1992wishes.spark.streaming.example.config.{PreProcessTaskArguments, StreamingConfig, TaskArguments}
+import me.w1992wishes.spark.streaming.example.core.StreamingTask
+import me.w1992wishes.spark.streaming.example.intellif.ability.{DbcpSupportAbility, FeatureQualityAbility}
+import me.w1992wishes.spark.streaming.example.intellif.config.{PreProcessTaskArguments, StreamingConfig, TaskArguments}
+import me.w1992wishes.spark.streaming.example.intellif.core.StreamingTask
 import org.apache.commons.lang3.StringUtils
 import org.apache.kafka.common.serialization.StringSerializer
 import org.apache.spark.TaskContext

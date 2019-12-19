@@ -1,4 +1,4 @@
-package me.w1992wishes.spark.streaming.common.domain;
+package me.w1992wishes.spark.streaming.example.intellif.domain;
 
 import com.alibaba.fastjson.JSONObject;
 import lombok.Data;

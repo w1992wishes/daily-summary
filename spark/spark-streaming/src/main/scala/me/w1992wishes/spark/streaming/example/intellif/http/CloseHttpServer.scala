@@ -1,4 +1,4 @@
-package me.w1992wishes.spark.streaming.common.http
+package me.w1992wishes.spark.streaming.example.intellif.http
 
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import org.apache.spark.streaming.StreamingContext

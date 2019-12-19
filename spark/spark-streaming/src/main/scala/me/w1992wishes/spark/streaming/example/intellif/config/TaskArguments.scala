@@ -1,4 +1,4 @@
-package me.w1992wishes.spark.streaming.common.config
+package me.w1992wishes.spark.streaming.example.intellif.config
 
 import me.w1992wishes.common.util.IntParam
 

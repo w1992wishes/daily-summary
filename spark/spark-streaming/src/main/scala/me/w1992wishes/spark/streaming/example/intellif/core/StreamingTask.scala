@@ -1,9 +1,11 @@
-package me.w1992wishes.spark.streaming.common.core
+package me.w1992wishes.spark.streaming.example.intellif.core
 
 import cn.hutool.crypto.SecureUtil
-import me.w1992wishes.spark.streaming.common.config.{StreamingConfig, TaskArguments}
-import me.w1992wishes.spark.streaming.common.http.CloseHttpServer
-import me.w1992wishes.spark.streaming.common.zookeeper.ZkKafkaOffset
+import me.w1992wishes.spark.streaming.example.config.{StreamingConfig, TaskArguments}
+import me.w1992wishes.spark.streaming.example.http.CloseHttpServer
+import me.w1992wishes.spark.streaming.example.intellif.config.{StreamingConfig, TaskArguments}
+import me.w1992wishes.spark.streaming.example.intellif.http.CloseHttpServer
+import me.w1992wishes.spark.streaming.example.intellif.zookeeper.ZkKafkaOffset
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.common.TopicPartition
 import org.apache.kafka.common.serialization.StringDeserializer

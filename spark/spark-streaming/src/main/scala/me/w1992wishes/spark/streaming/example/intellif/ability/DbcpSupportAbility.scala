@@ -1,8 +1,8 @@
-package me.w1992wishes.spark.streaming.common.ability
+package me.w1992wishes.spark.streaming.example.intellif.ability
 
 import java.util.Properties
 
-import me.w1992wishes.spark.streaming.common.config.StreamingConfig
+import me.w1992wishes.spark.streaming.example.intellif.config.StreamingConfig
 
 /**
   * @author w1992wishes 2019/5/20 17:40
