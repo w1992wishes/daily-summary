@@ -1,4 +1,4 @@
-package me.w1992wishes.algorithm.interview;
+package me.w1992wishes.algorithm.interview.string;
 
 /**
  *
