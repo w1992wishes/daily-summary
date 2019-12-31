@@ -88,7 +88,7 @@ k-means算法中的k代表类簇个数，means代表类簇内数据对象的均�
 
 数据对象间距离的计算有很多种，k-means算法通常采用欧氏距离来计算数据对象间的距离，计算公式如下（如果是多维也可以进行扩展）： 
 
-![](../../images/algorithm/cluster/cluster1.png)
+![](../../../images/algorithm/cluster/cluster1.png)
 
 k-means算法聚类过程中，每次迭代，对应的类簇中心需要重新计算（更新）：对应类簇中所有数据对象的均值，即为更新后该类簇的类簇中心。
 
@@ -143,7 +143,7 @@ DBSCAN一些关键概念的定义：
 4. 密度可达（density-reachable）：对于样本集合D，如果存在一个对象链P1,P2,...,Pn,P1=q,Pn=p，对于Pi∈D,1≤i≤n，Pi+1是从Pi关于ϵ和MinPts直接密度可达，则对象p是从对象q关于ϵ和MinPts密度可达的。 
 5. 密度相连（density-connected）：如果存在对象o∈D，使对象p和q都是从o关于ϵ和MinPts密度可达的，那么对象p到q是关于ϵ和MinPts密度相连的。
 
-![](../../images/algorithm/cluster/cluster2.png)
+![](../../../images/algorithm/cluster/cluster2.png)
 
 根据上图，分别解释这五条定义。 
 
@@ -221,9 +221,9 @@ End ExpandCluster
 
 该仓库下有许多 dbscan 实现，有不同的语言实现，有基于 CPU， 也有基于 GPU：
 
-* [c++ 实现](diff_lang_dbscan/c++/README.md)
-* [OpenCL实现](diff_lang_dbscan/opencl/README.md)
-* [CUDA实现](diff_lang_dbscan/cuda/README.md)
+* [c++ 实现](../../cluster/diff_lang_dbscan/c++/README.md)
+* [OpenCL实现](../../cluster/diff_lang_dbscan/opencl/README.md)
+* [CUDA实现](../../cluster/diff_lang_dbscan/cuda/README.md)
 
 有必要说明：
 

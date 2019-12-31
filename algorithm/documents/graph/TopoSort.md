@@ -20,7 +20,7 @@
 
 当集合为空之后，检查图中是否还存在任何边，如果存在的话，说明图中至少存在一条环路。不存在的话则返回结果 List，此 List 中的顺序就是对图进行拓扑排序的结果。
 
-![](../../images/algorithm/graph/topo-sort-1.jpg)
+![](../../../images/algorithm/graph/topo-sort-1.jpg)
 
 ## 三、*Kahn* 算法实现
 

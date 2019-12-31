@@ -28,7 +28,7 @@
 
 通过一个例子来看看快速排序是怎么工作的，例子中表格中红色的字体为需要填的坑，绿色的字体为已经移动过的数据。
 
-![](../../images/algorithm/sort/QuickSort1.jpg)
+![](../../../images/algorithm/sort/QuickSort1.jpg)
 
 1）刚开始，i 和 j 分别指向数组头和数组尾，即 i = 0，j = 9，基准数取第一个数，即 index = array[i] = array[0] = 23。
 
@@ -49,7 +49,7 @@ if (i < j) {
 
 此时，array 数组如下图：
 
-![](../../images/algorithm/sort/QuickSort2.jpg)
+![](../../../images/algorithm/sort/QuickSort2.jpg)
 
 2）因为 array[0] 的坑被 array[8] 填了，于是 array[8] 的位置又成了一个新的坑。此时从位置 i 开始向右寻找比 index 大的数，当 i = 2 时符合条件，于是将 array[2] 的值填到 array[8] ，即将 37 填入 array[8]，并将 j 向左移动一个位置，即 j--。
 
@@ -66,22 +66,22 @@ if (i < j) {
 
 此时，array 数组如下图：
 
-![](../../images/algorithm/sort/QuickSort3.jpg)
+![](../../../images/algorithm/sort/QuickSort3.jpg)
 
 3）同样，array[8] 的坑被 array[2] 填了，于是 array[2] 的位置又成了一个新的坑。此时从位置 j 开始向左寻找比 index 小的数，当 j = 5 时符合条件，于是将 array[5] 的值填到 array[2] ，即将 21 填入 array[2]，并将 i 向右移动一个位置，即 i++，此时 array 数组如下图：
 
-![](../../images/algorithm/sort/QuickSort4.jpg)
+![](../../../images/algorithm/sort/QuickSort4.jpg)
 
 4）同样，array[2] 的坑被 array[5] 填了，于是 array[5] 的位置又成了一个新的坑。此时从位置 i 开始向右寻找比 index 大的数，当 i = 3 时符合条件，于是将 array[3] 的值填到 array[5] ，即将 89 填入 array[5]，并将 j 向左移动一个位置，即 j--，此时 array 数组如下图：
 
-![](../../images/algorithm/sort/QuickSort5.jpg)
+![](../../../images/algorithm/sort/QuickSort5.jpg)
 
 5）同样，array[5] 的坑被 array[3] 填了，于是 array[3] 的位置又成了一个新的坑。此时从位置 j 开始向左寻找比 index 小的数，当 j = 4 时符合条件，于是将 array[4] 的值填到 array[3] ，即将 2 填入 array[3]，并将 i 向右移动一个位置，即 i++，此时 array 数组如下图：
 
-![](../../images/algorithm/sort/QuickSort6.jpg)
+![](../../../images/algorithm/sort/QuickSort6.jpg)
 6）此时，发现 i = j，结束遍历，并将 index 填入 array[4]，即将 23 填入 array[4]，这样，array[4] 左边的数据全比 array[4] 小，而 array[4] 右边的数据全比 array[4] 大，如下图：
 
-![](../../images/algorithm/sort/QuickSort7.jpg)
+![](../../../images/algorithm/sort/QuickSort7.jpg)
 
 7）接下去，只需要对 array[4] 两边的数据分别在进行上面的操作即可（分治法）:
 
@@ -90,7 +90,7 @@ quickSort(array, low, i - 1); // 递归调用，分治
 quickSort(array, i + 1, high); // 递归调用，分治
 ```
 
-![](../../images/algorithm/sort/QuickSort8.jpg)
+![](../../../images/algorithm/sort/QuickSort8.jpg)
 
 ## 四、算法实现
 
