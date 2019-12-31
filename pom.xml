@@ -24,9 +24,8 @@
     <version>1.0-SNAPSHOT</version>
 
     <modules>
+        <module>a-day</module>
         <module>kafka</module>
-        <module>my-common</module>
-        <module>my-script</module>
         <module>spark</module>
         <module>zookeeper</module>
         <module>hadoop</module>

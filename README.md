@@ -97,7 +97,3 @@
         * [归并排序算法](algorithm/sort/MergeSort.md)
     * [图算法](algorithm/graph)
         * [拓扑排序算法](algorithm/graph/TopoSort.md)
-* [通用代码](my-common)
-* [脚本整理](my-script)
-    * [使用 datax 增量同步数据](my-script/etl-sync-datax/README.md)
-    * [flyway 动态支持多个库](my-script/script-flyway/README.md)

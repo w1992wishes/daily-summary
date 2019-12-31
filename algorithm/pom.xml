@@ -12,7 +12,7 @@
     <modules>
         <module>sort</module>
         <module>cluster</module>
-        <module>topo</module>
+        <module>graph</module>
         <module>interview</module>
     </modules>
 
