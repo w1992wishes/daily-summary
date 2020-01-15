@@ -1,4 +1,4 @@
-package me.w1992wishes.algorithm.interview.sort;
+package me.w1992wishes.algorithm.sort;
 
 /**
  *
@@ -16,7 +16,7 @@ package me.w1992wishes.algorithm.interview.sort;
  *
  * @author w1992wishes 2019/12/30 11:42
  */
-public class SelectionSort extends AbstractSort {
+public class SelectionSort {
 
     // 在要排序的一组数中，选出最小的一个数与第一个位置的数交换；
     // 然后在 剩下的数 当中再找最小的与第二个位置的数交换，如此循环到倒数第二个数和最后一个数比较为止。
@@ -30,23 +30,22 @@ public class SelectionSort extends AbstractSort {
      * 使R[1..i]和R[i+1..n)分别变为记录个数增加1个的新有序区和记录个数减少1个的新无序区；
      * n-1趟结束，数组有序化了。
      */
-    @Override
-    void sort(int[] numbers) {
-        int size = numbers.length; // 数组长度
+    private void selectionSort(int[] array) {
+        int size = array.length; // 数组长度
         int temp = 0; // 中间变量
         int tempIndex = 0; // 中间 index
 
         for (int i = 0; i < size - 1; i++) {
             // 选出最小的
             for (int j = i + 1; j < size; j++) {
-                if (numbers[j] < numbers[i]) {
+                if (array[j] < array[i]) {
                     tempIndex = j;
                 }
             }
             // 交换两个数
-            temp = numbers[i];
-            numbers[i] = numbers[tempIndex];
-            numbers[tempIndex] = temp;
+            temp = array[i];
+            array[i] = array[tempIndex];
+            array[tempIndex] = temp;
         }
     }
 

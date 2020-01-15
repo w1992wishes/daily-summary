@@ -1,4 +1,4 @@
-package me.w1992wishes.algorithm.interview.sort;
+package me.w1992wishes.algorithm.sort;
 
 /**
  * 冒泡排序（Bubble Sort），是一种计算机科学领域的较简单的排序算法。
@@ -7,7 +7,7 @@ package me.w1992wishes.algorithm.interview.sort;
  *
  * @author w1992wishes 2019/12/30 11:25
  */
-public class BubbleSort extends AbstractSort {
+public class BubbleSort {
 
     /**
      * 1.比较相邻的元素。如果第一个比第二个大，就交换它们两个；
@@ -16,7 +16,6 @@ public class BubbleSort extends AbstractSort {
      * 4.重复步骤1~3，直到排序完成。
      *
      */
-    @Override
     void sort(int[] numbers) {
         int temp = 0;
         int size = numbers.length;
