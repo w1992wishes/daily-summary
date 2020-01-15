@@ -45,7 +45,7 @@ public class ShellSort {
     }
 
     public static void main(String[] args) {
-        int[] arr = {6, 9, 1, 4, 5, 8, 7, 0, 2, 3};
+        int[] arr = {6, 9, 1, 4, 5, 8, 7, 0, 2, 3, 4, 5};
 
         System.out.println("排序前:  ");
         Arrays.stream(arr).forEach(System.out::println);

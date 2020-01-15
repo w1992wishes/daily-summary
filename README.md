@@ -97,5 +97,8 @@
          * [快速排序](algorithm/documents/sort/QuickSort.md)
          * [归并排序](algorithm/documents/sort/MergeSort.md)
          * [堆排序](algorithm/documents/sort/HeapSort.md)
+         * [计数排序](algorithm/documents/sort/CountingSort.md)
+         * [桶排序](algorithm/documents/sort/BucketSort.md)
+         * [基数排序](algorithm/documents/sort/RaidxSort.md)
     * [图算法](algorithm/graph)
         * [拓扑排序算法](algorithm/documents/graph/TopoSort.md)

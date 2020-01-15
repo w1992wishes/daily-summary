@@ -2,3 +2,6 @@
      * [快速排序](../documents/sort/QuickSort.md)
      * [归并排序](../documents/sort/MergeSort.md)
      * [堆排序](../documents/sort/HeapSort.md)
+     * [计数排序](../documents/sort/CountingSort.md)
+     * [桶排序](../documents/sort/BucketSort.md)
+     * [基数排序](../documents/sort/RaidxSort.md)
