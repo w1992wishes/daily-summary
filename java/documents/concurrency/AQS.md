@@ -20,7 +20,7 @@
 
 继承同步器的子类推荐被定义为自定义同步组件的静态内部类，同步器自身没有实现任何同步接口，它仅仅是定义了若干同步状态获取和释放的方法来供自定义同步组件使用，同步器既可以支持独占式地获取同步状态，也可以支持共享式地获取同步状态，这样就可以方便实现不同类型的同步组件，独占式如 ReentrantLock，共享式如 Semaphore，CountDownLatch，组合式的如 ReentrantReadWriteLock。
 
-![](../../images/java/java-concurrency/SYNC.jpg)
+![](../../../images/java/java-concurrency/SYNC.jpg)
 
 AQ S定义的可重写的方法：
 
@@ -222,7 +222,7 @@ public class TestMutex {
 
 当前线程获取同步状态失败时，同步器会将当前线程以及等待状态等信息构造成为一个节点（Node）并将其加入同步队列，同时会阻塞当前线程，当持有同步状态的线程释放同步状态时，会唤醒后继结点，然后此结点线程继续加入到对同步状态的争夺中。
 
-![](../../images/java/java-concurrency/AQS-Node.jpg)
+![](../../../images/java/java-concurrency/AQS-Node.jpg)
 
 ### 3.1、Node 结点
 
@@ -264,15 +264,15 @@ waitStatus 五个值的含义:
 
 节点是构成同步队列的基础，同步器拥有首节点（head）和尾节点（tail）。同步队列的基本结构如下：
 
-![](../../images/java/java-concurrency/AQS-Node1.jpg)
+![](../../../images/java/java-concurrency/AQS-Node1.jpg)
 
 同步队列设置尾节点（未获取到锁的线程加入同步队列）: 同步器 AQS 中包含两个节点类型的引用：一个指向头结点的引用（head)，一个指向尾节点的引用（tail），当一个线程成功的获取到锁（同步状态），其他线程无法获取到锁，而是被构造成节点（包含当前线程，等待状态）加入到同步队列中等待获取到锁的线程释放锁。这个加入队列的过程，必须要保证线程安全。否则如果多个线程的环境下，可能造成添加到队列等待的节点顺序错误，或者数量不对。因此同步器提供了 CAS 原子的设置尾节点的方法（保证一个未获取到同步状态的线程加入到同步队列后，下一个未获取的线程才能够加入）。 
 
-![](../../images/java/java-concurrency/AQS-Node2.jpg)
+![](../../../images/java/java-concurrency/AQS-Node2.jpg)
 
 同步队列设置首节点（原头节点释放锁，唤醒后继节点）：同步队列遵循 FIFO，头节点是获取锁（同步状态）成功的节点，头节点在释放同步状态的时候，会唤醒后继节点，而后继节点将会在获取锁（同步状态）成功时候将自己设置为头节点。设置头节点是由获取锁（同步状态）成功的线程来完成的，由于只有一个线程能够获取同步状态，则设置头节点的方法不需要 CAS 保证，只需要将头节点设置成为原首节点的后继节点，并断开原头结点的 next 引用。如下图，设置首节点：
 
-![](../../images/java/java-concurrency/AQS-acquire.jpg)
+![](../../../images/java/java-concurrency/AQS-acquire.jpg)
 
 ### 3.2、独占式获取同步状态--acquire()
 
