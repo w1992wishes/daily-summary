@@ -36,6 +36,7 @@
         <module>scheduler</module>
         <module>elasticsearch</module>
         <module>flink</module>
+        <module>phoenix</module>
     </modules>
 
     <repositories>
