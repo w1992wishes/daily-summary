@@ -1,4 +1,4 @@
-# 通过 Phoenix 读写Hbase的示例
+# Spark Phoenix 读写 Hbase 的示例
 
 + phonenix-spark:通过spark代码访问 Phoenix，然后读写Hbase;
 ```
