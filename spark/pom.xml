@@ -17,6 +17,7 @@
         <module>spark-graphx</module>
         <module>structured-streaming</module>
         <module>spark-tuning</module>
+        <module>spark-hive</module>
     </modules>
 
     <properties>
