@@ -1,8 +1,8 @@
-package me.w1992wishes.spark.sql.`case`.alility
+package me.w1992wishes.spark.sql.intellif.alility
 
 import java.util.Properties
 
-import me.w1992wishes.spark.sql.`case`.config.PropertiesTool
+import me.w1992wishes.spark.sql.intellif.config.PropertiesTool
 
 
 /**

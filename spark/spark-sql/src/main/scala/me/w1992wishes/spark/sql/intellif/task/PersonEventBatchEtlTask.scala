@@ -1,4 +1,4 @@
-package me.w1992wishes.spark.sql.`case`.task
+package me.w1992wishes.spark.sql.intellif.task
 
 import java.sql.Timestamp
 import java.time.LocalDateTime
@@ -8,7 +8,7 @@ import java.util.{Date, UUID}
 import ch.hsr.geohash.GeoHash
 import com.alibaba.fastjson.JSONObject
 import me.w1992wishes.common.util.DateUtil
-import me.w1992wishes.spark.sql.`case`.config.{PersonEventBatchEtlArgsTool, PropertiesTool}
+import me.w1992wishes.spark.sql.intellif.config.{PersonEventBatchEtlArgsTool, PropertiesTool}
 import org.apache.spark.sql.functions.{max, min}
 import org.apache.spark.sql.{SaveMode, SparkSession}
 

@@ -1,10 +1,10 @@
-package me.w1992wishes.spark.sql.`case`.task
+package me.w1992wishes.spark.sql.intellif.task
 
 import java.sql._
 
 import me.w1992wishes.common.util.ConnectionPool
-import me.w1992wishes.spark.sql.`case`.alility.DbcpSupportAbility
-import me.w1992wishes.spark.sql.`case`.config.PropertiesTool
+import me.w1992wishes.spark.sql.intellif.alility.DbcpSupportAbility
+import me.w1992wishes.spark.sql.intellif.config.PropertiesTool
 
 /**
   * @author w1992wishes 2019/11/25 15:01

@@ -1,10 +1,10 @@
-package me.w1992wishes.spark.sql.`case`.task
+package me.w1992wishes.spark.sql.intellif.task
 
 import java.sql.Timestamp
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
 
-import me.w1992wishes.spark.sql.`case`.config.{PersonArchiveBatchEtlArgsTool, PropertiesTool}
+import me.w1992wishes.spark.sql.intellif.config.{PersonArchiveBatchEtlArgsTool, PropertiesTool}
 import org.apache.spark.sql.functions.{max, min}
 import org.apache.spark.sql.{SaveMode, SparkSession}
 

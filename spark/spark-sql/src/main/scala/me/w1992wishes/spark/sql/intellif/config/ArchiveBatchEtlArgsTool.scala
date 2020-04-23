@@ -1,21 +1,18 @@
-package me.w1992wishes.spark.sql.`case`.config
+package me.w1992wishes.spark.sql.intellif.config
 
 import me.w1992wishes.common.util.IntParam
 import scala.annotation.tailrec
 
 /**
-  * 程序命令行传递的参数
-  *
-  * @author w1992wishes 2018/11/13 17:31
+  * @author w1992wishes 2019/11/26 15:54
   */
-class PersonEventBatchEtlArgsTool(args: Array[String]) extends Serializable {
+class ArchiveBatchEtlArgsTool(args: Array[String]) {
 
-  var confName: String = "PersonEventEtlTask.properties"
+  var confName: String = "ArchiveBatchEtlTask.properties"
+
+  var partitions: Int = 54
 
   var shufflePartitions: Int = 200
-
-  // 设置并行的分区度
-  var partitions: Int = 54
 
   var eventType: String = _
 
@@ -56,10 +53,10 @@ class PersonEventBatchEtlArgsTool(args: Array[String]) extends Serializable {
         "\n" +
         "Options:\n" +
         "  --confName file    配置文件名\n" +
-        "  --isLocal true|false    master url 是否是 local，true 多用作调试\n" +
         "  --partitions num    分区数"
     )
     // scalastyle:on println
     System.exit(exitCode)
   }
+
 }

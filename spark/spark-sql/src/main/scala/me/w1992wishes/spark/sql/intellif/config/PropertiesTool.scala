@@ -1,4 +1,4 @@
-package me.w1992wishes.spark.sql.`case`.config
+package me.w1992wishes.spark.sql.intellif.config
 
 import java.io.FileInputStream
 import java.util.Properties

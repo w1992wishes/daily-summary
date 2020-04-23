@@ -1,20 +1,19 @@
-package me.w1992wishes.spark.sql.`case`.config
+package me.w1992wishes.spark.sql.intellif.config
 
 import me.w1992wishes.common.util.IntParam
+
 import scala.annotation.tailrec
 
 /**
   * @author w1992wishes 2019/11/26 15:54
   */
-class ArchiveBatchEtlArgsTool(args: Array[String]) {
+class PersonArchiveBatchEtlArgsTool(args: Array[String]) {
 
-  var confName: String = "ArchiveBatchEtlTask.properties"
+  var confName: String = "bigdata-track-person-archive-task-v1.4.0.properties"
 
   var partitions: Int = 54
 
   var shufflePartitions: Int = 200
-
-  var eventType: String = _
 
   parse(args.toList)
 
@@ -31,10 +30,6 @@ class ArchiveBatchEtlArgsTool(args: Array[String]) {
 
     case ("--shufflePartitions") :: IntParam(value) :: tail =>
       shufflePartitions = value
-      parse(tail)
-
-    case ("--eventType") :: value :: tail =>
-      eventType = value
       parse(tail)
 
     case Nil => // No-op
