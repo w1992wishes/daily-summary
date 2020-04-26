@@ -1,4 +1,4 @@
-package me.w1992wishes.spark.hive
+package me.w1992wishes.spark.hive.demo
 
 import org.apache.spark.sql.{Row, SaveMode, SparkSession}
 
