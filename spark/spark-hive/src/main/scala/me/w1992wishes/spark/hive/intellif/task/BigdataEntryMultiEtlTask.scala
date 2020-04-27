@@ -90,7 +90,7 @@ object BigdataEntryMultiEtlTask {
     if (debug) println(s"待新增实体总量：${waitAddedEntryDF.count()}")
 
     // 保存
-    waitAddedEntryDF.write.mode(SaveMode.Append).parquet(entryDir)
+    waitAddedEntryDF.coalesce(entryMultiCLParam.coalescePartitions).write.mode(SaveMode.Append).parquet(entryDir)
 
 /*    spark.sql(s"USE ${bizCode}_mid")
     val entryDF = spark.sql(s"SELECT * FROM mid_${bizCode}_entry_$eventType")

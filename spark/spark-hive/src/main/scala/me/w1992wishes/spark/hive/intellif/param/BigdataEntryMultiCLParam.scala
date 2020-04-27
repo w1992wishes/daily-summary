@@ -21,6 +21,8 @@ class BigdataEntryMultiCLParam(args: Array[String]) {
 
   var debug: Boolean = false
 
+  var coalescePartitions: Int = 1
+
   parse(args.toList)
 
   @tailrec
@@ -44,6 +46,10 @@ class BigdataEntryMultiCLParam(args: Array[String]) {
 
     case ("--debug") :: BooleanParam(value) :: tail =>
       debug = value
+      parse(tail)
+
+    case ("--coalescePartitions") :: IntParam(value) :: tail =>
+      coalescePartitions = value
       parse(tail)
 
     case Nil => // No-op

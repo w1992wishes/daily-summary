@@ -20,6 +20,8 @@ class BigdataEventCarCLParam(args: Array[String]) extends Serializable {
 
   var bizCode: String = "bigdata"
 
+  var coalescePartitions: Int = 1
+
   parse(args.toList)
 
   @tailrec
@@ -37,12 +39,15 @@ class BigdataEventCarCLParam(args: Array[String]) extends Serializable {
       bizCode = value
       parse(tail)
 
+    case ("--coalescePartitions") :: IntParam(value) :: tail =>
+      coalescePartitions = value
+      parse(tail)
+
     case Nil => // No-op
 
     case _ =>
       printUsageAndExit(1)
   }
-
   /**
     * Print usage and exit JVM with the given exit code.
     */

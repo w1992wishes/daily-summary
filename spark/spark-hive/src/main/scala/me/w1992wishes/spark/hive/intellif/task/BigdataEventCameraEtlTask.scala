@@ -30,11 +30,13 @@ object BigdataEventCameraEtlTask {
     if (!cameras.isEmpty) {
       // spark 参数设置
       val conf = new SparkConf()
-      conf.set("spark.sql.adaptive.enabled", "true")
-      conf.set("spark.sql.adaptive.shuffle.targetPostShuffleInputSize", "67108864b")
+      conf.set("spark.sql.adaptive.enabled", "true") // may be 已经过期
+      conf.set("spark.sql.adaptive.shuffle.targetPostShuffleInputSize", "67108864b") // may be 已经过期
       conf.set("spark.sql.adaptive.join.enabled", "true")
       conf.set("spark.sql.autoBroadcastJoinThreshold", "20971520")
-      conf.set("spark.debug.maxToStringFields", "100")
+      conf.set("spark.sql.broadcastTimeout", "600000ms")
+      conf.set("spark.hadoopRDD.ignoreEmptySplits", "true")
+      conf.set("spark.hadoop.mapreduce.input.fileinputformat.split.minsize", "67108864")
 
       val spark = SparkSession.builder()
         // .master("local")
@@ -53,7 +55,36 @@ object BigdataEventCameraEtlTask {
       sql(s"CREATE TABLE IF NOT EXISTS odl_${bizCode}_event_camera (camera_id string, ip string, name string, lat double, lon double) STORED AS PARQUET")
 
       cameraDF.createOrReplaceTempView("eventCamera")
+
+/*
+      sql("set hive.mapred.supports.subdirectories=true")
+      sql("set mapreduce.input.fileinputformat.input.dir.recursive=true")
+      sql("set mapred.max.split.size=256000000")
+      sql("set mapred.min.split.size.per.node=128000000")
+      sql("set mapred.min.split.size.per.rack=128000000")
+      sql("set hive.hadoop.supports.splittable.combineinputformat=true")
+      sql("set hive.exec.compress.output=true")
+      sql("set mapred.output.compression.codec=org.apache.hadoop.io.compress.GzipCodec")
+      sql("set hive.input.format=org.apache.hadoop.hive.ql.io.CombineHiveInputFormat")
+
+      sql("set hive.merge.mapfiles=true")
+      sql("set hive.merge.mapredfiles=true")
+      sql("set hive.merge.size.per.task=256000000")
+      sql("set hive.merge.smallfiles.avgsize=256000000")
+
+      sql("set hive.groupby.skewindata=true")
+
+      // 保存到 hive 方法 1，网上说该方法可减少小文件，分析原理加测试证明不可靠
+      sql(
+        s"""
+           | INSERT OVERWRITE TABLE ${bizCode}_odl.odl_${bizCode}_event_camera
+           |  SELECT * FROM eventCamera
+         """.stripMargin
+      )*/
+
+      // 保存到 hive 方法 2
       sql("select * from eventCamera")
+        .coalesce(cameraCLParam.coalescePartitions) // 根据实际数据量合并，从而控制小文件产生
         .write
         .format("hive")
         .mode(SaveMode.Overwrite)

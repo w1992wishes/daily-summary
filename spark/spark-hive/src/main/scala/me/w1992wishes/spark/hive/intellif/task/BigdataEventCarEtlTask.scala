@@ -104,7 +104,7 @@ object BigdataEventCarEtlTask {
       val hadoopConf = spark.sparkContext.hadoopConfiguration
       val hdfs = org.apache.hadoop.fs.FileSystem.get(hadoopConf)
       if (hdfs.exists(path)) hdfs.delete(path, true)
-      eventCarWithGeoDF.write.parquet(dataDir)
+      eventCarWithGeoDF.coalesce(params.coalescePartitions).write.parquet(dataDir)
 
       sql(s"CREATE DATABASE IF NOT EXISTS ${bizCode}_dim")
       sql(s"USE ${bizCode}_dim")
