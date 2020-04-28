@@ -2,7 +2,7 @@ package me.w1992wishes.spark.hive.intellif.param
 
 import java.time.LocalDateTime
 
-import me.w1992wishes.spark.hive.intellif.util.DateUtil
+import me.w1992wishes.common.util.DateUtil
 
 import scala.annotation.tailrec
 
@@ -11,7 +11,7 @@ import scala.annotation.tailrec
   *
   * @author w1992wishes 2018/11/13 17:31
   */
-class BigdataEventCarCLParam(args: Array[String]) extends Serializable {
+class EventCarEtlCLParam(args: Array[String]) extends Serializable {
 
   // 是否本地模式运行
   var isLocal: Boolean = false
@@ -20,7 +20,9 @@ class BigdataEventCarCLParam(args: Array[String]) extends Serializable {
 
   var bizCode: String = "bigdata"
 
-  var coalescePartitions: Int = 1
+  var coalescePartitions: Int = 100
+
+  var isCoalesce: Boolean = false
 
   parse(args.toList)
 
@@ -39,6 +41,10 @@ class BigdataEventCarCLParam(args: Array[String]) extends Serializable {
       bizCode = value
       parse(tail)
 
+    case ("--isCoalesce") :: BooleanParam(value) :: tail =>
+      isCoalesce = value
+      parse(tail)
+
     case ("--coalescePartitions") :: IntParam(value) :: tail =>
       coalescePartitions = value
       parse(tail)
@@ -48,6 +54,7 @@ class BigdataEventCarCLParam(args: Array[String]) extends Serializable {
     case _ =>
       printUsageAndExit(1)
   }
+
   /**
     * Print usage and exit JVM with the given exit code.
     */
@@ -59,6 +66,6 @@ class BigdataEventCarCLParam(args: Array[String]) extends Serializable {
   }
 }
 
-object BigdataEventCarCLParam {
-  def apply(args: Array[String]): BigdataEventCarCLParam = new BigdataEventCarCLParam(args)
+object EventCarEtlCLParam {
+  def apply(args: Array[String]): EventCarEtlCLParam = new EventCarEtlCLParam(args)
 }

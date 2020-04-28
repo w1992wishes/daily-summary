@@ -5,11 +5,13 @@ import scala.annotation.tailrec
 /**
   * @author w1992wishes 2020/3/9 14:52.
   */
-class BigdataEventCameraCLParam(args: Array[String]) {
+class EventCameraEtlCLParam(args: Array[String]) {
 
-  var confName: String = "bigdata-event-camera-etl-task.properties"
+  var confName: String = "EventCameraEtlTask.properties"
 
   var bizCode: String = "bigdata"
+
+  var isCoalesce: Boolean = true
 
   var coalescePartitions: Int = 1
 
@@ -26,6 +28,10 @@ class BigdataEventCameraCLParam(args: Array[String]) {
       bizCode = value
       parse(tail)
 
+    case ("--isCoalesce") :: BooleanParam(value) :: tail =>
+      isCoalesce = value
+      parse(tail)
+
     case ("--coalescePartitions") :: IntParam(value) :: tail =>
       coalescePartitions = value
       parse(tail)
@@ -35,7 +41,6 @@ class BigdataEventCameraCLParam(args: Array[String]) {
     case _ =>
       printUsageAndExit(1)
   }
-
 
   /**
     * Print usage and exit JVM with the given exit code.
@@ -48,7 +53,7 @@ class BigdataEventCameraCLParam(args: Array[String]) {
   }
 }
 
-object BigdataEventCameraCLParam {
-  def apply(args: Array[String]): BigdataEventCameraCLParam = new BigdataEventCameraCLParam(args)
+object EventCameraEtlCLParam {
+  def apply(args: Array[String]): EventCameraEtlCLParam = new EventCameraEtlCLParam(args)
 
 }

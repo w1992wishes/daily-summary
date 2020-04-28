@@ -9,7 +9,7 @@ import scala.annotation.tailrec
 /**
   * @author w1992wishes 2020/4/26 15:21
   */
-class BigdataEntryMultiCLParam(args: Array[String]) {
+class EntryMultiEtlCLParam(args: Array[String]) {
 
   var shufflePartitions: Int = 200
 
@@ -20,6 +20,8 @@ class BigdataEntryMultiCLParam(args: Array[String]) {
   var date: String = DateUtil.dateTimeToStr(LocalDateTime.now().minusDays(1), DateUtil.DF_YMD_NO_LINE)
 
   var debug: Boolean = false
+
+  var isCoalesce: Boolean = true
 
   var coalescePartitions: Int = 1
 
@@ -48,6 +50,10 @@ class BigdataEntryMultiCLParam(args: Array[String]) {
       debug = value
       parse(tail)
 
+    case ("--isCoalesce") :: BooleanParam(value) :: tail =>
+      isCoalesce = value
+      parse(tail)
+
     case ("--coalescePartitions") :: IntParam(value) :: tail =>
       coalescePartitions = value
       parse(tail)
@@ -68,4 +74,8 @@ class BigdataEntryMultiCLParam(args: Array[String]) {
     System.exit(exitCode)
   }
 
+}
+
+object EntryMultiEtlCLParam {
+  def apply(args: Array[String]): EntryMultiEtlCLParam = new EntryMultiEtlCLParam(args)
 }
