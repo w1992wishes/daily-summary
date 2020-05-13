@@ -93,6 +93,7 @@
     * [消费者简单例子](kafka/kafaka-consumer)
     * [生产者简单例子](kafka/kafka-producer)
     * [kafka同spring整合例子](kafka/kafka-spring-integration)
+    * [kafka 总结](kafka/document/Kafka%20总结.md)
 * [Scheduler](scheduler)
     * [大数据调度系统设计](scheduler/SchedulerSystemImpl.md)
 * [LeetCode](leet-code)

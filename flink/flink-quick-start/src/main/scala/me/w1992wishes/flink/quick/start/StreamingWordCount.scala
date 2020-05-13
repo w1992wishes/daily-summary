@@ -6,7 +6,7 @@ import org.apache.flink.streaming.api.scala.StreamExecutionEnvironment
 import org.apache.flink.api.scala._
 
 /**
-  * 流处理 word count
+  * 流处理 word count，可通过 nc -lk 7777 命令发送
   *
   * @author w1992wishes 2020/4/20 10:30
   */
