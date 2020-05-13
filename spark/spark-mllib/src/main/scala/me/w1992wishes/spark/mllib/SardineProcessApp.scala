@@ -1,5 +1,6 @@
 package me.w1992wishes.spark.mllib
 
+import java.util
 import java.util.Date
 
 import com.beust.jcommander.JCommander
@@ -65,9 +66,9 @@ object SardineProcessApp {
    */
   def dbscan(partId: Int, partData: Iterator[(Int, Vector)]):Iterator[(Int, Int, Vector)] = {
       val data = partData.toSeq
-      val iddata = data.map(f => f._1)
-      val vdata = data.map( f => new DataPoint(f._2.toArray, String.valueOf(partId), false))
-      val points = JavaConverters.seqAsJavaListConverter(vdata).asJava
+      val iddata: Seq[Int] = data.map(f => f._1)
+      val vdata: Seq[DataPoint] = data.map(f => new DataPoint(f._2.toArray, String.valueOf(partId), false))
+      val points: util.List[DataPoint] = JavaConverters.seqAsJavaListConverter(vdata).asJava
 
       val minPts = 1 
       val ePs = 0.03 
@@ -80,7 +81,7 @@ object SardineProcessApp {
       result
   }
 
-  def main(args: Array[String]) = {
+  def main(args: Array[String]): Unit = {
     val clusteringConfig = parseCommandArgs(args)
     var dataNum = clusteringConfig.dataNum
     var dataDim = clusteringConfig.dataDim
@@ -94,9 +95,9 @@ object SardineProcessApp {
 
     // 1. prepare data sources
     var data = randomVector(dataNum, dataDim)
-    val rdd = randomRDD(data, sc, dataPartitionCount)    
+    val rdd: RDD[(Int, Vector)] = randomRDD(data, sc, dataPartitionCount)
     // RDD(vector)
-    val vrdd = rdd.map(fv => fv._2)
+    val vrdd: RDD[Vector] = rdd.map(fv => fv._2)
 
     // 2.prepare sample centers
     val centers : Array[Vector] = new RandomSampleStrategy().takeSamples(data.map(v => v._2), kmeansk)
@@ -111,10 +112,10 @@ object SardineProcessApp {
     // 4. 先得到所有粗分簇的id 数组(eg (1,4,6,9...))，不一定所有的样本点最后都会成分粗分簇的中心，可能部分样本点不是所有点的最近点
     // 使用 zipWithIndex 将可能不连续的 簇id 映射为 连续的 id
     var gidarray : Array[Int] = prdd.map(s => s._1).distinct().collect()
-    var giddata = gidarray.zipWithIndex.toMap
+    var giddata: Map[Int, Int] = gidarray.zipWithIndex.toMap
 
     // 4. 重新分区，将 RDD[(Int, Vector)] index 相同的 Vector 分到一个区
-    var pdata = prdd.partitionBy(new ZhaoMengPartitioner(giddata))
+    var pdata: RDD[(Int, Vector)] = prdd.partitionBy(new ZhaoMengPartitioner(giddata))
     println("partitions size:" + pdata.partitions.size)
     
     // 5. 分区后 clustering in partition
