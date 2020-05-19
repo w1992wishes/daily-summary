@@ -1,6 +1,7 @@
 *[Hadoop]()
    * [base](README.md)
        * [Hadoop 2.9.1 集群安装](document/base/Hadoop-Installation.md)
+       * [Hadoop 2.9.2 HA安装](document/base/Hadoop-HA-Installa.md)
        * [Hadoop 小文件处理](document/base/Hadoop-Small-File.md)
        * [MR 简单使用](map-reduce/README.md)
        * [MR shuffle 过程详解](document/base/MRShuffle.md) 
