@@ -11,12 +11,12 @@ import scala.annotation.tailrec
   *
   * @author w1992wishes 2018/11/13 17:31
   */
-class EventCarEtlCLParam(args: Array[String]) extends Serializable {
+class EventMultiEtlCLParam(args: Array[String]) extends Serializable {
 
   // 是否本地模式运行
   var isLocal: Boolean = false
 
-  var date: String = DateUtil.dateTimeToStr(LocalDateTime.now().minusDays(1), DateUtil.DF_YMD_NO_LINE)
+  var dt: String = DateUtil.dateTimeToStr(LocalDateTime.now().minusDays(1), DateUtil.DF_YMD_NO_LINE)
 
   var bizCode: String = "bigdata"
 
@@ -33,20 +33,12 @@ class EventCarEtlCLParam(args: Array[String]) extends Serializable {
       isLocal = value
       parse(tail)
 
-    case ("--date") :: value :: tail =>
-      date = value
+    case ("--dt") :: value :: tail =>
+      dt = value
       parse(tail)
 
     case ("--bizCode") :: value :: tail =>
       bizCode = value
-      parse(tail)
-
-    case ("--isCoalesce") :: BooleanParam(value) :: tail =>
-      isCoalesce = value
-      parse(tail)
-
-    case ("--coalescePartitions") :: IntParam(value) :: tail =>
-      coalescePartitions = value
       parse(tail)
 
     case Nil => // No-op
@@ -66,6 +58,6 @@ class EventCarEtlCLParam(args: Array[String]) extends Serializable {
   }
 }
 
-object EventCarEtlCLParam {
-  def apply(args: Array[String]): EventCarEtlCLParam = new EventCarEtlCLParam(args)
+object EventMultiEtlCLParam {
+  def apply(args: Array[String]): EventMultiEtlCLParam = new EventMultiEtlCLParam(args)
 }
