@@ -1,4 +1,4 @@
-package me.w1992wishes.spark.mllib.rough
+package me.w1992wishes.spark.mllib.intellif.rough
 
 import org.apache.spark.mllib.linalg.Vector
 

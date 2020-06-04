@@ -1,11 +1,11 @@
-package me.w1992wishes.spark.mllib
+package me.w1992wishes.spark.mllib.intellif
 
 import java.util
 import java.util.Date
 
 import com.beust.jcommander.JCommander
 import me.w1992wishes.spark.mllib.dbscan.{DBSCANClustering, DataPoint}
-import me.w1992wishes.spark.mllib.rough.RoughModel
+import me.w1992wishes.spark.mllib.intellif.rough.RoughModel
 import org.apache.spark.mllib.linalg.{Vector, Vectors}
 import org.apache.spark.rdd.RDD
 import org.apache.spark.{Partitioner, SparkConf, SparkContext}
@@ -14,6 +14,9 @@ import scala.collection.JavaConverters
 import scala.collection.mutable.{ArrayBuffer, HashSet}
 import scala.util.Random
 
+/**
+  * @author w1992wishes 2020/6/4 15:48
+  */
 object SardineProcessApp {
   val random = new Random(System.currentTimeMillis())
 
@@ -23,7 +26,7 @@ object SardineProcessApp {
      config.parse(args: _*)
      clusteringConfig
   }
-  
+
   def randomArray(size: Int): Array[Double] = {
     var ra = new Array[Double](size)
     for(i <- 1 to ra.length - 1){
@@ -55,7 +58,7 @@ object SardineProcessApp {
     }
     seq
   }
-  
+
   def randomRDD(seq: Seq[(Int, Vector)], sparkContext: SparkContext, partitions: Int):RDD[(Int, Vector)] = {
     var rdd = sparkContext.parallelize(seq, partitions)
     rdd
@@ -70,11 +73,11 @@ object SardineProcessApp {
       val vdata: Seq[DataPoint] = data.map(f => new DataPoint(f._2.toArray, String.valueOf(partId), false))
       val points: util.List[DataPoint] = JavaConverters.seqAsJavaListConverter(vdata).asJava
 
-      val minPts = 1 
-      val ePs = 0.03 
+      val minPts = 1
+      val ePs = 0.03
       val javaDBscan = new DBSCANClustering(ePs, minPts)
       javaDBscan.cluster(points)
-      
+
       val presult = JavaConverters.asScalaIteratorConverter(points.iterator()).asScala
       val idpresult = iddata.zip(presult.toSeq)
       val result = idpresult.map(dp => (dp._2.getClusterId(), dp._1, arrayToVector(dp._2.getDimensioin()))).toIterator
@@ -87,7 +90,7 @@ object SardineProcessApp {
     var dataDim = clusteringConfig.dataDim
     var dataPartitionCount = clusteringConfig.dataPartitionCount
     var kmeansk = clusteringConfig.kmeansk
-    
+
     val conf = new SparkConf()
       .setAppName("SardineProcessApp")
       .setMaster("local[8]")
@@ -117,10 +120,10 @@ object SardineProcessApp {
     // 4. 重新分区，将 RDD[(Int, Vector)] index 相同的 Vector 分到一个区
     var pdata: RDD[(Int, Vector)] = prdd.partitionBy(new ZhaoMengPartitioner(giddata))
     println("partitions size:" + pdata.partitions.size)
-    
+
     // 5. 分区后 clustering in partition
     var subclustereddata = pdata.mapPartitionsWithIndex(
-        (partitionID, iterator) => {  
+        (partitionID, iterator) => {
           val s = dbscan(partitionID, iterator)
           s
         } , false)
@@ -128,23 +131,21 @@ object SardineProcessApp {
     println("partition dbscan result data count:" + count)
     println("partition and dbscan speed " + (System.currentTimeMillis() - endPredict)/1000 + "s")
     println("partition dbscan finish " + new Date())
-     
+
     //suspend for view
     Thread.sleep(Long.MaxValue)
   }
-  
+
   class ZhaoMengPartitioner(groupDic: Map[Int, Int]) extends Partitioner {
 
     override def numPartitions: Int = {
       groupDic.size
     }
-  
+
     override def getPartition(key: Any): Int = {
       groupDic.get(key.asInstanceOf[Int]).get
     }
-    
+
   }
 
 }
-
-

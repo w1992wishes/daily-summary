@@ -1,4 +1,4 @@
-package me.w1992wishes.spark.mllib
+package me.w1992wishes.spark.mllib.intellif
 
 import com.beust.jcommander.Parameter
 
