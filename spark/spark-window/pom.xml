@@ -12,6 +12,10 @@
     <artifactId>spark-window</artifactId>
 
     <properties>
+        <spark.version>2.3.1</spark.version>
+    </properties>
+
+    <properties>
         <arangodb-spark.version>1.0.2</arangodb-spark.version>
     </properties>
 

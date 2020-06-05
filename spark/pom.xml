@@ -18,11 +18,8 @@
         <module>structured-streaming</module>
         <module>spark-tuning</module>
         <module>spark-hive</module>
+        <module>spark-es</module>
     </modules>
-
-    <properties>
-        <spark.version>2.3.1</spark.version>
-    </properties>
 
     <dependencies>
         <dependency>
