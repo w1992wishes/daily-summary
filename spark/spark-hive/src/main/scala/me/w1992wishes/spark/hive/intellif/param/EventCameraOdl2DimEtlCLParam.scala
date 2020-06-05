@@ -5,35 +5,17 @@ import scala.annotation.tailrec
 /**
   * @author w1992wishes 2020/3/9 14:52.
   */
-class EventCameraEtlCLParam(args: Array[String]) {
-
-  var confName: String = "EventCameraEtlTask.properties"
+class EventCameraOdl2DimEtlCLParam(args: Array[String]) {
 
   var bizCode: String = "bigdata"
-
-  var isCoalesce: Boolean = true
-
-  var coalescePartitions: Int = 1
 
   parse(args.toList)
 
   @tailrec
   private def parse(args: List[String]): Unit = args match {
 
-    case ("--confName") :: value :: tail =>
-      confName = value
-      parse(tail)
-
     case ("--bizCode") :: value :: tail =>
       bizCode = value
-      parse(tail)
-
-    case ("--isCoalesce") :: BooleanParam(value) :: tail =>
-      isCoalesce = value
-      parse(tail)
-
-    case ("--coalescePartitions") :: IntParam(value) :: tail =>
-      coalescePartitions = value
       parse(tail)
 
     case Nil => // No-op
@@ -53,7 +35,7 @@ class EventCameraEtlCLParam(args: Array[String]) {
   }
 }
 
-object EventCameraEtlCLParam {
-  def apply(args: Array[String]): EventCameraEtlCLParam = new EventCameraEtlCLParam(args)
+object EventCameraOdl2DimEtlCLParam {
+  def apply(args: Array[String]): EventCameraOdl2DimEtlCLParam = new EventCameraOdl2DimEtlCLParam(args)
 
 }

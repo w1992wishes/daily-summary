@@ -1,4 +1,4 @@
-package me.w1992wishes.spark.hive.intellif.util
+package me.w1992wishes.common.util
 
 import java.io.FileInputStream
 import java.util.Properties

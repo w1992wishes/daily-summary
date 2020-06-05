@@ -2,7 +2,7 @@ package me.w1992wishes.spark.hive.intellif.param
 
 import java.time.LocalDateTime
 
-import me.w1992wishes.common.util.DateUtil
+import me.w1992wishes.common.util.{DateUtil, IntParam}
 
 import scala.annotation.tailrec
 
@@ -11,27 +11,18 @@ import scala.annotation.tailrec
   *
   * @author w1992wishes 2018/11/13 17:31
   */
-class EventMultiEtlCLParam(args: Array[String]) extends Serializable {
-
-  // 是否本地模式运行
-  var isLocal: Boolean = false
+class EventMultiOdl2DimEtlCLParam(args: Array[String]) extends Serializable {
 
   var dt: String = DateUtil.dateTimeToStr(LocalDateTime.now().minusDays(1), DateUtil.DF_YMD_NO_LINE)
 
   var bizCode: String = "bigdata"
 
-  var coalescePartitions: Int = 100
-
-  var isCoalesce: Boolean = false
+  var geoLength : Int = 12
 
   parse(args.toList)
 
   @tailrec
   private def parse(args: List[String]): Unit = args match {
-
-    case ("--isLocal") :: BooleanParam(value) :: tail =>
-      isLocal = value
-      parse(tail)
 
     case ("--dt") :: value :: tail =>
       dt = value
@@ -39,6 +30,10 @@ class EventMultiEtlCLParam(args: Array[String]) extends Serializable {
 
     case ("--bizCode") :: value :: tail =>
       bizCode = value
+      parse(tail)
+
+    case ("--geoLength") :: IntParam(value) :: tail =>
+      geoLength = value
       parse(tail)
 
     case Nil => // No-op
@@ -58,6 +53,8 @@ class EventMultiEtlCLParam(args: Array[String]) extends Serializable {
   }
 }
 
-object EventMultiEtlCLParam {
-  def apply(args: Array[String]): EventMultiEtlCLParam = new EventMultiEtlCLParam(args)
+object EventMultiOdl2DimEtlCLParam {
+  def apply(args: Array[String]): EventMultiOdl2DimEtlCLParam = new EventMultiOdl2DimEtlCLParam(args)
 }
+
+

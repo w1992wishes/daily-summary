@@ -2,28 +2,24 @@ package me.w1992wishes.spark.hive.intellif.param
 
 import java.time.LocalDateTime
 
-import me.w1992wishes.spark.hive.intellif.util.DateUtil
+import me.w1992wishes.common.util.{BooleanParam, DateUtil, IntParam}
 
 import scala.annotation.tailrec
 
 /**
   * @author w1992wishes 2020/4/26 15:21
   */
-class EntryMultiEtlCLParam(args: Array[String]) {
+class EntryMultiDim2MidEtlCLParam(args: Array[String]) {
 
   var shufflePartitions: Int = 200
 
-  var eventType: String = _
+  var dataType: String = _
 
   var bizCode: String = "bigdata"
 
-  var date: String = DateUtil.dateTimeToStr(LocalDateTime.now().minusDays(1), DateUtil.DF_YMD_NO_LINE)
+  var dt: String = DateUtil.dateTimeToStr(LocalDateTime.now().minusDays(1), DateUtil.DF_YMD_NO_LINE)
 
   var debug: Boolean = false
-
-  var isCoalesce: Boolean = true
-
-  var coalescePartitions: Int = 1
 
   parse(args.toList)
 
@@ -34,28 +30,20 @@ class EntryMultiEtlCLParam(args: Array[String]) {
       shufflePartitions = value
       parse(tail)
 
-    case ("--eventType") :: value :: tail =>
-      eventType = value
+    case ("--dataType") :: value :: tail =>
+      dataType = value
       parse(tail)
 
     case ("--bizCode") :: value :: tail =>
       bizCode = value
       parse(tail)
 
-    case ("--date") :: value :: tail =>
-      date = value
+    case ("--dt") :: value :: tail =>
+      dt = value
       parse(tail)
 
     case ("--debug") :: BooleanParam(value) :: tail =>
       debug = value
-      parse(tail)
-
-    case ("--isCoalesce") :: BooleanParam(value) :: tail =>
-      isCoalesce = value
-      parse(tail)
-
-    case ("--coalescePartitions") :: IntParam(value) :: tail =>
-      coalescePartitions = value
       parse(tail)
 
     case Nil => // No-op
@@ -76,6 +64,6 @@ class EntryMultiEtlCLParam(args: Array[String]) {
 
 }
 
-object EntryMultiEtlCLParam {
-  def apply(args: Array[String]): EntryMultiEtlCLParam = new EntryMultiEtlCLParam(args)
+object EntryMultiDim2MidEtlCLParam {
+  def apply(args: Array[String]): EntryMultiDim2MidEtlCLParam = new EntryMultiDim2MidEtlCLParam(args)
 }

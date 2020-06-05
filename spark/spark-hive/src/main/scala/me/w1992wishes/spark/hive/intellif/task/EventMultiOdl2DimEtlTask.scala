@@ -1,23 +1,25 @@
 package me.w1992wishes.spark.hive.intellif.task
 
-import me.w1992wishes.spark.hive.intellif.param.EventMultiEtlCLParam
+import com.alibaba.fastjson.JSON
+import me.w1992wishes.spark.hive.intellif.param.EventMultiOdl2DimEtlCLParam
 import org.apache.spark.SparkConf
 import org.apache.spark.sql.{SaveMode, SparkSession}
 
 /**
-  * 多维事件抽取， imsi/imei/mac 公用该 task，car 因为格式不一致，单独用 EventCarEtlTask
+  * 多维事件抽取， imsi/imei/mac/car 公用该 task
   *
   * @author w1992wishes 2020/4/28 14:16
   */
-object EventMultiEtlTask {
+object EventMultiOdl2DimEtlTask {
 
   def main(args: Array[String]): Unit = {
     args.foreach(println(_))
 
     // 命令行参数
-    val clParam = EventMultiEtlCLParam(args)
+    val clParam = EventMultiOdl2DimEtlCLParam(args)
     val bizCode = clParam.bizCode
     val dt = clParam.dt
+    val geoLength = Math.min(12, clParam.geoLength)
     val sourceTableDir = "/user/flume/event/multi"
     val sourceDataDir = s"$sourceTableDir/$dt"
     val sinkTableDir = "/user/hive/warehouse/event/multi"
@@ -27,6 +29,7 @@ object EventMultiEtlTask {
 
     // spark 参数设置
     val conf = new SparkConf()
+      .setIfMissing("spark.master", "local[8]")
       .set("spark.sql.adaptive.enabled", "true")
       .set("spark.sql.adaptive.shuffle.targetPostShuffleInputSize", "67108864b")
       .set("spark.sql.adaptive.join.enabled", "true")
@@ -38,12 +41,11 @@ object EventMultiEtlTask {
     val spark = SparkSession
       .builder()
       .config(conf)
-      .master("local[16]")
       .appName(getClass.getSimpleName)
       .getOrCreate()
 
-    import spark.sql
     import spark.implicits._
+    import spark.sql
 
     // 加载 odl 层原始 car 数据
     sql(s"CREATE DATABASE IF NOT EXISTS ${bizCode}_odl")
@@ -73,14 +75,40 @@ object EventMultiEtlTask {
     eventMultiDF.printSchema()
     eventMultiDF.show()
 
+    import org.apache.spark.sql.functions.udf
+    val guidCode = (props: String) => {
+      val json = JSON.parseObject(props)
+      json.getString("faceRelationId")
+    }
+    val addGuidCol = udf(guidCode)
+    val geoCode = (location: String) => {
+      try {
+        val json = JSON.parseObject(location)
+        val lat = json.getDouble("latitude")
+        val lon = json.getDouble("longitude")
+        if (lat == null || lon == null) {
+          ""
+        } else {
+          GeoHash.withCharacterPrecision(lat, lon, geoLength).toBase32
+        }
+      } catch {
+        case _: Exception => ""
+      }
+    }
+    val addGeoCol = udf(geoCode)
+
     eventMultiDF
+      .na.drop(Array("time", "aid", "location"))
       .withColumnRenamed("bizCode", "biz_code")
-      .withColumnRenamed("geoHash", "geo_hash")
       .withColumnRenamed("createTime", "create_time")
-      .repartition($"dataType")
+      .withColumnRenamed("dataType", "data_type")
+      .withColumn("geo_hash", addGeoCol(eventMultiDF.col("location")))
+      .withColumn("guid", addGuidCol(eventMultiDF.col("props")))
+      .drop("geoHash")
+      .repartition($"data_type")
       .write
       .mode(SaveMode.Overwrite)
-      .partitionBy("dataType")
+      .partitionBy("data_type")
       .format("parquet")
       .save(s"hdfs://nameservice1$sinkDataDir")
 
@@ -96,22 +124,23 @@ object EventMultiEtlTask {
          |   time timestamp,
          |   props string,
          |   location string,
+         |   create_time timestamp,
          |   geo_hash string,
-         |   create_time timestamp
+         |   guid string
          |  )
          | PARTITIONED BY (dt string comment "按天分区", data_type string comment "按类型分区")
          | STORED AS PARQUET
-         | LOCATION 'hdfs:$sinkTableDir'
+         | LOCATION 'hdfs://nameservice1$sinkTableDir'
            """.stripMargin)
 
     sql(s"ALTER TABLE $sinkTable DROP IF EXISTS PARTITION(dt= '$dt', data_type ='car')")
     sql(s"ALTER TABLE $sinkTable DROP IF EXISTS PARTITION(dt= '$dt', data_type ='mac')")
     sql(s"ALTER TABLE $sinkTable DROP IF EXISTS PARTITION(dt= '$dt', data_type ='imsi')")
     sql(s"ALTER TABLE $sinkTable DROP IF EXISTS PARTITION(dt= '$dt', data_type ='imei')")
-    sql(s"ALTER TABLE $sinkTable ADD PARTITION(dt= '$dt', data_type ='car') location '$sinkDataDir/dataType=car'")
-    sql(s"ALTER TABLE $sinkTable ADD PARTITION(dt= '$dt', data_type ='mac') location '$sinkDataDir/dataType=mac'")
-    sql(s"ALTER TABLE $sinkTable ADD PARTITION(dt= '$dt', data_type ='imsi') location '$sinkDataDir/dataType=imsi'")
-    sql(s"ALTER TABLE $sinkTable ADD PARTITION(dt= '$dt', data_type ='imei') location '$sinkDataDir/dataType=imei'")
+    sql(s"ALTER TABLE $sinkTable ADD PARTITION(dt= '$dt', data_type ='car') location '$sinkDataDir/data_type=car'")
+    sql(s"ALTER TABLE $sinkTable ADD PARTITION(dt= '$dt', data_type ='mac') location '$sinkDataDir/data_type=mac'")
+    sql(s"ALTER TABLE $sinkTable ADD PARTITION(dt= '$dt', data_type ='imsi') location '$sinkDataDir/data_type=imsi'")
+    sql(s"ALTER TABLE $sinkTable ADD PARTITION(dt= '$dt', data_type ='imei') location '$sinkDataDir/data_type=imei'")
 
     sql(s"SELECT * FROM $sinkTable WHERE dt = '$dt' and data_type ='car'").show()
     sql(s"SELECT * FROM $sinkTable WHERE dt = '$dt' and data_type ='mac'").show()

@@ -33,8 +33,8 @@ object SparkEsDemo {
       // 因为ES的写入一般是顺序写入，在一次批量写入中，很多数据的写入处理逻辑可以合并，大量的IO操作也可以合并。
       // 默认值设置的比较小，可以适当根据集群的规模调大这两个值，建议为20MB和2w条。
       // 当然，bulk size不能无限的增大，会造成写入任务的积压。
-      .set("es.batch.size.bytes", "30MB")
-      .set("es.batch.size.entries", "20000")
+      //.set("es.batch.size.bytes", "30MB")
+      //.set("es.batch.size.entries", "20000")
       //es.batch.write.refresh: ES是一个准实时的搜索引擎，意味着当写入数据之后，只有当触发refresh操作后，写入的数据才能被搜索到。
       // 这里的参数是控制，是否每次bulk操作后都进行refresh。
       // 每次refresh后，ES会将当前内存中的数据生成一个新的segment。
@@ -65,7 +65,34 @@ object SparkEsDemo {
       .write
       .format("org.elasticsearch.spark.sql")
       .mode(SaveMode.Append)
-      .save("hive_table/docs")
+      .save("event/camera")
+
+/*    PUT /event
+    {
+      "mappings": {
+        "camera": {
+        "properties": {
+        "camera_id": {
+        "type": "keyword"
+      },
+        "name": {
+        "type": "keyword"
+      },
+        "ip": {
+        "type": "ip"
+      },
+        "lat": {
+        "type": "double",
+        "index": false
+      },
+        "lon": {
+        "type": "double",
+        "index": false
+      }
+      }
+      }
+      }
+    }*/
   }
 
 }
