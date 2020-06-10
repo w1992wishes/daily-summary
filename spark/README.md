@@ -6,6 +6,7 @@
     * [Spark UDF](documents/base/SparkUDF.md)
     * [Spark 之 HiveSupport 连接](documents/base/SparkHiveSupport.md)
 * [Spark 基础运行 demo](../spark)
+    * [Spark 写 ES](spark-es)
     * [Spark Sql On Hive](spark-hive)
     * [Spark Sql](spark-sql)
     * [Spark Streaming](spark-streaming)

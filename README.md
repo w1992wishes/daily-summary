@@ -20,6 +20,7 @@
         * [Spark RDD、DataFrame 和 DataSet](spark/documents/base/RDD-DS-DF.md)
         * [Spark UDF](spark/documents/base/SparkUDF.md)
     * [Spark 运行 demo](spark)
+        * [Spark 写 ES](spark/spark-es)
         * [Spark Sql On Hive](spark/spark-hive)
         * [Spark Sql](spark/spark-sql)
         * [Spark Streaming](spark/spark-streaming)
