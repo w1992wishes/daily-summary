@@ -5,14 +5,20 @@ import scala.annotation.tailrec
 /**
   * @author w1992wishes 2020/3/9 14:52.
   */
-class EventCameraOdl2DimEtlCLParam(args: Array[String]) {
+class EventCameraMySql2OdlTransferCLParam(args: Array[String]) {
 
-  var bizCode: String = "bigdata"
+  var confName: String = "EventCameraMySql2OdlTransferTask.properties"
+
+  var bizCode: String = "matrix"
 
   parse(args.toList)
 
   @tailrec
   private def parse(args: List[String]): Unit = args match {
+
+    case ("--confName") :: value :: tail =>
+      confName = value
+      parse(tail)
 
     case ("--bizCode") :: value :: tail =>
       bizCode = value
@@ -35,7 +41,7 @@ class EventCameraOdl2DimEtlCLParam(args: Array[String]) {
   }
 }
 
-object EventCameraOdl2DimEtlCLParam {
-  def apply(args: Array[String]): EventCameraOdl2DimEtlCLParam = new EventCameraOdl2DimEtlCLParam(args)
+object EventCameraMySql2OdlTransferCLParam {
+  def apply(args: Array[String]): EventCameraMySql2OdlTransferCLParam = new EventCameraMySql2OdlTransferCLParam(args)
 
 }

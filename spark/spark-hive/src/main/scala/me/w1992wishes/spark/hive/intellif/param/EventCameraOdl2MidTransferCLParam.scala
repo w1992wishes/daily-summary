@@ -3,22 +3,16 @@ package me.w1992wishes.spark.hive.intellif.param
 import scala.annotation.tailrec
 
 /**
-  * @author w1992wishes 2020/3/9 14:52.
+  * @author w1992wishes 2020/6/5 18:12
   */
-class EventCamera2OdlEtlCLParam(args: Array[String]) {
+class EventCameraOdl2MidTransferCLParam(args: Array[String]) extends Serializable {
 
-  var confName: String = "EventCamera2OdlEtlTask.properties"
-
-  var bizCode: String = "bigdata"
+  var bizCode: String = "matrix"
 
   parse(args.toList)
 
   @tailrec
   private def parse(args: List[String]): Unit = args match {
-
-    case ("--confName") :: value :: tail =>
-      confName = value
-      parse(tail)
 
     case ("--bizCode") :: value :: tail =>
       bizCode = value
@@ -41,8 +35,7 @@ class EventCamera2OdlEtlCLParam(args: Array[String]) {
   }
 }
 
-object EventCamera2OdlEtlCLParam {
-  def apply(args: Array[String]): EventCamera2OdlEtlCLParam = new EventCamera2OdlEtlCLParam(args)
+object EventCameraOdl2MidTransferCLParam {
+  def apply(args: Array[String]): EventCameraOdl2MidTransferCLParam = new EventCameraOdl2MidTransferCLParam(args)
+
 }
-
-

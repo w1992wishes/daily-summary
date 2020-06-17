@@ -11,25 +11,50 @@ import scala.annotation.tailrec
   *
   * @author w1992wishes 2018/11/13 17:31
   */
-class EventMultiOdl2DimEtlCLParam(args: Array[String]) extends Serializable {
+class EventPersonGp2DwdTransferCLParam(args: Array[String]) extends Serializable {
+
+  var confName: String = "EventPersonGp2DwdTransferTask.properties"
 
   var dt: String = DateUtil.dateTimeToStr(LocalDateTime.now().minusDays(1), DateUtil.DF_YMD_NO_LINE)
 
-  var bizCode: String = "bigdata"
+  // gp 中的 create_time
+  var startTime: String = _
 
-  var geoLength : Int = 12
+  var endTime: String = _
+
+  var bizCode: String = "matrix"
+
+  var numPartitions: Int = 52
+
+  var geoLength: Int = 12
 
   parse(args.toList)
 
   @tailrec
   private def parse(args: List[String]): Unit = args match {
 
+    case ("--confName") :: value :: tail =>
+      confName = value
+      parse(tail)
+
     case ("--dt") :: value :: tail =>
       dt = value
       parse(tail)
 
+    case ("--startTime") :: value :: tail =>
+      startTime = value
+      parse(tail)
+
+    case ("--endTime") :: value :: tail =>
+      endTime = value
+      parse(tail)
+
     case ("--bizCode") :: value :: tail =>
       bizCode = value
+      parse(tail)
+
+    case ("--numPartitions") :: IntParam(value) :: tail =>
+      numPartitions = value
       parse(tail)
 
     case ("--geoLength") :: IntParam(value) :: tail =>
@@ -53,8 +78,10 @@ class EventMultiOdl2DimEtlCLParam(args: Array[String]) extends Serializable {
   }
 }
 
-object EventMultiOdl2DimEtlCLParam {
-  def apply(args: Array[String]): EventMultiOdl2DimEtlCLParam = new EventMultiOdl2DimEtlCLParam(args)
+object EventPersonGp2DwdTransferCLParam {
+  def apply(args: Array[String]): EventPersonGp2DwdTransferCLParam = new EventPersonGp2DwdTransferCLParam(args)
 }
+
+
 
 

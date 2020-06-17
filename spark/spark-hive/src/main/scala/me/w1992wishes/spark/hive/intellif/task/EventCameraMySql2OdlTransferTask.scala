@@ -1,7 +1,7 @@
 package me.w1992wishes.spark.hive.intellif.task
 
 import me.w1992wishes.common.util.PropertiesTool
-import me.w1992wishes.spark.hive.intellif.param.EventCamera2OdlEtlCLParam
+import me.w1992wishes.spark.hive.intellif.param.EventCameraMySql2OdlTransferCLParam
 import org.apache.spark.SparkConf
 import org.apache.spark.sql.{SaveMode, SparkSession}
 
@@ -10,12 +10,12 @@ import org.apache.spark.sql.{SaveMode, SparkSession}
   *
   * @author w1992wishes 2020/3/9 14:42.
   */
-object EventCamera2OdlEtlTask {
+object EventCameraMySql2OdlTransferTask {
 
   def main(args: Array[String]): Unit = {
     args.foreach(println(_))
 
-    val clParam = new EventCamera2OdlEtlCLParam(args)
+    val clParam = new EventCameraMySql2OdlTransferCLParam(args)
     val propsTool = PropertiesTool(clParam.confName)
     val bizCode = clParam.bizCode
 
@@ -29,12 +29,16 @@ object EventCamera2OdlEtlTask {
       .set("spark.sql.autoBroadcastJoinThreshold", "20971520")
       .set("spark.sql.broadcastTimeout", "600000ms")
       .set("spark.hadoopRDD.ignoreEmptySplits", "true")
+      .set("spark.sql.warehouse.dir","hdfs://nameservice1/user/hive/warehouse")
+      .set("spark.sql.catalogImplementation", "hive")
 
     val spark = SparkSession.builder()
       .appName(getClass.getSimpleName)
       .enableHiveSupport() // 启用 hive
       .config(conf)
       .getOrCreate()
+
+    spark.sparkContext.setLogLevel("WARN")
 
     val cameraDF = spark.read
       .format("jdbc")
@@ -55,16 +59,18 @@ object EventCamera2OdlEtlTask {
     sql(
       s"""
          | CREATE TABLE IF NOT EXISTS odl_${bizCode}_event_camera (
+         |   biz_code string,
          |   id string,
          |   name string,
          |   ip string,
-         |   geo_string string)
+         |   geo_string string,
+         |   props string)
          | ROW FORMAT DELIMITED
          | NULL DEFINED AS ''
          | STORED AS TEXTFILE
          """.stripMargin)
 
-    sql("SELECT id, name, ip, geo_string FROM eventCamera")
+    sql(s"SELECT '$bizCode' AS biz_code, id, name, ip, geo_string, '' AS props FROM eventCamera")
       .write
       .format("hive")
       .mode(SaveMode.Overwrite)
