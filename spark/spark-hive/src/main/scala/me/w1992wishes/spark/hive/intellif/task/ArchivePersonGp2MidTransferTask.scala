@@ -1,6 +1,7 @@
 package me.w1992wishes.spark.hive.intellif.task
 
 import java.sql.{Date, Timestamp}
+import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
 import java.util.UUID
 
@@ -56,6 +57,7 @@ object ArchivePersonGp2MidTransferTask {
       .set("spark.debug.maxToStringFields", "100")
       .set("spark.sql.warehouse.dir", "hdfs://nameservice1/user/hive/warehouse")
       .set("spark.sql.catalogImplementation", "hive")
+      .set("spark.io.compression.codec", "snappy")
 
     // 初始化 spark
     val spark = SparkSession.builder()
@@ -66,26 +68,56 @@ object ArchivePersonGp2MidTransferTask {
 
     spark.sparkContext.setLogLevel("WARN")
 
-    // 1.从 gp 加载档案
-    val personDF = getArchivesFromGp(spark, partition, propsTool, startTimeStr, endTimeStr)
+    // 1.从天图 gp 加载档案
+    val gpPersonArchiveDF = getArchivesFromGp(spark, partition, propsTool, startTimeStr, endTimeStr)
     println("加载 gp 的档案")
-    personDF.show(false)
+    gpPersonArchiveDF.show(false)
 
-    // 2.写入临时更新表中，方便发送到 es
-    import spark.implicits._
-    personDF.map { row => {
-      val biz_code = bizCode
-      val aid = UUID.randomUUID().toString.replace("-", "")
-      val data_code = row.getAs[String]("aid")
-      val status = row.getAs[Int]("status")
-      val create_time = row.getAs[Timestamp]("create_time")
-      val modify_time = Timestamp.valueOf(DateUtil.strToDateTime("9999-12-31 00:00:00"))
-      val sys_code = "SkyNet"
-      val props = formatProps(row)
-      MidArchivePerson(biz_code, aid, data_code, status.toByte, create_time, modify_time, sys_code, props)
-    }
-    }.write.mode(SaveMode.Overwrite).parquet(s"hdfs://nameservice1$updateArchiveMidDataDir")
+    // 2.从 hive 加载档案
     import spark.sql
+    sql(
+      s"""
+         | CREATE TABLE IF NOT EXISTS $archiveMidTable(
+         |  biz_code string,
+         |  aid string,
+         |  data_code string,
+         |  status tinyint,
+         |  create_time timestamp,
+         |  modify_time timestamp,
+         |  sys_code string,
+         |  props string
+         |  )
+         | PARTITIONED BY (data_type string comment "按类型分区")
+         | STORED AS PARQUET
+         | LOCATION 'hdfs://nameservice1$archiveMidTableDir'
+      """.stripMargin)
+    val hivePersonDataCodeDF = sql(s"SELECT data_code FROM $archiveMidTable WHERE data_type = 'PERSON'")
+    println("hive 人脸档案")
+    hivePersonDataCodeDF.show(false)
+
+    // 3. 找出档案表中不存在的档案, 天图人脸档案的 aid 为天谱的 dataCode
+    val exceptDataCodeDF = gpPersonArchiveDF.select("data_code").except(hivePersonDataCodeDF.select("data_code"))
+    println("待新增档案 dataCode")
+    exceptDataCodeDF.show(false)
+    import org.apache.spark.sql.functions.broadcast
+    import spark.implicits._
+    val newArchiveDF = gpPersonArchiveDF.join(broadcast(exceptDataCodeDF), "data_code")
+      .map { row => {
+        val biz_code = bizCode
+        val aid = UUID.randomUUID().toString.replace("-", "")
+        val data_code = row.getAs[String]("data_code")
+        val status = row.getAs[Int]("status")
+        val create_time = Timestamp.valueOf(LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS))
+        val modify_time = Timestamp.valueOf(DateUtil.strToDateTime("9999-12-31 00:00:00"))
+        val sys_code = "SkyNet"
+        val props = formatProps(row)
+        MidArchivePerson(biz_code, aid, data_code, status.toByte, create_time, modify_time, sys_code, props)
+      }
+      }
+    println("新增人脸档案")
+    newArchiveDF.show(false)
+    // 4.写入临时更新表中，方便发送到 es
+    newArchiveDF.write.mode(SaveMode.Overwrite).parquet(s"hdfs://nameservice1$updateArchiveMidDataDir")
     sql(s"CREATE DATABASE IF NOT EXISTS ${bizCode}_mid")
     sql(s"USE ${bizCode}_mid")
     sql(
@@ -108,25 +140,9 @@ object ArchivePersonGp2MidTransferTask {
     sql(s"ALTER TABLE $updateArchiveMidTable DROP IF EXISTS PARTITION(data_type ='PERSON')")
     sql(s"ALTER TABLE $updateArchiveMidTable ADD PARTITION(data_type ='PERSON') LOCATION '$updateArchiveMidDataDir'")
     println("临时档案表")
-    spark.sql(s"SELECT * FROM $updateArchiveMidTable").show()
+    spark.sql(s"SELECT * FROM $updateArchiveMidTable WHERE data_type ='PERSON'").show()
 
     // 3.增量插入档案数仓
-    sql(
-      s"""
-         | CREATE TABLE IF NOT EXISTS $archiveMidTable(
-         |  biz_code string,
-         |  aid string,
-         |  data_code string,
-         |  status tinyint,
-         |  create_time timestamp,
-         |  modify_time timestamp,
-         |  sys_code string,
-         |  props string
-         |  )
-         | PARTITIONED BY (data_type string comment "按类型分区")
-         | STORED AS PARQUET
-         | LOCATION 'hdfs://nameservice1$archiveMidTableDir'
-      """.stripMargin)
     sql(
       s"""
          | INSERT INTO TABLE $archiveMidTable PARTITION(data_type='PERSON')
@@ -230,7 +246,7 @@ object ArchivePersonGp2MidTransferTask {
 
   private def archiveTable(sourceTable: String, index: Int, paralleledCondition: Array[String], startTimeStr: String, endTimeStr: String): String = {
     s"""(SELECT
-       |  archive_id AS aid,
+       |  archive_id AS data_code,
        |  person_name,
        |  marriage_status,
        |  nation,
