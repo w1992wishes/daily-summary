@@ -13,6 +13,7 @@
         * [JVM 内存溢出异常测试](java/documents/jvm/jvm-内存溢出测试.md)
 * [flink](flink/README.md)
     * [flink quick start](flink/flink-quick-start)
+    * [flink 用户行为分析样例](flink/flink-analysis)
 * [Spark](spark/README.md)
     * [Spark 基础实践](spark/spark-base)
         * [Spark On Yarn 安装](spark/documents/base/SparkOnYarnInstall.md)

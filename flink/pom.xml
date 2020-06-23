@@ -13,6 +13,7 @@
     <modules>
         <module>flink-quick-start</module>
         <module>flink-analysis</module>
+        <module>flink-details</module>
     </modules>
 
 
