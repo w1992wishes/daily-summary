@@ -1,4 +1,4 @@
-package me.w1992wishes.flink.quick.start
+package me.w1992wishes.flink.quick.start.wc
 
 import org.apache.flink.api.scala.ExecutionEnvironment
 // 解决运行隐氏转换的错误

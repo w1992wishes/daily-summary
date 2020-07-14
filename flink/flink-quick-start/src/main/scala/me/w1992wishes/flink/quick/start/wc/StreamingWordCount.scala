@@ -1,4 +1,4 @@
-package me.w1992wishes.flink.quick.start
+package me.w1992wishes.flink.quick.start.wc
 
 import org.apache.flink.api.java.utils.ParameterTool
 import org.apache.flink.streaming.api.scala.StreamExecutionEnvironment
