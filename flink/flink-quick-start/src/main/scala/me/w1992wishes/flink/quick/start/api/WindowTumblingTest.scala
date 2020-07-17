@@ -1,4 +1,4 @@
-package me.w1992wishes.flink.details
+package me.w1992wishes.flink.quick.start.api
 
 import java.text.SimpleDateFormat
 

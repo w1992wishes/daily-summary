@@ -1,4 +1,4 @@
-package me.w1992wishes.flink.details
+package me.w1992wishes.flink.quick.start.api
 
 import org.apache.flink.api.common.state.{ListState, ListStateDescriptor}
 import org.apache.flink.api.common.typeinfo.{TypeHint, TypeInformation}
