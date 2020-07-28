@@ -31,6 +31,8 @@
     * [flink 架构原理](flink/document/flink-architecture)
         * [flink 运行架构](flink/document/flink-architecture/【Flink】Flink%20运行架构.md)
         * [Flink Watermark 机制浅析](flink/document/flink-architecture/【Flink】Flink%20Watermark%20机制浅析.md)
+    * [flink 进阶](flink/document/flink-promotion)
+        * [Flink cep](flink/document/flink-promotion/【Flink】Flink%20cep.md)
 * [Spark](spark/README.md)
     * [Spark 基础实践](spark/spark-base)
         * [Spark On Yarn 安装](spark/documents/base/SparkOnYarnInstall.md)
