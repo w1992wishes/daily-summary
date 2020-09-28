@@ -4,6 +4,8 @@
 
 ## 目录
 
+* [通用常备](common)
+    * [Redis 常问](common/document/Redis%20总结.md)
 * [java](java/README.md)
     * [Java 并发知识](java/concurrency/README.md)
         * [Java 并发包基石-AQS详解](java/documents/concurrency/AQS.md)

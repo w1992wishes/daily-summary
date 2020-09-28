@@ -22,7 +22,7 @@
     <version>1.0-SNAPSHOT</version>
 
     <modules>
-        <module>a-day</module>
+        <module>common</module>
         <module>kafka</module>
         <module>spark</module>
         <module>zookeeper</module>
