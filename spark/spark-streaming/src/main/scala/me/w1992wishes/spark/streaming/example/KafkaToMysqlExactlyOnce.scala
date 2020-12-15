@@ -1,4 +1,4 @@
-package me.w1992wishes.spark.streaming.example.simple
+package me.w1992wishes.spark.streaming.example
 
 import java.time.LocalDateTime
 import java.time.format.{DateTimeFormatter, DateTimeParseException}

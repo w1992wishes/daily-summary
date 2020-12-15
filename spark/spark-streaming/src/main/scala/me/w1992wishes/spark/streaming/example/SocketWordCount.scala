@@ -1,4 +1,4 @@
-package me.w1992wishes.spark.streaming.example.simple
+package me.w1992wishes.spark.streaming.example
 
 import org.apache.spark.sql.SparkSession
 
