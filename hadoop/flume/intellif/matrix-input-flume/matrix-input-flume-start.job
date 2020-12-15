@@ -1,0 +1,4 @@
+type=command
+dependencies=matrix-input-flume-stop
+# $1 bizCode
+command=bash shell/flume-start.sh matrix

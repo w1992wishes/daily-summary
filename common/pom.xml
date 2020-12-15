@@ -14,7 +14,43 @@
     <version>1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
+    <properties>
+        <spark.version>2.3.1</spark.version>
+        <scala.version>2.11.8</scala.version>
+        <mysql.jdbc.version>5.1.47</mysql.jdbc.version>
+        <arangodb-spark.version>1.0.8</arangodb-spark.version>
+    </properties>
+
     <dependencies>
+        <!-- db -->
+        <dependency>
+            <groupId>org.elasticsearch</groupId>
+            <artifactId>elasticsearch-spark-20_2.11</artifactId>
+            <version>6.5.4</version>
+        </dependency>
+        <dependency>
+            <groupId>postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>9.1-901-1.jdbc4</version>
+        </dependency>
+
+        <!-- spark -->
+        <dependency>
+            <groupId>com.arangodb</groupId>
+            <artifactId>arangodb-spark-connector</artifactId>
+            <version>${arangodb-spark.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.spark</groupId>
+            <artifactId>spark-core_2.11</artifactId>
+            <version>${spark.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.spark</groupId>
+            <artifactId>spark-sql_2.11</artifactId>
+            <version>${spark.version}</version>
+        </dependency>
+
         <!-- log -->
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
@@ -52,6 +88,11 @@
             <groupId>commons-dbcp</groupId>
             <artifactId>commons-dbcp</artifactId>
             <version>1.4</version>
+        </dependency>
+        <dependency>
+            <groupId>com.typesafe</groupId>
+            <artifactId>config</artifactId>
+            <version>1.3.1</version>
         </dependency>
 
         <dependency>

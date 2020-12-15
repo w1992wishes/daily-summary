@@ -2,7 +2,7 @@ package me.w1992wishes.spark.sql.hive
 
 import java.time.LocalDateTime
 
-import me.w1992wishes.common.util.DateUtils
+import me.w1992wishes.common.util.DateUtil
 import org.apache.spark.sql.functions.{col, udf}
 import org.apache.spark.sql.{DataFrame, SaveMode, SparkSession}
 
@@ -54,7 +54,7 @@ object SparkSqlToHive {
 
     print("创建数据库完成")
 
-    spark.sql(s"INSERT INTO TABLE t_sink_tables PARTITION(dt='${DateUtils.dateTimeToYMDStr(LocalDateTime.now())}') " +
+    spark.sql(s"INSERT INTO TABLE t_sink_tables PARTITION(dt='${DateUtil.dateTimeToYMDStr(LocalDateTime.now())}') " +
       s"SELECT sys_code, thumbnail_id, thumbnail_url, image_id, image_url, " +
       s"feature_info, algo_version, gender_info, age_info, hairstyle_info, " +
       s"hat_info, glasses_info, race_info, mask_info, skin_info, " +
@@ -79,7 +79,7 @@ object SparkSqlToHive {
       ).toArray
     }
 
-    val hiveDt = udf((str: String) => DateUtils.dateTimeToYMDStr(LocalDateTime.now()))
+    val hiveDt = udf((str: String) => DateUtil.dateTimeToYMDStr(LocalDateTime.now()))
 
     val condition = getParalleledCondition(partitions)
     // 并行处理

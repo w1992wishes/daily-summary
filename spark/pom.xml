@@ -19,6 +19,7 @@
         <module>spark-tuning</module>
         <module>spark-hive</module>
         <module>spark-es</module>
+        <module>spark-arangodb</module>
     </modules>
 
     <dependencies>

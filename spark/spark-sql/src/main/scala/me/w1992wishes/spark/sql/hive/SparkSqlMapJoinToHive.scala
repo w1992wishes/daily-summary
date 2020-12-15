@@ -3,7 +3,7 @@ package me.w1992wishes.spark.sql.hive
 import java.time.LocalDateTime
 
 import ch.hsr.geohash.GeoHash
-import me.w1992wishes.common.util.DateUtils
+import me.w1992wishes.common.util.DateUtil
 import org.apache.commons.lang3.StringUtils
 import org.apache.spark.sql.{DataFrame, SparkSession}
 import org.apache.spark.sql.functions.{col, udf}
@@ -39,7 +39,7 @@ class SparkSqlMapJoinToHive {
   }
 
   def getDataFromDB(spark: SparkSession, partitions: Int): DataFrame = {
-    val hiveDt = udf((str: String) => DateUtils.dateTimeToYMDStr(LocalDateTime.now()))
+    val hiveDt = udf((str: String) => DateUtil.dateTimeToYMDStr(LocalDateTime.now()))
 
     /**
       * 获取 spark 并行查询的条件数组
@@ -135,7 +135,7 @@ class SparkSqlMapJoinToHive {
     events_geohash.createOrReplaceTempView("event_geohash_table")
 
     spark.udf.register("nulltoDefault", nulltoDefault _)
-    spark.sql(s"INSERT INTO TABLE $sinkTable PARTITION(dt='${DateUtils.dateTimeToYMDStr(LocalDateTime.now())}') " +
+    spark.sql(s"INSERT INTO TABLE $sinkTable PARTITION(dt='${DateUtil.dateTimeToYMDStr(LocalDateTime.now())}') " +
       s"SELECT aid, sys_code, thumbnail_id, thumbnail_url, image_id, image_url, " +
       s"feature_info, algo_version, gender_info, age_info, hairstyle_info, " +
       s"hat_info, glasses_info, race_info, mask_info, skin_info, " +
