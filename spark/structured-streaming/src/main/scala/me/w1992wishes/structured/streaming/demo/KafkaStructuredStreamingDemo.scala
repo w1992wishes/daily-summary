@@ -1,6 +1,6 @@
 package me.w1992wishes.structured.streaming.demo
 
-import me.w1992wishes.structured.streaming.sink.JDBCSink
+import me.w1992wishes.structured.streaming.demo.sink.JDBCSink
 import org.apache.spark.sql.streaming.{OutputMode, Trigger}
 import org.apache.spark.sql.types._
 import org.apache.spark.sql._

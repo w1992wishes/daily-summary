@@ -1,4 +1,4 @@
-package me.w1992wishes.structured.streaming.sink
+package me.w1992wishes.structured.streaming.demo.sink
 
 import java.sql._
 

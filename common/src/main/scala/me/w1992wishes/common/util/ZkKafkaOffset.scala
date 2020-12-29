@@ -44,6 +44,22 @@ class ZkKafkaOffset(getClient: () => ZkClient, getZkRoot: () => String) extends 
     initOffsetMap
   }
 
+  def getOffset(topics: String, groupId: String): Map[TopicPartition, Long] = {
+    val zkRoot = s"/StructuredStream/offset/${Md5.hashMD5(topics.mkString(",") + groupId)}"
+    val keys = zkClient.getChildren(zkRoot)
+    var initOffsetMap: Map[TopicPartition, Long] = Map()
+    if (!keys.isEmpty) {
+      for (k: String <- keys.asScala) {
+        val ks = k.split("!")
+        //zkClient.writeData(zkRoot + "/" + k, 354605L)
+        val value: Long = zkClient.readData(zkRoot + "/" + k)
+        println(s"****** [get] Topic $ks , Offset $value ******")
+        initOffsetMap += (new TopicPartition(ks(0), Integer.parseInt(ks(1))) -> value)
+      }
+    }
+    initOffsetMap
+  }
+
   // 根据单条消息，更新偏移量信息
   def updateOffset(consumeRecord: ConsumerRecord[String, String]): Boolean = {
     val path = zkRoot + "/" + consumeRecord.topic + "!" + consumeRecord.partition
@@ -87,15 +103,9 @@ class ZkKafkaOffset(getClient: () => ZkClient, getZkRoot: () => String) extends 
 }
 
 object ZkKafkaOffset {
-  def apply(cong: SparkConf, offsetId: String): ZkKafkaOffset = {
-    val getClient = () => {
-      val zkHost = cong.get("kafka.zk.hosts", "127.0.0.1:2181")
-      new ZkClient(zkHost, 30000)
-    }
-    val getZkRoot = () => {
-      val zkRoot = "/kafka/streaming/offset/" + offsetId
-      zkRoot
-    }
+  def apply(zkUrls: String, topics: String, groupId: String): ZkKafkaOffset = {
+    val getClient = () => new ZkClient(zkUrls, 30000)
+    val getZkRoot = () => s"/StructuredStream/offset/${Md5.hashMD5(topics.mkString(",") + groupId)}"
     val zkKafkaOffset = new ZkKafkaOffset(getClient, getZkRoot)
     zkKafkaOffset.initOffset()
     zkKafkaOffset
