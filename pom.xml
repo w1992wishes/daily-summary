@@ -37,6 +37,7 @@
         <module>elasticsearch</module>
         <module>flink</module>
         <module>phoenix</module>
+        <module>input</module>
     </modules>
 
     <repositories>
