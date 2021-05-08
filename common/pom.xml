@@ -15,7 +15,7 @@
     <packaging>jar</packaging>
 
     <properties>
-        <spark.version>[2.3.3,)</spark.version>
+        <spark.version>2.3.1</spark.version>
         <scala.version>2.11.8</scala.version>
         <mysql.jdbc.version>5.1.47</mysql.jdbc.version>
         <arangodb-spark.version>1.0.8</arangodb-spark.version>
@@ -65,22 +65,22 @@
         <dependency>
             <groupId>org.apache.spark</groupId>
             <artifactId>spark-core_2.11</artifactId>
-            <version>${spark.version}</version>
+            <version>2.3.3</version>
         </dependency>
         <dependency>
             <groupId>org.apache.spark</groupId>
             <artifactId>spark-sql_2.11</artifactId>
-            <version>${spark.version}</version>
+            <version>2.3.3</version>
         </dependency>
         <dependency>
             <groupId>org.apache.spark</groupId>
             <artifactId>spark-streaming_2.11</artifactId>
-            <version>${spark.version}</version>
+            <version>2.3.3</version>
         </dependency>
         <dependency>
             <groupId>org.apache.spark</groupId>
             <artifactId>spark-streaming-kafka-0-10_2.11</artifactId>
-            <version>${spark.version}</version>
+            <version>2.3.3</version>
         </dependency>
 
         <!-- log -->
