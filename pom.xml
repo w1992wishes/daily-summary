@@ -38,7 +38,6 @@
         <module>flink</module>
         <module>phoenix</module>
         <module>input</module>
-        <module>leet-code/daily-code</module>
     </modules>
 
     <repositories>
