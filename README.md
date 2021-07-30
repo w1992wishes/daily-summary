@@ -1,7 +1,5 @@
 # daily-summary
 
-学习新技术过程的demo，也有常用工具总结...
-
 ## 目录
 
 * [通用常备](common)
