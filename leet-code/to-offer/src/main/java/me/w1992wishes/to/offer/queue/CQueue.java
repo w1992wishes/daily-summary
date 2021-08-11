@@ -1,4 +1,4 @@
-package me.w1992wishes.to.offer.day1;
+package me.w1992wishes.to.offer.queue;
 
 import java.util.ArrayDeque;
 import java.util.Deque;
