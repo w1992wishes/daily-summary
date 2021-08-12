@@ -31,7 +31,7 @@ class MyJdbcSink() extends RichSinkFunction[SensorReading] {
   var insertStmt: PreparedStatement = _
   var updateStmt: PreparedStatement = _
 
-  override def invoke(value: SensorReading, context: SinkFunction.Context[_]): Unit = {
+  override def invoke(value: SensorReading, context: SinkFunction.Context): Unit = {
     updateStmt.setDouble(1, value.temp)
     updateStmt.setString(2, value.id)
     updateStmt.execute()
