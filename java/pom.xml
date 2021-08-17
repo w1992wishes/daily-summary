@@ -15,6 +15,7 @@
         <module>jvm</module>
         <module>concurrency</module>
         <module>log</module>
+        <module>web</module>
     </modules>
 
 
