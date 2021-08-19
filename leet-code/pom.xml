@@ -12,9 +12,8 @@
     <artifactId>leet-code</artifactId>
     <packaging>pom</packaging>
     <modules>
-        <module>easy-collection</module>
         <module>binary-tree</module>
-        <module>database</module>
+        <module>sql</module>
         <module>to-offer</module>
     </modules>
 
