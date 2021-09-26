@@ -1,0 +1,14 @@
+{
+  "version": "1.0",
+  "defaultSchema": "SALES",
+  "schemas": [
+    {
+      "name": "SALES",
+      "type": "custom",
+      "factory": "me.w1992wishes.calcite.csv.CsvSchemaFactory",
+      "operand": {
+        "dataFile": "SDEPTS.csv"
+      }
+    }
+  ]
+}

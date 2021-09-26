@@ -39,6 +39,7 @@
         <module>phoenix</module>
         <module>input</module>
         <module>third-tool</module>
+        <module>calcite</module>
     </modules>
 
     <repositories>
