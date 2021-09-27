@@ -15,17 +15,16 @@ import org.apache.calcite.util.Pair;
 import org.apache.calcite.util.Source;
 
 import java.io.BufferedReader;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 public class CsvTable extends AbstractTable implements ScannableTable {
-    private Source source;
+    private final Source source;
 
     public CsvTable(Source source) {
         this.source = source;
-
     }
 
     /**
@@ -46,9 +45,6 @@ public class CsvTable extends AbstractTable implements ScannableTable {
                 names.add(name);
                 types.add(typeFactory.createSqlType(SqlTypeName.get(type)));
             });
-
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -58,10 +54,10 @@ public class CsvTable extends AbstractTable implements ScannableTable {
 
     @Override
 
-    public Enumerable scan(DataContext dataContext) {
-        return new AbstractEnumerable() {
+    public Enumerable<Object[]> scan(DataContext dataContext) {
+        return new AbstractEnumerable<>() {
             @Override
-            public Enumerator enumerator() {
+            public Enumerator<Object[]> enumerator() {
                 return new CsvEnumerator<>(source);
             }
         };

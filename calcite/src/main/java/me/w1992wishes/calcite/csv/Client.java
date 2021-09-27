@@ -6,9 +6,11 @@ import com.google.common.collect.Maps;
 
 import java.net.URL;
 import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.sql.*;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Properties;
 
 
@@ -23,7 +25,7 @@ public class Client {
 
             // 用文件的方式
             URL url = Client.class.getResource("/model.json");
-            String str = URLDecoder.decode(url.toString(), "UTF-8");
+            String str = URLDecoder.decode(Objects.requireNonNull(url).toString(), StandardCharsets.UTF_8);
             Properties info = new Properties();
             info.put("model", str.replace("file:", ""));
             Connection connection = DriverManager.getConnection("jdbc:calcite:", info);
@@ -44,9 +46,6 @@ public class Client {
 
     /**
      * CSV文件读取
-     *
-     * @param statement
-     * @throws Exception
      */
     public static void test1(Statement statement) throws Exception {
         ResultSet resultSet = statement.executeQuery("select * from sales.SDEPTS");

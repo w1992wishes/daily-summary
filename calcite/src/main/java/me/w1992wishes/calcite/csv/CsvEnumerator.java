@@ -6,7 +6,7 @@ import org.apache.calcite.util.Source;
 import java.io.BufferedReader;
 import java.io.IOException;
 
-public class CsvEnumerator <E> implements Enumerator<E> {
+public class CsvEnumerator<E> implements Enumerator<E> {
 
     private E current;
 
@@ -27,13 +27,14 @@ public class CsvEnumerator <E> implements Enumerator<E> {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public boolean moveNext() {
         try {
             String line = br.readLine();
-            if(line == null){
+            if (line == null) {
                 return false;
             }
-            current = (E)line.split(",");    // 如果是多列，这里要多个值
+            current = (E) line.split(",");    // 如果是多列，这里要多个值
         } catch (IOException e) {
             e.printStackTrace();
             return false;
@@ -43,7 +44,7 @@ public class CsvEnumerator <E> implements Enumerator<E> {
 
     /**
      * 出现异常走这里
-     * */
+     */
     @Override
     public void reset() {
         System.out.println("报错了兄弟，不支持此操作");
@@ -51,7 +52,7 @@ public class CsvEnumerator <E> implements Enumerator<E> {
 
     /**
      * InputStream流在这里关闭
-     * */
+     */
     @Override
     public void close() {
 
