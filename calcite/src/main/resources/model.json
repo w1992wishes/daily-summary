@@ -1,13 +1,34 @@
 {
   "version": "1.0",
-  "defaultSchema": "SALES",
+  "defaultSchema": "TEST_CSV",
   "schemas": [
     {
-      "name": "SALES",
+      "name": "TEST_CSV",
       "type": "custom",
       "factory": "me.w1992wishes.calcite.csv.CsvSchemaFactory",
       "operand": {
-        "dataFile": "SDEPTS.csv"
+        "dataFile": "TEST01.csv"
+      }
+    },
+    {
+      "name": "TEST_MEM",
+      "type": "custom",
+      "factory": "me.w1992wishes.calcite.memory.MemSchemaFactory",
+      "operand": {
+        "MEM_TABLE_1": [
+          {
+            "ID": 0,
+            "MEM_STR": "str0"
+          },
+          {
+            "ID": 1,
+            "MEM_STR": "str1"
+          },
+          {
+            "ID": 2,
+            "MEM_STR": "str2"
+          }
+        ]
       }
     }
   ]

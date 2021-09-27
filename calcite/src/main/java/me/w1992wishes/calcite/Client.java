@@ -1,4 +1,4 @@
-package me.w1992wishes.calcite.csv;
+package me.w1992wishes.calcite;
 
 import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Lists;
@@ -10,7 +10,6 @@ import java.nio.charset.StandardCharsets;
 import java.sql.*;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Properties;
 
 
@@ -24,9 +23,10 @@ public class Client {
         try {
 
             // 用文件的方式
-            URL url = Client.class.getResource("/model.json");
-            String str = URLDecoder.decode(Objects.requireNonNull(url).toString(), StandardCharsets.UTF_8);
-            Properties info = new Properties();
+            var url = Client.class.getResource("/model.json");
+            assert url != null;
+            var str = URLDecoder.decode(url.toString(), StandardCharsets.UTF_8);
+            var info = new Properties();
             info.put("model", str.replace("file:", ""));
             Connection connection = DriverManager.getConnection("jdbc:calcite:", info);
 
@@ -35,14 +35,11 @@ public class Client {
 //            Connection connection = DriverManager.getConnection("jdbc:calcite:model=inline:" + model);
 
             Statement statement = connection.createStatement();
-
-            test1(statement);
-
+            test2(statement);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
-
 
     /**
      * CSV文件读取
@@ -50,6 +47,14 @@ public class Client {
     public static void test1(Statement statement) throws Exception {
         ResultSet resultSet = statement.executeQuery("select * from test_csv.TEST01");
         System.out.println(JSON.toJSONString(getData(resultSet)));
+    }
+
+    /**
+     * CSV文件与内存文件关联读取
+     */
+    public static void test2(Statement statement) throws Exception {
+        ResultSet resultSet1 = statement.executeQuery("select csv1.id as cid,csv1.name1 as cname ,mem1.id as mid,mem1.mem_str as mstr from test_csv.TEST01 as csv1 left join test_mem.mem_table_1 as mem1 on csv1.id = mem1.id");
+        System.out.println(JSON.toJSONString(getData(resultSet1)));
     }
 
     public static List<Map<String, Object>> getData(ResultSet resultSet) throws Exception {
@@ -60,6 +65,7 @@ public class Client {
         while (resultSet.next()) {
             Map<String, Object> map = Maps.newLinkedHashMap();
             for (int i = 1; i < columnSize + 1; i++) {
+
                 map.put(metaData.getColumnLabel(i), resultSet.getObject(i));
             }
             list.add(map);
@@ -67,3 +73,4 @@ public class Client {
         return list;
     }
 }
+ 

@@ -14,7 +14,7 @@ public class CsvSchemaFactory implements SchemaFactory {
      * operand 也是在mode中定义的，是Map类型，用于传入自定义参数。
      */
     @Override
-    public Schema create(SchemaPlus parentSchema, String name, Map operand) {
+    public Schema create(SchemaPlus parentSchema, String name, Map<String, Object> operand) {
         return new CsvSchema(String.valueOf(operand.get("dataFile")));
     }
 }
