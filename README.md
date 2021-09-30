@@ -103,6 +103,7 @@
         * [Hive 优化小结](hadoop/document/hive/Hive-optimization.md)
     * [Flume](hadoop/flume)
         * [Flume 启动关闭脚本](hadoop/flume/script/executeFlume.sh)
+* [Calcite](calcite)    
 * [ES](elasticsearch/README.md)
     * [ElasticSearch 安装](elasticsearch/document/ESInstall.md)
     * [ElasticSearch 入门使用](elasticsearch/document/ESStarted.md)
