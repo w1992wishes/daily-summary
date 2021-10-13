@@ -10,7 +10,7 @@ public class SumOneToN {
      *
      * 可以使用逻辑运算 && 的短路操作
      */
-    private int sum(int n){
+    public int sum(int n){
         // 递归调用时当 n <= 0 时即可跳出
         boolean bo = n > 0 && (n += sum(n-1)) > 0;
         return n;
