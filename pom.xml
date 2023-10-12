@@ -39,6 +39,8 @@
         <module>input</module>
         <module>third-tool</module>
         <module>calcite</module>
+        <module>calcite/calcite-lineage</module>
+        <module>antlr4</module>
     </modules>
 
     <repositories>
